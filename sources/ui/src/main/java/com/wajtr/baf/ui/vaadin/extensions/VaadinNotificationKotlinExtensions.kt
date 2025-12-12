@@ -50,7 +50,7 @@ fun showErrorNotification(message: String) {
 
             button(i18n("common.close")) {
                 addThemeVariants(ButtonVariant.LUMO_ERROR)
-                onLeftClick {
+                onClick {
                     this@apply.close()
                 }
                 alignSelf = FlexComponent.Alignment.CENTER
