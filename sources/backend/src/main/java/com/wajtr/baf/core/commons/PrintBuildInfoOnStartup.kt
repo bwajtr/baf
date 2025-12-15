@@ -1,4 +1,4 @@
-package com.wajtr.baf.core.shared
+package com.wajtr.baf.core.commons
 
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner

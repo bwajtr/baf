@@ -1,5 +1,6 @@
-package com.wajtr.baf.ui.security
+package com.wajtr.baf.ui.auth
 
+import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer.vaadin
 import org.springframework.context.annotation.Bean
@@ -14,22 +15,30 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 
 @Configuration
 @EnableWebSecurity
-class FrontendConfiguration {
+class FrontendSecurityConfiguration {
 
     @Bean
     fun vaadinSecurityFilterChain(
         http: HttpSecurity,
-        clientRegistrationRepository: ClientRegistrationRepository
+        clientRegistrationRepository: ClientRegistrationRepository,
+        authSuccessHandler: FrontendOAuth2AuthenticationSuccessHandler
     ): SecurityFilterChain {
         val loginRoute = "/oauth2/authorization/keycloak"
         val logoutSuccessHandler = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository)
         logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}")
 
+        http.setSharedObject(VaadinSavedRequestAwareAuthenticationSuccessHandler::class.java, authSuccessHandler)
         http.with(vaadin()) { vaadin: VaadinSecurityConfigurer ->
             vaadin
                 .oauth2LoginPage(loginRoute)
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .enableExceptionHandlingConfiguration(false)
+        }
+
+        // Configure OAuth2 login with custom user service and success handler
+        http.oauth2Login { oauth2 ->
+            oauth2
+                .successHandler(authSuccessHandler)
         }
 
         http.exceptionHandling { exceptionHandling: ExceptionHandlingConfigurer<HttpSecurity> ->

@@ -123,6 +123,7 @@
                     <url>${db.jdbc-url}</url>
                     <user>${db.username}</user>
                     <password>${db.password}</password>
+                    <cleanDisabled>false</cleanDisabled>
                 </configuration>
             </plugin>
 
