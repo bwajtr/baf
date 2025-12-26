@@ -4,15 +4,24 @@
 package com.wajtr.baf.db.jooq;
 
 
+import com.wajtr.baf.db.jooq.tables.AppUser;
+import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
+import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant;
+import com.wajtr.baf.db.jooq.tables.AuthenticateUser;
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory;
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses;
 import com.wajtr.baf.db.jooq.tables.Product;
 import com.wajtr.baf.db.jooq.tables.Tenant;
+import com.wajtr.baf.db.jooq.tables.UserLoginLog;
+import com.wajtr.baf.db.jooq.tables.records.AuthenticateUserRecord;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.jooq.Catalog;
+import org.jooq.Configuration;
+import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SchemaImpl;
@@ -30,6 +39,71 @@ public class Public extends SchemaImpl {
      * The reference instance of <code>public</code>
      */
     public static final Public PUBLIC = new Public();
+
+    /**
+     * The table <code>public.app_user</code>.
+     */
+    public final AppUser APP_USER = AppUser.APP_USER;
+
+    /**
+     * Table holding invitations to join tenant accounts (created typically by
+     * user administrators)
+     */
+    public final AppUserInvitation APP_USER_INVITATION = AppUserInvitation.APP_USER_INVITATION;
+
+    /**
+     * Contains relation between application users and their roles in tenant.
+     * Any role can be assigned to any user. User therefore can have many roles
+     * and one role can be assigned to multiple users. Having tenant_id in this
+     * table also makes it possible to support scenario, where single user
+     * operates within two tenants and has different roles in each tenant.
+     */
+    public final AppUserRoleTenant APP_USER_ROLE_TENANT = AppUserRoleTenant.APP_USER_ROLE_TENANT;
+
+    /**
+     * The table <code>public.authenticate_user</code>.
+     */
+    public final AuthenticateUser AUTHENTICATE_USER = AuthenticateUser.AUTHENTICATE_USER;
+
+    /**
+     * Call <code>public.authenticate_user</code>.
+     */
+    public static Result<AuthenticateUserRecord> AUTHENTICATE_USER(
+          Configuration configuration
+        , String pEmail
+        , String pPassword
+    ) {
+        return configuration.dsl().selectFrom(com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+              pEmail
+            , pPassword
+        )).fetch();
+    }
+
+    /**
+     * Get <code>public.authenticate_user</code> as a table.
+     */
+    public static AuthenticateUser AUTHENTICATE_USER(
+          String pEmail
+        , String pPassword
+    ) {
+        return com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+            pEmail,
+            pPassword
+        );
+    }
+
+    /**
+     * Get <code>public.authenticate_user</code> as a table.
+     */
+    public static AuthenticateUser AUTHENTICATE_USER(
+          Field<String> pEmail
+        , Field<String> pPassword
+    ) {
+        return com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+            pEmail,
+            pPassword
+        );
+    }
 
     /**
      * The table <code>public.flyway_schema_history</code>.
@@ -55,6 +129,12 @@ public class Public extends SchemaImpl {
     public final Tenant TENANT = Tenant.TENANT;
 
     /**
+     * Table holding user login events - new record with a timestamp is added to
+     * this table when any user successfully logs into the application.
+     */
+    public final UserLoginLog USER_LOGIN_LOG = UserLoginLog.USER_LOGIN_LOG;
+
+    /**
      * No further instances allowed
      */
     private Public() {
@@ -70,10 +150,15 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            AppUser.APP_USER,
+            AppUserInvitation.APP_USER_INVITATION,
+            AppUserRoleTenant.APP_USER_ROLE_TENANT,
+            AuthenticateUser.AUTHENTICATE_USER,
             FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY,
             PgBlockingProcesses.PG_BLOCKING_PROCESSES,
             Product.PRODUCT,
-            Tenant.TENANT
+            Tenant.TENANT,
+            UserLoginLog.USER_LOGIN_LOG
         );
     }
 }

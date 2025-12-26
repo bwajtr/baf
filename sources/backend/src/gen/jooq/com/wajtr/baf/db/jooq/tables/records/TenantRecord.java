@@ -6,6 +6,7 @@ package com.wajtr.baf.db.jooq.tables.records;
 
 import com.wajtr.baf.db.jooq.tables.Tenant;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.jooq.Record1;
@@ -92,9 +93,8 @@ public class TenantRecord extends UpdatableRecordImpl<TenantRecord> {
 
     /**
      * Setter for <code>public.tenant.setup_required</code>. If set to true then
-     * a setup screen is displayed to the Company Administrator when the
-     * application is run. Used for basic application setup and filling the
-     * mandatory fields.
+     * a setup screen is displayed to the Administrator when the application is
+     * run. Used for basic application setup and filling the mandatory fields.
      */
     public void setSetupRequired(Boolean value) {
         set(4, value);
@@ -102,12 +102,25 @@ public class TenantRecord extends UpdatableRecordImpl<TenantRecord> {
 
     /**
      * Getter for <code>public.tenant.setup_required</code>. If set to true then
-     * a setup screen is displayed to the Company Administrator when the
-     * application is run. Used for basic application setup and filling the
-     * mandatory fields.
+     * a setup screen is displayed to the Administrator when the application is
+     * run. Used for basic application setup and filling the mandatory fields.
      */
     public Boolean getSetupRequired() {
         return (Boolean) get(4);
+    }
+
+    /**
+     * Setter for <code>public.tenant.created_at</code>.
+     */
+    public void setCreatedAt(OffsetDateTime value) {
+        set(5, value);
+    }
+
+    /**
+     * Getter for <code>public.tenant.created_at</code>.
+     */
+    public OffsetDateTime getCreatedAt() {
+        return (OffsetDateTime) get(5);
     }
 
     // -------------------------------------------------------------------------
@@ -133,7 +146,7 @@ public class TenantRecord extends UpdatableRecordImpl<TenantRecord> {
     /**
      * Create a detached, initialised TenantRecord
      */
-    public TenantRecord(UUID id, String organizationName, String organizationAddress, String organizationCountryCode, Boolean setupRequired) {
+    public TenantRecord(UUID id, String organizationName, String organizationAddress, String organizationCountryCode, Boolean setupRequired, OffsetDateTime createdAt) {
         super(Tenant.TENANT);
 
         setId(id);
@@ -141,6 +154,7 @@ public class TenantRecord extends UpdatableRecordImpl<TenantRecord> {
         setOrganizationAddress(organizationAddress);
         setOrganizationCountryCode(organizationCountryCode);
         setSetupRequired(setupRequired);
+        setCreatedAt(createdAt);
         resetTouchedOnNotNull();
     }
 }

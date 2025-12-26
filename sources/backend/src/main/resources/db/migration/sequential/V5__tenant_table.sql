@@ -4,7 +4,8 @@ CREATE TABLE tenant (
   organization_name TEXT NOT NULL CHECK (trim(organization_name) != '' OR setup_required),
   organization_address TEXT,
   organization_country_code TEXT CHECK (char_length(organization_country_code) = 2 AND UPPER(organization_country_code) = organization_country_code),
-  setup_required BOOLEAN NOT NULL DEFAULT TRUE
+  setup_required BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE tenant IS 'Represents a tenant (company) of the application. Almost everything in database is bound to a tenant. One tenant cannot see data of other tenants. It''s a way how to have multiple customers inside single database schema';

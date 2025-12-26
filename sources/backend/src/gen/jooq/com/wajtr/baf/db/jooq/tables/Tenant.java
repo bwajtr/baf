@@ -6,9 +6,12 @@ package com.wajtr.baf.db.jooq.tables;
 
 import com.wajtr.baf.db.jooq.Keys;
 import com.wajtr.baf.db.jooq.Public;
+import com.wajtr.baf.db.jooq.tables.AppUserInvitation.AppUserInvitationPath;
+import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant.AppUserRoleTenantPath;
 import com.wajtr.baf.db.jooq.tables.Product.ProductPath;
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -89,11 +92,15 @@ public class Tenant extends TableImpl<TenantRecord> {
 
     /**
      * The column <code>public.tenant.setup_required</code>. If set to true then
-     * a setup screen is displayed to the Company Administrator when the
-     * application is run. Used for basic application setup and filling the
-     * mandatory fields.
+     * a setup screen is displayed to the Administrator when the application is
+     * run. Used for basic application setup and filling the mandatory fields.
      */
-    public final TableField<TenantRecord, Boolean> SETUP_REQUIRED = createField(DSL.name("setup_required"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "If set to true then a setup screen is displayed to the Company Administrator when the application is run. Used for basic application setup and filling the mandatory fields.");
+    public final TableField<TenantRecord, Boolean> SETUP_REQUIRED = createField(DSL.name("setup_required"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "If set to true then a setup screen is displayed to the Administrator when the application is run. Used for basic application setup and filling the mandatory fields.");
+
+    /**
+     * The column <code>public.tenant.created_at</code>.
+     */
+    public final TableField<TenantRecord, OffsetDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
 
     private Tenant(Name alias, Table<TenantRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -165,6 +172,32 @@ public class Tenant extends TableImpl<TenantRecord> {
     @Override
     public UniqueKey<TenantRecord> getPrimaryKey() {
         return Keys.TENANT_PKEY;
+    }
+
+    private transient AppUserInvitationPath _appUserInvitation;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.app_user_invitation</code> table
+     */
+    public AppUserInvitationPath appUserInvitation() {
+        if (_appUserInvitation == null)
+            _appUserInvitation = new AppUserInvitationPath(this, null, Keys.APP_USER_INVITATION__APP_USER_INVITATION_TENANT_ID_FKEY.getInverseKey());
+
+        return _appUserInvitation;
+    }
+
+    private transient AppUserRoleTenantPath _appUserRoleTenant;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.app_user_role_tenant</code> table
+     */
+    public AppUserRoleTenantPath appUserRoleTenant() {
+        if (_appUserRoleTenant == null)
+            _appUserRoleTenant = new AppUserRoleTenantPath(this, null, Keys.APP_USER_ROLE_TENANT__APP_USER_ROLE_TENANT_TENANT_ID_FKEY.getInverseKey());
+
+        return _appUserRoleTenant;
     }
 
     private transient ProductPath _product;

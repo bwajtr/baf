@@ -16,10 +16,10 @@ CREATE DATABASE primarydb WITH OWNER=dbadmin
 \connect primarydb
 
 -- create ext_pgcrypto schema (with owner dbadmin) and add pgcrypto module to it
--- CREATE SCHEMA ext_pgcrypto AUTHORIZATION dbadmin;
--- CREATE EXTENSION pgcrypto SCHEMA ext_pgcrypto; -- We will need the pgcrypto module for passwords
--- GRANT USAGE ON SCHEMA ext_pgcrypto to dbuser; -- Grant usage also to the dbuser
--- GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA ext_pgcrypto TO dbuser;
+CREATE SCHEMA ext_pgcrypto AUTHORIZATION dbadmin;
+CREATE EXTENSION pgcrypto SCHEMA ext_pgcrypto; -- We will need the pgcrypto module for passwords and hashing
+GRANT USAGE ON SCHEMA ext_pgcrypto to dbuser; -- Grant usage also to the dbuser
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA ext_pgcrypto TO dbuser;
 
 -- create btree_gist schema (with owner dbadmin) and add btree_gist extension to it
 CREATE SCHEMA btree_gist AUTHORIZATION dbadmin;

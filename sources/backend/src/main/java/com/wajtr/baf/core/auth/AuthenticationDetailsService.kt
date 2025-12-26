@@ -40,7 +40,7 @@ class AuthenticationDetailsService(
         // For now, return a default implementation for development
         // Replace this with actual database queries
         return AuthenticationDetails(
-            tenant = AuthenticatedTenant(UUID.fromString("2dcab49d-8807-4888-bb69-2afd663e2743")), // developer_tenant_id
+            tenant = AuthenticatedTenant(UUID.fromString("019b25f2-3cc6-761c-9e6e-1c0d279bfd30")), // developer_tenant_1_id
             user = AuthenticatedUser(UUID.randomUUID(), email, "Random Name"),
             roles = if (email == "user@gmail.com")
                 setOf(SimpleGrantedAuthority("ROLE_" + USER_MANAGER_ROLE))

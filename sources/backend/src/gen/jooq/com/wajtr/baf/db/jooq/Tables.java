@@ -4,10 +4,20 @@
 package com.wajtr.baf.db.jooq;
 
 
+import com.wajtr.baf.db.jooq.tables.AppUser;
+import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
+import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant;
+import com.wajtr.baf.db.jooq.tables.AuthenticateUser;
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory;
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses;
 import com.wajtr.baf.db.jooq.tables.Product;
 import com.wajtr.baf.db.jooq.tables.Tenant;
+import com.wajtr.baf.db.jooq.tables.UserLoginLog;
+import com.wajtr.baf.db.jooq.tables.records.AuthenticateUserRecord;
+
+import org.jooq.Configuration;
+import org.jooq.Field;
+import org.jooq.Result;
 
 
 /**
@@ -15,6 +25,71 @@ import com.wajtr.baf.db.jooq.tables.Tenant;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
+
+    /**
+     * The table <code>public.app_user</code>.
+     */
+    public static final AppUser APP_USER = AppUser.APP_USER;
+
+    /**
+     * Table holding invitations to join tenant accounts (created typically by
+     * user administrators)
+     */
+    public static final AppUserInvitation APP_USER_INVITATION = AppUserInvitation.APP_USER_INVITATION;
+
+    /**
+     * Contains relation between application users and their roles in tenant.
+     * Any role can be assigned to any user. User therefore can have many roles
+     * and one role can be assigned to multiple users. Having tenant_id in this
+     * table also makes it possible to support scenario, where single user
+     * operates within two tenants and has different roles in each tenant.
+     */
+    public static final AppUserRoleTenant APP_USER_ROLE_TENANT = AppUserRoleTenant.APP_USER_ROLE_TENANT;
+
+    /**
+     * The table <code>public.authenticate_user</code>.
+     */
+    public static final AuthenticateUser AUTHENTICATE_USER = AuthenticateUser.AUTHENTICATE_USER;
+
+    /**
+     * Call <code>public.authenticate_user</code>.
+     */
+    public static Result<AuthenticateUserRecord> AUTHENTICATE_USER(
+          Configuration configuration
+        , String pEmail
+        , String pPassword
+    ) {
+        return configuration.dsl().selectFrom(com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+              pEmail
+            , pPassword
+        )).fetch();
+    }
+
+    /**
+     * Get <code>public.authenticate_user</code> as a table.
+     */
+    public static AuthenticateUser AUTHENTICATE_USER(
+          String pEmail
+        , String pPassword
+    ) {
+        return com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+            pEmail,
+            pPassword
+        );
+    }
+
+    /**
+     * Get <code>public.authenticate_user</code> as a table.
+     */
+    public static AuthenticateUser AUTHENTICATE_USER(
+          Field<String> pEmail
+        , Field<String> pPassword
+    ) {
+        return com.wajtr.baf.db.jooq.tables.AuthenticateUser.AUTHENTICATE_USER.call(
+            pEmail,
+            pPassword
+        );
+    }
 
     /**
      * The table <code>public.flyway_schema_history</code>.
@@ -38,4 +113,10 @@ public class Tables {
      * schema
      */
     public static final Tenant TENANT = Tenant.TENANT;
+
+    /**
+     * Table holding user login events - new record with a timestamp is added to
+     * this table when any user successfully logs into the application.
+     */
+    public static final UserLoginLog USER_LOGIN_LOG = UserLoginLog.USER_LOGIN_LOG;
 }
