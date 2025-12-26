@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.features.administration
+package com.wajtr.baf.ui.views.administration
 
 import com.github.mvysny.karibudsl.v10.h2
 import com.vaadin.flow.router.Route
