@@ -1,8 +1,9 @@
 package com.wajtr.baf.core
 
-import com.wajtr.baf.core.auth.Identity
 import com.wajtr.baf.core.datasource.ContextAwareTransactionManager
+import com.wajtr.baf.user.Identity
 import org.springframework.boot.context.event.ApplicationStartedEvent
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.SchedulingConfiguration
 @Import(
     value = [DataSourceConfiguration::class, CacheConfiguration::class, I18nConfiguration::class, SpringMvcConfiguration::class, SchedulingConfiguration::class]
 )
+@EnableConfigurationProperties(ApplicationProperties::class)
 class CoreConfiguration(
     private val transactionManager: ContextAwareTransactionManager,
     private val identity: Identity
@@ -26,7 +28,7 @@ class CoreConfiguration(
     @Suppress("unused")
     fun afterApplicationStarted(event: ApplicationStartedEvent?) {
         transactionManager.setTransactionContextProperty("session.tenant.id") {
-            identity.authenticatedTenant.id.toString()
+            identity.authenticatedTenant?.id.toString()
         }
     }
 }

@@ -1,8 +1,8 @@
-package com.wajtr.baf.ui.auth
+package com.wajtr.baf.ui.security
 
 import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler
-import com.wajtr.baf.core.auth.AuthenticationDetailsService
-import com.wajtr.baf.core.auth.token.CoreOAuth2AuthenticationToken
+import com.wajtr.baf.authentication.AuthenticationDetailsService
+import com.wajtr.baf.authentication.oauth2.CoreOAuth2AuthenticationToken
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
  * Custom authentication success handler that replaces the OAuth2AuthenticationToken
  * with our custom CoreOAuth2AuthenticationToken containing database-loaded user details, user roles
  * and tenant information.
- * 
+ *
  * @author Bretislav Wajtr
  */
 @Component
@@ -36,25 +36,23 @@ class FrontendOAuth2AuthenticationSuccessHandler(
             if (email != null) {
                 // Load user details from database
                 val dbDetails = authenticationDetailsService.loadAuthenticationDetails(email)
-                if (dbDetails != null) {
-                    // Combine OAuth2 authorities with database roles
-                    val combinedAuthorities = mutableSetOf(
-                        *authentication.authorities.toTypedArray(),
-                        *dbDetails.roles.toTypedArray()
-                    )
+                // Combine OAuth2 authorities with database roles
+                val combinedAuthorities = mutableSetOf(
+                    *authentication.authorities.toTypedArray(),
+                    *dbDetails.roles.toTypedArray()
+                )
 
-                    // Create our custom authentication token
-                    val customAuth = CoreOAuth2AuthenticationToken(
-                        oauth2User,
-                        combinedAuthorities,
-                        authentication.authorizedClientRegistrationId,
-                        dbDetails.user,
-                        dbDetails.tenant
-                    )
+                // Create our custom authentication token
+                val customAuth = CoreOAuth2AuthenticationToken(
+                    oauth2User,
+                    combinedAuthorities,
+                    authentication.authorizedClientRegistrationId,
+                    dbDetails.user,
+                    dbDetails.tenant
+                )
 
-                    // Replace the authentication in the auth context
-                    SecurityContextHolder.getContext().authentication = customAuth
-                }
+                // Replace the authentication in the auth context
+                SecurityContextHolder.getContext().authentication = customAuth
             }
         }
 

@@ -11,10 +11,12 @@ import java.util.*
  */
 @Configuration
 class I18nConfiguration {
+
     @Bean
     fun localeResolver(): LocaleResolver {
         val sessionLocaleResolver = SessionLocaleResolver()
-        sessionLocaleResolver.setDefaultTimeZone(TimeZone.getDefault()) // default is usually set in ApplicationMain.kt, just before Spring starts
+        sessionLocaleResolver.defaultTimeZone = TimeZone.getDefault() // default is usually set in ApplicationMain.kt, just before Spring starts
         return sessionLocaleResolver
     }
+
 }

@@ -20,6 +20,18 @@ services:
       - keycloak_data:/opt/keycloak/data
     command:
       - 'start-dev'
-
+  keycloak-config:
+    image: adorsys/keycloak-config-cli:latest-26
+    depends_on:
+      - keycloak
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080/
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: "true"
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: "15s"
+      IMPORT_FILES_LOCATIONS: "/config/*"
+    volumes:
+      - ./keycloak/realm-config.json:/config/realm-config.json:ro
 volumes:
   keycloak_data:

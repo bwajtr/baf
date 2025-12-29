@@ -1,0 +1,55 @@
+{
+  "realm": "baf",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "baf-client",
+      "name": "BAF SSO Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "n7sEGjMb505UVcJ1781VVHFr6ugM56t7",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://baf.localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "jane.admin@acme.com",
+      "enabled": true,
+      "email": "jane.admin@acme.com",
+      "firstName": "Jane",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "new.user@acme.com",
+      "enabled": true,
+      "email": "new.user@acme.com",
+      "firstName": "New",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

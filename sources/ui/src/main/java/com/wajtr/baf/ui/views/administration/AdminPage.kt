@@ -2,8 +2,8 @@ package com.wajtr.baf.ui.views.administration
 
 import com.github.mvysny.karibudsl.v10.h2
 import com.vaadin.flow.router.Route
-import com.wajtr.baf.core.auth.ADMIN_ROLE
 import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.user.UserRole.ADMIN_ROLE
 import jakarta.annotation.security.RolesAllowed
 
 @RolesAllowed(ADMIN_ROLE)
