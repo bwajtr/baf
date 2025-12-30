@@ -12,7 +12,7 @@ import com.wajtr.baf.authentication.db.LOGIN_PATH
 import com.wajtr.baf.core.ApplicationProperties
 import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.ui.components.ApplicationPage
 import com.wajtr.baf.ui.components.ErrorMessageComponent
 import com.wajtr.baf.ui.views.user.common.UserAccountRelatedBaseLayout
 import com.wajtr.baf.user.emailverification.EmailVerificationService
@@ -20,19 +20,19 @@ import com.wajtr.baf.user.emailverification.UserEmailVerificationStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import java.io.Serializable
 
-const val VERIFY_EMAIL_VIEW = "accounts/verify"
+const val VERIFY_EMAIL_PAGE = "accounts/verify"
 const val EMAIL_VERIFY_PAGE_SUBTITLE_SESSION_ATTR = "emailVerifyPageSubtitle"
 
 /**
  *
  * @author Bretislav Wajtr
  */
-@Route(VERIFY_EMAIL_VIEW, layout = UserAccountRelatedBaseLayout::class)
+@Route(VERIFY_EMAIL_PAGE, layout = UserAccountRelatedBaseLayout::class)
 @AnonymousAllowed
 class EmailVerificationPage(
     private val emailVerificationService: EmailVerificationService,
     private val applicationProperties: ApplicationProperties
-) : ApplicationView(), BeforeEnterObserver, Serializable, HasUrlParameter<String> {
+) : ApplicationPage(), BeforeEnterObserver, Serializable, HasUrlParameter<String> {
 
     private lateinit var instructionLabel: Paragraph
     private var emailToVerify: String? = null

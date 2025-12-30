@@ -26,10 +26,10 @@ const val REGISTRATION_FORM_VIEW = "accounts/register"
 
 @Route(REGISTRATION_FORM_VIEW, layout = UserAccountRelatedBaseLayout::class)
 @AnonymousAllowed
-class RegistrationView(
+class RegistrationPage(
     databaseBasedAuthenticationProvider: DatabaseBasedAuthenticationProvider,
     userRegistrationService: UserRegistrationService
-) : AbstractRegistrationView(
+) : AbstractRegistrationPage(
     databaseBasedAuthenticationProvider,
     userRegistrationService
 ) {

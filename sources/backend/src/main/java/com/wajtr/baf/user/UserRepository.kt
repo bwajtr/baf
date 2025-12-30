@@ -100,6 +100,13 @@ class UserRepository(private val create: DSLContext) {
             .execute()
     }
 
+    fun updateUserPassword(id: UUID, password: String) {
+        create.update(APP_USER)
+            .set(APP_USER.PASSWORD, password)
+            .where(APP_USER.ID.eq(id))
+            .execute()
+    }
+
     fun updateUserEmail(id: UUID, email: String): UpdateUserEmailResult {
         var result: UpdateUserEmailResult
 

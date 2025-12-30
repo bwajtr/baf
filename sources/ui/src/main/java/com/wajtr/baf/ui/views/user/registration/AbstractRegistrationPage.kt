@@ -20,12 +20,12 @@ import com.vaadin.flow.data.value.ValueChangeMode
 import com.wajtr.baf.authentication.db.DatabaseBasedAuthenticationProvider
 import com.wajtr.baf.authentication.db.EmailNotVerifiedException
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.ui.components.ApplicationPage
 import com.wajtr.baf.ui.vaadin.extensions.bindMutableProperty
 import com.wajtr.baf.ui.vaadin.extensions.ensureSessionTimeZoneIsSet
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
-import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_VIEW
+import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_PAGE
 import com.wajtr.baf.user.registration.UserRegistrationService
 import com.wajtr.baf.user.validation.ValidPasswordConstants
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -46,10 +46,10 @@ data class RegistrationFormData(
     var recaptchaResponse: String? = null
 )
 
-abstract class AbstractRegistrationView(
+abstract class AbstractRegistrationPage(
     protected val databaseBasedAuthenticationProvider: DatabaseBasedAuthenticationProvider,
     protected val userRegistrationService: UserRegistrationService
-) : ApplicationView(), Serializable {
+) : ApplicationPage(), Serializable {
 
     protected val formDataBinder = Binder<RegistrationFormData>()
 
@@ -195,7 +195,7 @@ abstract class AbstractRegistrationView(
         } catch (loginFailedException: AuthenticationException) { // Note that it authentication may fail - for example if email verifications are active then it'll definitely fail at this point
             if (loginFailedException is EmailNotVerifiedException) {
                 SecurityContextHolder.clearContext()
-                UI.getCurrent().page.setLocation("$VERIFY_EMAIL_VIEW/$email")
+                UI.getCurrent().page.setLocation("$VERIFY_EMAIL_PAGE/$email")
             } else throw loginFailedException
         }
     }

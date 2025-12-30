@@ -1,12 +1,12 @@
 package com.wajtr.baf.ui.views.user.common
 
-import com.wajtr.baf.ui.views.legal.PublicTermsOfServiceView
+import com.wajtr.baf.ui.views.legal.PublicTermsOfServicePage
 import com.github.mvysny.karibudsl.v10.*
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.wajtr.baf.core.ApplicationProperties
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.views.legal.PublicPrivacyPolicyView
+import com.wajtr.baf.ui.views.legal.PublicPrivacyPolicyPage
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -56,7 +56,7 @@ class ContactUsFooterComponent(
 
             routerLink(
                 text = i18n("legal.documents.termsOfService"),
-                viewType = PublicTermsOfServiceView::class
+                viewType = PublicTermsOfServicePage::class
             ) {
                 style.set("font-size", "small")
             }
@@ -65,7 +65,7 @@ class ContactUsFooterComponent(
             }
             routerLink(
                 text = i18n("legal.documents.privacyPolicy"),
-                viewType = PublicPrivacyPolicyView::class
+                viewType = PublicPrivacyPolicyPage::class
             ) {
                 style.set("margin", "0")
                 style.set("font-size", "small")

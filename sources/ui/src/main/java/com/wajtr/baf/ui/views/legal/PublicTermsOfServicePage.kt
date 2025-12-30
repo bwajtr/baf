@@ -3,7 +3,7 @@ package com.wajtr.baf.ui.views.legal
 import com.github.mvysny.karibudsl.v10.span
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.auth.AnonymousAllowed
-import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.ui.components.ApplicationPage
 
 /**
  * The terms of service view which is provided by the "legal" module is not available for unauthenticated
@@ -15,10 +15,10 @@ const val PUBLIC_TERMS_OF_SERVICE_VIEW = "accounts/public-terms-of-service"
 
 @Route(PUBLIC_TERMS_OF_SERVICE_VIEW)
 @AnonymousAllowed
-class PublicTermsOfServiceView(
+class PublicTermsOfServicePage(
     // TODO fix this when legal documents are implemented
 //    legalDocumentsDAO: LegalDocumentsDAO
-) : ApplicationView() {
+) : ApplicationPage() {
 
     init {
         maxWidth = "900px"

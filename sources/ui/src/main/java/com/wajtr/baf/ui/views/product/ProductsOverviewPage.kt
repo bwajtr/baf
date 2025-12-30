@@ -6,7 +6,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.features.product.ProductRepository
-import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.ui.components.ApplicationPage
 import jakarta.annotation.security.PermitAll
 
 @PermitAll
@@ -15,7 +15,7 @@ class ProductsOverviewPage(
     productRepository: ProductRepository,
     authenticationContext: AuthenticationContext,
     identity: Identity
-) : ApplicationView() {
+) : ApplicationPage() {
 
     init {
         style.setPadding("3rem")

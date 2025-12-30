@@ -9,7 +9,7 @@ import com.wajtr.baf.core.i18n.i18n
  *
  * @author Bretislav Wajtr
  */
-open class ApplicationView : Div(), HasDynamicTitle {
+open class ApplicationPage : Div(), HasDynamicTitle {
 
     override fun getPageTitle(): String {
         return i18n("application.title")

@@ -2,6 +2,7 @@ package com.wajtr.baf.ui.views.user.login
 
 import com.github.mvysny.karibudsl.v10.*
 import com.vaadin.flow.component.UI
+import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.html.Paragraph
 import com.vaadin.flow.component.orderedlayout.FlexComponent
@@ -9,17 +10,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.EmailField
 import com.vaadin.flow.component.textfield.PasswordField
 import com.vaadin.flow.dom.Element
-import com.vaadin.flow.router.BeforeEvent
-import com.vaadin.flow.router.HasUrlParameter
-import com.vaadin.flow.router.OptionalParameter
-import com.vaadin.flow.router.Route
+import com.vaadin.flow.router.*
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.wajtr.baf.authentication.db.EmailNotVerifiedException
 import com.wajtr.baf.authentication.db.LOGIN_PATH
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.components.ApplicationView
+import com.wajtr.baf.ui.components.ApplicationPage
 import com.wajtr.baf.ui.views.user.common.UserAccountRelatedBaseLayout
-import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_VIEW
+import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_PAGE
+import com.wajtr.baf.ui.views.user.password.reset.PasswordResetPreparationPage
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -38,7 +37,7 @@ import java.io.Serializable
 class LoginPage(
     private val clientRegistrationRepository: ClientRegistrationRepository?,
     private val request: HttpServletRequest? = null,
-) : ApplicationView(), Serializable, HasUrlParameter<String> {
+) : ApplicationPage(), Serializable, HasUrlParameter<String> {
     private lateinit var messageLabel: Paragraph
     private lateinit var emailField: EmailField
     private lateinit var passwordField: PasswordField
@@ -83,23 +82,24 @@ class LoginPage(
             }
 
 
-            div {
-                width = "100%"
+            horizontalLayout {
+                setWidthFull()
+                style.set("margin-top", "0.5rem")
+                alignItems = FlexComponent.Alignment.START
 
-                // TODO password reset not used
-//                routerLink(
-//                    text = i18n("user.login.forgot.password"),
-//                    viewType = PasswordResetPreparationView::class
-//                ) {
-//                    style.set("font-size", "small")
-//                    style.set("float", "right")
-//                }
-            }
+                addToStart(
+                    Button(i18n("user.login.signin")).apply {
+                        addThemeVariants(ButtonVariant.AURA_PRIMARY)
+                        setId("submitbutton")
+                    })
 
-            button(i18n("user.login.signin")) {
-                style.set("margin-top", "15px")
-                addThemeVariants(ButtonVariant.LUMO_PRIMARY)
-                setId("submitbutton")
+                addToEnd(
+                    RouterLink(
+                        i18n("user.login.forgot.password"), PasswordResetPreparationPage::class.java
+                    ).apply {
+                        style.set("font-size", "small")
+                        style.set("float", "right")
+                    })
             }
 
             if (hasOAuth2Clients()) {
@@ -133,8 +133,7 @@ class LoginPage(
 
             // We submit the form so a good old POST is issued and the whole Spring Security authentication&autohrization filter chain have a chance to
             // initialize the session.
-            UI.getCurrent()
-                .page.executeJs("document.getElementById('submitbutton').addEventListener('click', () => document.getElementById('loginform').submit());")
+            UI.getCurrent().page.executeJs("document.getElementById('submitbutton').addEventListener('click', () => document.getElementById('loginform').submit());")
         }
     }
 
@@ -159,8 +158,7 @@ class LoginPage(
             is UsernameNotFoundException -> authenticationException.message ?: "User not found"
             is BadCredentialsException -> i18n("user.login.failure")
             is EmailNotVerifiedException -> i18n(
-                "user.login.failure.email.not.verified",
-                "$VERIFY_EMAIL_VIEW/${authenticationException.email}"
+                "user.login.failure.email.not.verified", "$VERIFY_EMAIL_PAGE/${authenticationException.email}"
             )
 
             else -> "Unknown login error: " + authenticationException.javaClass.simpleName
@@ -168,8 +166,7 @@ class LoginPage(
     }
 
     override fun setParameter(
-        event: BeforeEvent,
-        @OptionalParameter parameter: String?
+        event: BeforeEvent, @OptionalParameter parameter: String?
     ) {
         when (event.location.queryParameters.queryString) {
             "error" -> showLoginError()
