@@ -4,7 +4,6 @@ import com.wajtr.baf.db.jooq.Tables.APP_USER
 import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
 import com.wajtr.baf.db.jooq.tables.records.AppUserRecord
 import org.jooq.DSLContext
-import org.jooq.Record
 import org.jooq.RecordMapper
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -119,7 +118,7 @@ class UserRepository(private val create: DSLContext) {
     }
 
     fun checkAccountStatus(email: String): AccountStatusCheckResult {
-        val userRecord: Record? = create.select()
+        val userRecord = create.select()
             .from(APP_USER)
             .where(APP_USER.EMAIL.eq(email))
             .fetchOne()
@@ -131,7 +130,7 @@ class UserRepository(private val create: DSLContext) {
 //                .where(org.jooq.impl.DSL.field("email").eq(email))
 //                .fetchOne()
 
-            val invitationRecord = null;
+            val invitationRecord = null
             if (invitationRecord != null) {
                 AccountStatusCheckResult.INVITED
             } else {

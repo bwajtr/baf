@@ -2,6 +2,7 @@ package com.wajtr.baf.user
 
 import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.authentication.oauth2.CoreOAuth2AuthenticationToken
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -39,6 +40,7 @@ class Identity {
                 is CoreOAuth2AuthenticationToken -> authentication.tenant // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.details as AuthenticatedTenant // login page
                 is OAuth2AuthenticationToken -> null // not yet fully authenticated oauth2 login
+                is AnonymousAuthenticationToken -> null // no tenant available when accessing public pages
                 else -> throw UnknownAuthenticationTokenException()
             }
         }

@@ -3,7 +3,6 @@ package com.wajtr.baf.ui.views.user.login
 import com.github.mvysny.karibudsl.v10.*
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.ButtonVariant
-import com.vaadin.flow.component.checkbox.Checkbox
 import com.vaadin.flow.component.html.Paragraph
 import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
@@ -38,11 +37,7 @@ import java.io.Serializable
 class LoginPage(
     private val clientRegistrationRepository: ClientRegistrationRepository?,
     private val request: HttpServletRequest? = null,
-    // TODO fix when bruteforcing is implemented
-    // private val suspiciousClientsService: SuspiciousClientsService,
 ) : ApplicationView(), Serializable, HasUrlParameter<String> {
-    // TODO remember me hidden input - currently not used
-//    private lateinit var keepMeSignedForTodayCheck: Checkbox
     private lateinit var messageLabel: Paragraph
     private lateinit var emailField: EmailField
     private lateinit var passwordField: PasswordField
@@ -65,10 +60,8 @@ class LoginPage(
         return VerticalLayout().apply {
             maxWidth = "290px"
             isPadding = false
-            themeList.remove("spacing")
-            themeList.add("spacing-xs")
 
-            h3(i18n("user.login.welcome.message")) {
+            h1(i18n("user.login.welcome.message")) {
                 style.set("margin-bottom", "0")
                 style.set("margin-top", "4px")
             }
@@ -92,24 +85,6 @@ class LoginPage(
             div {
                 width = "100%"
 
-                // TODO remember me hidden input - currently not used
-//                val rememberMeHiddenInput = HiddenInput("remember-me").apply {
-//                    value = getRememberMeCookieValue().toString()
-//                }
-//                add(rememberMeHiddenInput)
-
-//                keepMeSignedForTodayCheck =
-//                    checkBox(i18n("user.login.keep_me_signed_in_for_today")) {
-//                        value = getRememberMeCookieValue()
-//                        style.set("font-size", "small")
-//                        style.set("max-width", "160px")
-//                        style.set("float", "left")
-//                        addValueChangeListener {
-//                            setRememberMeCookieValue(it.value)
-//                            rememberMeHiddenInput.value = it.value.toString()
-//                        }
-//                    }
-
                 // TODO password reset not used
 //                routerLink(
 //                    text = i18n("user.login.forgot.password"),
@@ -119,15 +94,6 @@ class LoginPage(
 //                    style.set("float", "right")
 //                }
             }
-
-            // TODO bowser hidden inputs - currently not used
-//            add(BowserHiddenInputs())
-
-            // TODO recaptcha component - currently not used
-//            if (suspiciousClientsService.isSuspiciousClient(CoreContext.getCurrentRequest())) {
-//                reCaptchaComponent = reCaptchaComponentFactory.createRecaptchaComponentForHtmlForm()
-//                add(reCaptchaComponent)
-//            }
 
             button(i18n("user.login.signin")) {
                 style.set("margin-top", "15px")
@@ -154,7 +120,6 @@ class LoginPage(
                         for (registration in clientRegistrationRepository as Iterable<ClientRegistration>) {
                             val clientName = registration.clientName
                             button(i18n("user.login.signin.with.oauth2.client", clientName)) {
-                                addThemeVariants(ButtonVariant.AURA_ACCENT)
                                 onClick {
                                     UI.getCurrent().page.setLocation("/oauth2/authorization/${registration.registrationId}")
                                 }
@@ -173,12 +138,7 @@ class LoginPage(
     }
 
     private fun showLoginError() {
-        // TODO update this when captcha is implemented
-//        if (this.reCaptchaComponent != null) {
-//            showErrorMessage(i18n("user.login.failure.incl.captcha"))
-//        } else {
         showErrorMessage(getErrorExplanation())
-//        }
         emailField.clear()
         passwordField.clear()
     }

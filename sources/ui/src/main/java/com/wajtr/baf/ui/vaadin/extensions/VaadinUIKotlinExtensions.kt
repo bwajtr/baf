@@ -23,15 +23,14 @@ import java.util.*
  * [Client time zone rendering in Vaadin](https://stackoverflow.com/questions/67724284/in-vaadin-framework-how-can-i-get-the-client-time-zone-to-use-in-rendering-the)
  */
 fun UI.ensureSessionTimeZoneIsSet(block: (() -> Unit)? = null) {
-    this.page.retrieveExtendedClientDetails {
-        if (it != null && it.timeZoneId != null) {
-            setSessionTimeZone(ZoneId.of(it.timeZoneId))
-        } else {
-            // fallback to System timezone resolving
-            setSessionTimeZone(LocaleContextHolder.getTimeZone().toZoneId())
-        }
-        block?.invoke()
+    val it = this.page.extendedClientDetails
+    if (it != null && it.timeZoneId != null) {
+        setSessionTimeZone(ZoneId.of(it.timeZoneId))
+    } else {
+        // fallback to System timezone resolving
+        setSessionTimeZone(LocaleContextHolder.getTimeZone().toZoneId())
     }
+    block?.invoke()
 }
 
 private fun setSessionTimeZone(timeZoneId: ZoneId) {
@@ -39,7 +38,7 @@ private fun setSessionTimeZone(timeZoneId: ZoneId) {
 
     // See SessionLocaleResolver, which is used by the rest of the spring application, not only Vaadin
     VaadinRequest.getCurrent().wrappedSession.setAttribute(
-            SessionLocaleResolver.TIME_ZONE_SESSION_ATTRIBUTE_NAME,
-            TimeZone.getTimeZone(timeZoneId)
+        SessionLocaleResolver.TIME_ZONE_SESSION_ATTRIBUTE_NAME,
+        TimeZone.getTimeZone(timeZoneId)
     )
 }

@@ -34,7 +34,7 @@ class AuthenticationDetailsService(
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(user.id))
             .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
             .fetch()
-            .map { record -> SimpleGrantedAuthority(record.value1()) }
+            .map { record -> SimpleGrantedAuthority("ROLE_${record.value1()}") }
             .toSet()
 
         return AuthenticationDetails(

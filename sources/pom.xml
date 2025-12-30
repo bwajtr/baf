@@ -18,7 +18,7 @@
     <properties>
         <!-- Library versions-->
         <postgresql.version>42.7.7</postgresql.version>
-        <vaadin.version>25.0.0-beta9</vaadin.version>
+        <vaadin.version>25.0.2</vaadin.version>
         <flyway.version>11.11.2</flyway.version>
         <jooq.version>3.20.7</jooq.version>
         <logstash.logback.encoder.version>7.0.1</logstash.logback.encoder.version>
@@ -33,7 +33,7 @@
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <kotlin.version>2.3.0-RC</kotlin.version> <!-- overrides spring boot property -->
+        <kotlin.version>2.3.0</kotlin.version> <!-- overrides spring boot property -->
     </properties>
 
     <modules>

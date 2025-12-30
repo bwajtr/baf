@@ -13,6 +13,3 @@ COMMENT ON COLUMN tenant.organization_name IS 'Name of the tenant visible to app
 COMMENT ON COLUMN tenant.organization_address IS 'Optional tenant''s company address (without country) - could be used for billing, but mainly for means of postal mail contact when needed';
 COMMENT ON COLUMN tenant.organization_country_code IS 'Optional tenant (or tenant''s company) country of residence. Used for various legal concerns. Uses ISO 3166 2-letter country code';
 COMMENT ON COLUMN tenant.setup_required IS 'If set to true then a setup screen is displayed to the Administrator when the application is run. Used for basic application setup and filling the mandatory fields.';
-
--- enable row level security (so the users see only data from it's tenant)
-SELECT apply_tenant_policy('public', 'tenant', 'id', FALSE); -- we don't have to create index, because we already have one

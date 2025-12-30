@@ -6,12 +6,14 @@ import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.router.RouterLayout
+import com.vaadin.flow.server.auth.AnonymousAllowed
 import java.util.*
 
 /**
  *
  * @author Bretislav Wajtr
  */
+@AnonymousAllowed
 open class UserAccountRelatedBaseLayout(
     contactUsFooterComponent: ContactUsFooterComponent
 ) : Div(), RouterLayout {
