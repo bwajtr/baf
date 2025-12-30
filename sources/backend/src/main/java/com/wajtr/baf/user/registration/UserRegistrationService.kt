@@ -216,7 +216,6 @@ class UserRegistrationServiceImpl(
             .set(AppUser.APP_USER.EMAIL, email)
             .set(AppUser.APP_USER.PASSWORD, encryptedPassword)
             .set(AppUser.APP_USER.EMAIL_VERIFIED, false)
-            .set(AppUser.APP_USER.EMAIL_VERIFICATION_TOKEN, Uuid.generateV7().toJavaUuid())
             .execute()
 
         // Return success result

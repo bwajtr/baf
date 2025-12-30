@@ -15,7 +15,8 @@ data class User(
     var name: String,
     var email: String,
     var emailIsVerified: Boolean,
-    var createdAt: Instant
+    var createdAt: Instant,
+    var emailVerificationToken: UUID?
 ) : Serializable, UserDetails {
 
     override fun getAuthorities(): Set<GrantedAuthority> {

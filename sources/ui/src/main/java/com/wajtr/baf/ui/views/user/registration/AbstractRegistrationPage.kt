@@ -18,12 +18,14 @@ import com.vaadin.flow.data.validator.EmailValidator
 import com.vaadin.flow.data.validator.StringLengthValidator
 import com.vaadin.flow.data.value.ValueChangeMode
 import com.wajtr.baf.authentication.db.DatabaseBasedAuthenticationProvider
+import com.wajtr.baf.authentication.db.EmailNotVerifiedException
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.components.ApplicationView
 import com.wajtr.baf.ui.vaadin.extensions.bindMutableProperty
 import com.wajtr.baf.ui.vaadin.extensions.ensureSessionTimeZoneIsSet
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
+import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_VIEW
 import com.wajtr.baf.user.registration.UserRegistrationService
 import com.wajtr.baf.user.validation.ValidPasswordConstants
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -191,13 +193,10 @@ abstract class AbstractRegistrationView(
             SecurityContextHolder.getContext().authentication = authentication
             UI.getCurrent().page.setLocation("/")
         } catch (loginFailedException: AuthenticationException) { // Note that it authentication may fail - for example if email verifications are active then it'll definitely fail at this point
-            // TODO implement when email verification is done
-//            if (loginFailedException is EmailNotVerifiedException) {
-//                SecurityContextHolder.clearContext()
-//                HttpServletUtils.session?.setAttribute(UserAccountRelatedConstants.EMAIL_TO_VERIFY_SESSION_ATTR, email)
-//                UI.getCurrent().page.setLocation(UserAccountRelatedConstants.VERIFY_EMAIL_URL)
-//            } else
-            throw loginFailedException
+            if (loginFailedException is EmailNotVerifiedException) {
+                SecurityContextHolder.clearContext()
+                UI.getCurrent().page.setLocation("$VERIFY_EMAIL_VIEW/$email")
+            } else throw loginFailedException
         }
     }
 

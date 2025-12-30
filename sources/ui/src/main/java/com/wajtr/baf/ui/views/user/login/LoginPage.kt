@@ -15,10 +15,11 @@ import com.vaadin.flow.router.OptionalParameter
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.wajtr.baf.authentication.db.EmailNotVerifiedException
+import com.wajtr.baf.authentication.db.LOGIN_PATH
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.components.ApplicationView
-import com.wajtr.baf.ui.security.LOGIN_PATH
 import com.wajtr.baf.ui.views.user.common.UserAccountRelatedBaseLayout
+import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_VIEW
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -157,7 +158,11 @@ class LoginPage(
         return when (authenticationException) {
             is UsernameNotFoundException -> authenticationException.message ?: "User not found"
             is BadCredentialsException -> i18n("user.login.failure")
-            is EmailNotVerifiedException -> i18n("user.login.failure.email.not.verified")
+            is EmailNotVerifiedException -> i18n(
+                "user.login.failure.email.not.verified",
+                "$VERIFY_EMAIL_VIEW/${authenticationException.email}"
+            )
+
             else -> "Unknown login error: " + authenticationException.javaClass.simpleName
         }
     }
@@ -187,7 +192,7 @@ class LoginPage(
 
     private fun showErrorMessage(message: String) {
         messageLabel.style.set("color", "red")
-        messageLabel.text = message
+        messageLabel.html(message)
     }
 
     private fun hasOAuth2Clients(): Boolean {

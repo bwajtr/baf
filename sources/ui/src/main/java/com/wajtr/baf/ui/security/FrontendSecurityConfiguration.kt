@@ -1,6 +1,7 @@
 package com.wajtr.baf.ui.security
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer
+import com.wajtr.baf.authentication.db.LOGIN_PATH
 import com.wajtr.baf.ui.views.user.login.LoginPage
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -10,10 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.web.SecurityFilterChain
 
-const val LOGIN_PATH = "accounts/login"
-
-@Order(2)
 @Configuration
+@Order(2)
 @EnableWebSecurity
 class FrontendSecurityConfiguration(
     private val clientRegistrationRepository: ClientRegistrationRepository?,
@@ -21,8 +20,7 @@ class FrontendSecurityConfiguration(
 ) {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-
+    fun uiSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .authorizeHttpRequests { auth ->
                 // App specific static resources icons and images

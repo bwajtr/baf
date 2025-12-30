@@ -22,11 +22,12 @@ class UserRepository(private val create: DSLContext) {
     private val mapIntoUser: RecordMapper<AppUserRecord, User> = RecordMapper { record: AppUserRecord ->
         try {
             return@RecordMapper User(
-                record.getId(),
-                record.getName(),
-                record.getEmail(),
-                record.getEmailVerified(),
-                record.getCreatedAt().toInstant()
+                record.id,
+                record.name,
+                record.email,
+                record.emailVerified,
+                record.createdAt.toInstant(),
+                record.emailVerificationToken
             )
         } catch (e: UnknownHostException) {
             throw RuntimeException(e)
@@ -37,11 +38,12 @@ class UserRepository(private val create: DSLContext) {
         RecordMapper { record: AppUserRecord ->
             try {
                 return@RecordMapper User(
-                    record.getId(),
-                    record.getName(),
-                    record.getEmail(),
-                    record.getEmailVerified(),
-                    record.getCreatedAt().toInstant()
+                    record.id,
+                    record.name,
+                    record.email,
+                    record.emailVerified,
+                    record.createdAt.toInstant(),
+                    record.emailVerificationToken
                 )
             } catch (e: UnknownHostException) {
                 throw RuntimeException(e)
@@ -82,6 +84,20 @@ class UserRepository(private val create: DSLContext) {
             .set(APP_USER.NAME, name)
             .where(APP_USER.ID.eq(id))
             .execute() > 0
+    }
+
+    fun updateUserEmailVerificationToken(id: UUID, token: UUID?) {
+        create.update(APP_USER)
+            .set(APP_USER.EMAIL_VERIFICATION_TOKEN, token)
+            .where(APP_USER.ID.eq(id))
+            .execute()
+    }
+
+    fun updateUserEmailVerified(id: UUID, verified: Boolean) {
+        create.update(APP_USER)
+            .set(APP_USER.EMAIL_VERIFIED, verified)
+            .where(APP_USER.ID.eq(id))
+            .execute()
     }
 
     fun updateUserEmail(id: UUID, email: String): UpdateUserEmailResult {
