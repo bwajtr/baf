@@ -1,24 +1,25 @@
 package com.wajtr.baf.ui.views.product
 
 import com.github.mvysny.karibudsl.v10.*
+import com.vaadin.flow.router.Menu
 import com.vaadin.flow.router.Route
-import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.user.Identity
 import com.wajtr.baf.features.product.ProductRepository
-import com.wajtr.baf.ui.components.ApplicationPage
+import com.wajtr.baf.ui.base.MainLayout
+import com.wajtr.baf.ui.base.ViewToolbar
+import com.wajtr.baf.ui.components.MainLayoutPage
+import com.wajtr.baf.user.Identity
 import jakarta.annotation.security.PermitAll
 
 @PermitAll
-@Route("")
+@Route("", layout = MainLayout::class)
+@Menu(order = 0.0, icon = "vaadin:clipboard-check")
 class ProductsOverviewPage(
-    productRepository: ProductRepository,
-    authenticationContext: AuthenticationContext,
-    identity: Identity
-) : ApplicationPage() {
+    productRepository: ProductRepository, identity: Identity
+) : MainLayoutPage() {
 
     init {
-        style.setPadding("3rem")
+        add(ViewToolbar(i18n("features.products.title")))
 
         h2("User info and granted authorities")
         ul {
@@ -40,13 +41,11 @@ class ProductsOverviewPage(
         verticalLayout {
             textField("Write into me")
             button("Click me")
-
-            button(i18n("user.login.logout.label")) {
-                onClick {
-                    authenticationContext.logout()
-                }
-            }
         }
+    }
+
+    override fun getPageTitle(): String {
+        return i18n("features.products.title")
     }
 
 }

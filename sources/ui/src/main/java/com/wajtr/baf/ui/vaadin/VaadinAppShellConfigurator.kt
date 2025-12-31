@@ -8,6 +8,7 @@ import com.vaadin.flow.theme.aura.Aura
 
 @Viewport("width=device-width, initial-scale=1, user-scalable=no")
 @StyleSheet(Aura.STYLESHEET)
+@StyleSheet("styles.css")
 class VaadinAppShellConfigurator : AppShellConfigurator {
 
     override fun configurePage(settings: AppShellSettings?) {
