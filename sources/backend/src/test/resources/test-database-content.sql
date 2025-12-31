@@ -10,8 +10,8 @@ $$
         encrypted_default_user_password TEXT := encrypt_password('test');
         joe_user_id                     UUID := '019b5aa6-97b6-7358-8ffe-bb68f70c8fc6'::UUID;
         jane_admin_id                   UUID := '019b5aa6-cd48-75f9-8b74-59878b0ea7d9'::UUID;
-        developer_tenant_1_owner_id                   UUID := '019b5aa6-eae4-76f0-9077-571f50df349b'::UUID;
-        developer_tenant_2_owner_id                UUID := '019b5ab7-72c3-739d-b548-b13d1d59fe11'::UUID;
+        developer_tenant_1_owner_id     UUID := '019b5aa6-eae4-76f0-9077-571f50df349b'::UUID;
+        developer_tenant_2_owner_id     UUID := '019b5ab7-72c3-739d-b548-b13d1d59fe11'::UUID;
     BEGIN
 
         INSERT INTO tenant (id, organization_name, setup_required, organization_address, organization_country_code)
@@ -31,8 +31,10 @@ $$
         INSERT INTO app_user_role_tenant (user_id, role, tenant_id)
         VALUES (joe_user_id, 'USER', developer_tenant_1_id),
                (jane_admin_id, 'ADMIN', developer_tenant_1_id),
+               (jane_admin_id, 'USER', developer_tenant_2_id),
                (developer_tenant_1_owner_id, 'OWNER', developer_tenant_1_id),
                (developer_tenant_1_owner_id, 'BILLING_MANAGER', developer_tenant_1_id),
+               (developer_tenant_1_owner_id, 'USER', developer_tenant_2_id),
                (developer_tenant_2_owner_id, 'OWNER', developer_tenant_2_id),
                (developer_tenant_2_owner_id, 'BILLING_MANAGER', developer_tenant_2_id);
 

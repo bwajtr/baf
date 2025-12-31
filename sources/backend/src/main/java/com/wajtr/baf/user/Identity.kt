@@ -1,7 +1,7 @@
 package com.wajtr.baf.user
 
 import com.wajtr.baf.authentication.AuthenticatedTenant
-import com.wajtr.baf.authentication.oauth2.CoreOAuth2AuthenticationToken
+import com.wajtr.baf.authentication.oauth2.OAuth2TenantAuthenticationToken
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -25,7 +25,7 @@ class Identity {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication != null) {
             return when (authentication) {
-                is CoreOAuth2AuthenticationToken -> authentication.user // oauth2 login
+                is OAuth2TenantAuthenticationToken -> authentication.user // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.principal as User // login page
                 else -> throw UnknownAuthenticationTokenException()
             }
@@ -37,7 +37,7 @@ class Identity {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication != null) {
             return when (authentication) {
-                is CoreOAuth2AuthenticationToken -> authentication.tenant // oauth2 login
+                is OAuth2TenantAuthenticationToken -> authentication.tenant // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.details as AuthenticatedTenant // login page
                 is OAuth2AuthenticationToken -> null // not yet fully authenticated oauth2 login
                 is AnonymousAuthenticationToken -> null // no tenant available when accessing public pages

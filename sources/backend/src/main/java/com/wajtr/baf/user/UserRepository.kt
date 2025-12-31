@@ -73,7 +73,7 @@ class UserRepository(private val create: DSLContext) {
     }
 
     fun resolveTenantIdsOfUser(userId: UUID): List<UUID> {
-        return create.select(APP_USER_ROLE_TENANT.TENANT_ID)
+        return create.selectDistinct(APP_USER_ROLE_TENANT.TENANT_ID)
             .from(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
             .fetchInto<UUID>(UUID::class.java)

@@ -16,11 +16,11 @@ class AuthenticationDetailsService(
     private val userRepository: UserRepository,
 ) {
 
-    fun loadAuthenticationDetails(email: String): AuthenticationDetails {
+    fun loadAuthenticationDetails(email: String, desiredTenantId: UUID? = null): AuthenticationDetails {
         val user = userRepository.loadUserByUsername(email)
 
-        // Get the first tenant associated with this user
-        val tenantId = dslContext
+        // if desiredTenantId is null then get the first tenant associated with this user
+        val tenantId = desiredTenantId ?: dslContext
             .select(APP_USER_ROLE_TENANT.TENANT_ID)
             .from(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(user.id))
@@ -36,6 +36,10 @@ class AuthenticationDetailsService(
             .fetch()
             .map { record -> SimpleGrantedAuthority("ROLE_${record.value1()}") }
             .toSet()
+
+        if (roles.isEmpty()) {
+            throw NoRolesFoundForUserAndTenant(email, tenantId)
+        }
 
         return AuthenticationDetails(
             tenant = AuthenticatedTenant(id = tenantId),
@@ -56,3 +60,5 @@ data class AuthenticatedTenant(
 )
 
 class NoTenantFoundException(val email: String) : AuthenticationException("No tenant found for email $email")
+class NoRolesFoundForUserAndTenant(val email: String, val tenantId: UUID) :
+    AuthenticationException("No user roles found for email $email and $tenantId")

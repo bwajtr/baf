@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
+import java.util.*
 
 const val LOGIN_PATH = "accounts/login"
 
@@ -34,7 +35,8 @@ class DatabaseBasedAuthenticationProvider(
             authentication.name
         val password: String = authentication.credentials.toString()
 
-        val passwordVerificationResult: PasswordVerificationResult = passwordVerificationService.verifyPassword(email, password)
+        val passwordVerificationResult: PasswordVerificationResult =
+            passwordVerificationService.verifyPassword(email, password)
         if (passwordVerificationResult == PasswordVerificationResult.OK) { // if email+password fits
 
             // check the status of the account first (verified, locked, disabled etc.)
@@ -44,16 +46,20 @@ class DatabaseBasedAuthenticationProvider(
             }
 
             // everything is ok -> load all the details of the user and set it to the context
-            val authDetails = authenticationDetailsService.loadAuthenticationDetails(email)
-
-            val result = UsernamePasswordAuthenticationToken(
-                authDetails.user, authentication.credentials, authDetails.roles
-            )
-            result.details = authDetails.tenant
-            return result
+            return buildUsernamePasswordAuthentication(email, authentication.credentials)
         } else {
             throw BadCredentialsException("Bad credentials")
         }
+    }
+
+    fun buildUsernamePasswordAuthentication(email: String, credentials: Any?, desiredTenantId: UUID? = null): Authentication {
+        val authDetails = authenticationDetailsService.loadAuthenticationDetails(email, desiredTenantId)
+
+        val result = UsernamePasswordAuthenticationToken(
+            authDetails.user, credentials, authDetails.roles
+        )
+        result.details = authDetails.tenant
+        return result
     }
 
     override fun supports(authentication: Class<*>): Boolean {

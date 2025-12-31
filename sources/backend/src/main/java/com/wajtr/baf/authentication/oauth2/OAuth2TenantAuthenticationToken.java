@@ -9,15 +9,15 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 
-public class CoreOAuth2AuthenticationToken extends OAuth2AuthenticationToken {
+public class OAuth2TenantAuthenticationToken extends OAuth2AuthenticationToken {
     private final User user;
     private final AuthenticatedTenant tenant;
 
-    public CoreOAuth2AuthenticationToken(OAuth2User principal,
-                                         Collection<? extends GrantedAuthority> authorities,
-                                         String authorizedClientRegistrationId,
-                                         User user,
-                                         AuthenticatedTenant tenant) {
+    public OAuth2TenantAuthenticationToken(OAuth2User principal,
+                                           Collection<? extends GrantedAuthority> authorities,
+                                           String authorizedClientRegistrationId,
+                                           User user,
+                                           AuthenticatedTenant tenant) {
         super(principal, authorities, authorizedClientRegistrationId);
         this.user = user;
         this.tenant = tenant;

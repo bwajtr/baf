@@ -1,8 +1,7 @@
 package com.wajtr.baf.ui.security
 
 import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler
-import com.wajtr.baf.authentication.AuthenticationDetailsService
-import com.wajtr.baf.authentication.oauth2.CoreOAuth2AuthenticationToken
+import com.wajtr.baf.authentication.oauth2.OAuth2AuthenticationProvider
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class FrontendOAuth2AuthenticationSuccessHandler(
-    private val authenticationDetailsService: AuthenticationDetailsService
+    private val oAuth2AuthenticationProvider: OAuth2AuthenticationProvider
 ) : VaadinSavedRequestAwareAuthenticationSuccessHandler() {
 
     override fun onAuthenticationSuccess(
@@ -28,32 +27,9 @@ class FrontendOAuth2AuthenticationSuccessHandler(
         authentication: Authentication
     ) {
         if (authentication is OAuth2AuthenticationToken) {
-            val oauth2User = authentication.principal
-
-            // Extract user identifier
-            val email = oauth2User?.getAttribute<String>("email")
-
-            if (email != null) {
-                // Load user details from database
-                val dbDetails = authenticationDetailsService.loadAuthenticationDetails(email)
-                // Combine OAuth2 authorities with database roles
-                val combinedAuthorities = mutableSetOf(
-                    *authentication.authorities.toTypedArray(),
-                    *dbDetails.roles.toTypedArray()
-                )
-
-                // Create our custom authentication token
-                val customAuth = CoreOAuth2AuthenticationToken(
-                    oauth2User,
-                    combinedAuthorities,
-                    authentication.authorizedClientRegistrationId,
-                    dbDetails.user,
-                    dbDetails.tenant
-                )
-
-                // Replace the authentication in the auth context
-                SecurityContextHolder.getContext().authentication = customAuth
-            }
+            // this adds the resolved tenant information to the authentication
+            val authenticationWithTenant = oAuth2AuthenticationProvider.buildOAuth2TenantAuthentication(authentication)
+            SecurityContextHolder.getContext().authentication = authenticationWithTenant
         }
 
         // Continue with the default behavior
