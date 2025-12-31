@@ -26,6 +26,7 @@ class FrontendSecurityConfiguration(
                 // App specific static resources icons and images
                 auth.requestMatchers("/static/**").permitAll()
                 auth.requestMatchers("/images/**").permitAll()
+                auth.requestMatchers("/styles/**").permitAll()
 
                 // Allow OAuth2 endpoints
                 auth.requestMatchers("/oauth2/**").permitAll()
