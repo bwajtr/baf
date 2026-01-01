@@ -39,7 +39,7 @@ fun showErrorNotification(message: String) {
             isPadding = false
             maxWidth = "450px"
 
-            h4(i18n("common.error")) {
+            h4(i18n("core.ui.common.error")) {
                 element.style.set("color", "var(--lumo-error-color)")
             }
 
@@ -48,7 +48,7 @@ fun showErrorNotification(message: String) {
                 element.style.set("color", "var(--lumo-error-color)")
             }
 
-            button(i18n("common.close")) {
+            button(i18n("core.ui.common.close")) {
                 addThemeVariants(ButtonVariant.LUMO_ERROR)
                 onClick {
                     this@apply.close()

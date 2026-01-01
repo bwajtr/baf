@@ -1,6 +1,5 @@
 package com.wajtr.baf.user.password.reset
 
-import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -20,14 +19,7 @@ class PasswordResetRepository(
     fun updateUserPassword(accountEmail: String, password: String): UpdateUserPasswordResult {
         return try {
             val user = userRepository.loadUserByUsername(accountEmail)
-
-            val encryptPassword = EncryptPassword()
-            encryptPassword.setPassword(password)
-            encryptPassword.execute(create.configuration())
-            val encryptedPassword = encryptPassword.returnValue
-                ?: throw IllegalStateException("Failed to encrypt password")
-
-            userRepository.updateUserPassword(user.id, encryptedPassword)
+            userRepository.updateUserPassword(user.id, password)
             UpdateUserPasswordResult.OK
         } catch (_: UsernameNotFoundException) {
             UpdateUserPasswordResult.NOT_FOUND

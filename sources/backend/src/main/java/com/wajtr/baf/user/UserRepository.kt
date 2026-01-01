@@ -2,6 +2,7 @@ package com.wajtr.baf.user
 
 import com.wajtr.baf.db.jooq.Tables.APP_USER
 import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
+import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.records.AppUserRecord
 import org.jooq.DSLContext
 import org.jooq.RecordMapper
@@ -101,8 +102,10 @@ class UserRepository(private val create: DSLContext) {
     }
 
     fun updateUserPassword(id: UUID, password: String) {
+        val encryptedPassword = encryptPassword(password)
+
         create.update(APP_USER)
-            .set(APP_USER.PASSWORD, password)
+            .set(APP_USER.PASSWORD, encryptedPassword)
             .where(APP_USER.ID.eq(id))
             .execute()
     }
@@ -167,6 +170,14 @@ class UserRepository(private val create: DSLContext) {
                 AccountStatusCheckResult.OK
             }
         }
+    }
+
+    fun encryptPassword(password: String): String {
+        val encryptPassword = EncryptPassword()
+        encryptPassword.setPassword(password)
+        encryptPassword.execute(create.configuration())
+        return encryptPassword.returnValue
+            ?: throw IllegalStateException("Failed to encrypt password")
     }
 }
 
