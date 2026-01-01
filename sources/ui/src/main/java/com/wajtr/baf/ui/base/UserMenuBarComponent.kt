@@ -22,6 +22,7 @@ import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.ui.vaadin.extensions.showNotification
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
+import com.wajtr.baf.ui.views.user.settings.UserSettingsPage
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -55,7 +56,11 @@ class UserMenuBarComponent(
 
             val item = addItem(createLabelComponent(identity))
             val subMenu: SubMenu = item.subMenu
-            subMenu.addItem("User Settings")
+            subMenu.addItem(i18n("user.settings.page.header")).apply {
+                onClick {
+                    UI.getCurrent().navigate(UserSettingsPage::class.java)
+                }
+            }
             addOrganizationsSectionAsSubmenu(subMenu)
             subMenu.addSeparator()
             subMenu.addItem(i18n("legal.documents.termsOfService")).apply {
