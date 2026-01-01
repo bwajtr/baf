@@ -60,6 +60,21 @@ class TenantRepository(private val create: DSLContext) {
             .where(TENANT.ID.eq(tenantId))
             .execute()
     }
+
+    fun updateOrganizationDetails(
+        tenantId: UUID,
+        organizationName: String,
+        organizationAddress: String?,
+        organizationCountryCode: String?
+    ): Boolean {
+        val rowsUpdated = create.update(TENANT)
+            .set(TENANT.ORGANIZATION_NAME, organizationName)
+            .set(TENANT.ORGANIZATION_ADDRESS, organizationAddress)
+            .set(TENANT.ORGANIZATION_COUNTRY_CODE, organizationCountryCode)
+            .where(TENANT.ID.eq(tenantId))
+            .execute()
+        return rowsUpdated > 0
+    }
 }
 
 
