@@ -8,7 +8,7 @@ import com.wajtr.baf.user.AccountStatusCheckResult
 import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.user.UserRole.OWNER_ROLE
 import com.wajtr.baf.user.UserRole.USER_ROLE
-import com.wajtr.baf.user.UserRoleService
+import com.wajtr.baf.user.UserRoleTenantService
 import com.wajtr.baf.user.UserRoleTenant
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
@@ -76,7 +76,7 @@ interface UserRegistrationService {
 @Service
 @Transactional
 class UserRegistrationServiceImpl(
-    private val userRoleService: UserRoleService,
+    private val userRoleTenantService: UserRoleTenantService,
     private val create: DSLContext,
     private val userRepository: UserRepository,
     private val tenantRepository: TenantRepository
@@ -114,7 +114,7 @@ class UserRegistrationServiceImpl(
         if (result is UserRegistrationSuccess) {
             val roles = initialTenantOwnerRolesCollection()
             for (role in roles) {
-                userRoleService.insertRole(
+                userRoleTenantService.insertRole(
                     UserRoleTenant(
                         result.userId,
                         role,

@@ -32,6 +32,7 @@ class UserAccountComponent(
 
     init {
         isPadding = false
+        maxWidth = "350px"
 
         val user = identity.authenticatedUser
 
@@ -54,8 +55,7 @@ class UserAccountComponent(
 
             // Roles field (readonly)
             textField(i18n("user.settings.account.roles")) {
-                value = (identity.grantedAuthorities
-                    ?.joinToString(", ") { i18n(it.authority.toString()) } ?: "")
+                value = identity.grantedRoles.joinToString(", ") { i18n("role.$it") }
                 isReadOnly = true
                 width = "100%"
             }

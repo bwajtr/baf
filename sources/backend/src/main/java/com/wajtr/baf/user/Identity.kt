@@ -18,8 +18,13 @@ class Identity {
     val authenticatedTenant: AuthenticatedTenant? // can be null during e.g. during oauth2 authentication process
         get() = this.resolveAuthenticatedTenant()
 
-    val grantedAuthorities: Collection<GrantedAuthority>?
-        get() = SecurityContextHolder.getContext().authentication?.authorities
+    val grantedRoles: Collection<String>
+        get() = SecurityContextHolder.getContext().authentication?.authorities?.filter {
+            it.toString().startsWith("ROLE_")
+        }?.map { it.toString().substring(5) } ?: listOf()
+
+    val grantedAuthorities: Collection<GrantedAuthority>
+        get() = SecurityContextHolder.getContext().authentication?.authorities ?: listOf()
 
     private fun resolveAuthenticatedUser(): User {
         val authentication = SecurityContextHolder.getContext().authentication

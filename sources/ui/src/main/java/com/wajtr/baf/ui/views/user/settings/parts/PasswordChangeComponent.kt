@@ -44,6 +44,7 @@ class PasswordChangeComponent(
 
     init {
         isPadding = false
+        maxWidth = "350px"
 
         h2(i18n("users.password.change.header"))
 
