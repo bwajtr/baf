@@ -7,6 +7,7 @@ import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage
+import com.wajtr.baf.ui.views.organization.settings.parts.DeleteOrganizationComponent
 import com.wajtr.baf.ui.views.organization.settings.parts.OrganizationDetailsComponent
 import com.wajtr.baf.user.UserRole
 import jakarta.annotation.security.RolesAllowed
@@ -17,7 +18,8 @@ const val ORGANIZATION_SETTINGS_PAGE = "organization-settings"
 @Route(ORGANIZATION_SETTINGS_PAGE, layout = MainLayout::class)
 @Menu(order = 2.0, icon = "vaadin:cog")
 class OrganizationSettingsPage(
-    organizationDetailsComponent: OrganizationDetailsComponent
+    organizationDetailsComponent: OrganizationDetailsComponent,
+    deleteOrganizationComponent: DeleteOrganizationComponent
 ) : MainLayoutPage() {
 
     init {
@@ -28,6 +30,7 @@ class OrganizationSettingsPage(
             addThemeVariants()
 
             add(organizationDetailsComponent)
+            add(deleteOrganizationComponent)
         }
     }
 

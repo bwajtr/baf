@@ -47,4 +47,11 @@ class UserRoleTenantService(
             }
     }
 
+    fun getUserIdsForTenant(tenantId: UUID): List<UUID> {
+        return dslContext.selectDistinct(APP_USER_ROLE_TENANT.USER_ID)
+            .from(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .fetchInto(UUID::class.java)
+    }
+
 }
