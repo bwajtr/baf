@@ -1,4 +1,4 @@
-package com.wajtr.baf.user
+package com.wajtr.baf.organization.member
 
 import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
 import com.wajtr.baf.db.jooq.Tables.TENANT

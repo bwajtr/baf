@@ -1,4 +1,4 @@
-package com.wajtr.baf.user
+package com.wajtr.baf.organization.member
 
 object UserRole {
     const val OWNER_ROLE = "OWNER"

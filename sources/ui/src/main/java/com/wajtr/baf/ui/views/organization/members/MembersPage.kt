@@ -18,6 +18,8 @@ import com.vaadin.flow.router.Route
 import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.organization.member.UserRole
+import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage

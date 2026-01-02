@@ -9,7 +9,7 @@ import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.views.organization.settings.parts.DeleteOrganizationComponent
 import com.wajtr.baf.ui.views.organization.settings.parts.OrganizationDetailsComponent
-import com.wajtr.baf.user.UserRole
+import com.wajtr.baf.organization.member.UserRole
 import jakarta.annotation.security.RolesAllowed
 
 const val ORGANIZATION_SETTINGS_PAGE = "organization-settings"

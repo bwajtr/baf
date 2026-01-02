@@ -6,10 +6,10 @@ import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.AppUser
 import com.wajtr.baf.user.AccountStatusCheckResult
 import com.wajtr.baf.user.UserRepository
-import com.wajtr.baf.user.UserRole.OWNER_ROLE
-import com.wajtr.baf.user.UserRole.USER_ROLE
-import com.wajtr.baf.user.UserRoleTenantService
-import com.wajtr.baf.user.UserRoleTenant
+import com.wajtr.baf.organization.member.UserRole.OWNER_ROLE
+import com.wajtr.baf.organization.member.UserRole.USER_ROLE
+import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenant
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

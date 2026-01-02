@@ -15,7 +15,7 @@ import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
-import com.wajtr.baf.user.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenantService
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
