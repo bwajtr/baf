@@ -4,8 +4,8 @@
 package com.wajtr.baf.db.jooq;
 
 
-import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory;
+import com.wajtr.baf.db.jooq.tables.MemberInvitation;
 import com.wajtr.baf.db.jooq.tables.Product;
 import com.wajtr.baf.db.jooq.tables.UserLoginLog;
 
@@ -26,7 +26,7 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index FLYWAY_SCHEMA_HISTORY_S_IDX = Internal.createIndex(DSL.name("flyway_schema_history_s_idx"), FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, new OrderField[] { FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.SUCCESS }, false);
-    public static final Index PUBLIC_APP_USER_INVITATION_TENANT_ID = Internal.createIndex(DSL.name("public_app_user_invitation_tenant_id"), AppUserInvitation.APP_USER_INVITATION, new OrderField[] { AppUserInvitation.APP_USER_INVITATION.TENANT_ID }, false);
+    public static final Index PUBLIC_MEMBER_INVITATION_TENANT_ID = Internal.createIndex(DSL.name("public_member_invitation_tenant_id"), MemberInvitation.MEMBER_INVITATION, new OrderField[] { MemberInvitation.MEMBER_INVITATION.TENANT_ID }, false);
     public static final Index PUBLIC_PRODUCT_TENANT_ID = Internal.createIndex(DSL.name("public_product_tenant_id"), Product.PRODUCT, new OrderField[] { Product.PRODUCT.TENANT_ID }, false);
     public static final Index USER_LOGIN_LOG_BY_USER = Internal.createIndex(DSL.name("user_login_log_by_user"), UserLoginLog.USER_LOGIN_LOG, new OrderField[] { UserLoginLog.USER_LOGIN_LOG.APP_USER_ID }, false);
 }

@@ -5,10 +5,10 @@ package com.wajtr.baf.db.jooq;
 
 
 import com.wajtr.baf.db.jooq.tables.AppUser;
-import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
 import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant;
 import com.wajtr.baf.db.jooq.tables.AuthenticateUser;
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory;
+import com.wajtr.baf.db.jooq.tables.MemberInvitation;
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses;
 import com.wajtr.baf.db.jooq.tables.Product;
 import com.wajtr.baf.db.jooq.tables.Tenant;
@@ -44,12 +44,6 @@ public class Public extends SchemaImpl {
      * The table <code>public.app_user</code>.
      */
     public final AppUser APP_USER = AppUser.APP_USER;
-
-    /**
-     * Table holding invitations to join tenant accounts (created typically by
-     * user administrators)
-     */
-    public final AppUserInvitation APP_USER_INVITATION = AppUserInvitation.APP_USER_INVITATION;
 
     /**
      * Contains relation between application users and their roles in tenant.
@@ -111,6 +105,12 @@ public class Public extends SchemaImpl {
     public final FlywaySchemaHistory FLYWAY_SCHEMA_HISTORY = FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY;
 
     /**
+     * Table holding invitations to join tenant accounts (created typically by
+     * user administrators)
+     */
+    public final MemberInvitation MEMBER_INVITATION = MemberInvitation.MEMBER_INVITATION;
+
+    /**
      * The table <code>public.pg_blocking_processes</code>.
      */
     public final PgBlockingProcesses PG_BLOCKING_PROCESSES = PgBlockingProcesses.PG_BLOCKING_PROCESSES;
@@ -151,10 +151,10 @@ public class Public extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.asList(
             AppUser.APP_USER,
-            AppUserInvitation.APP_USER_INVITATION,
             AppUserRoleTenant.APP_USER_ROLE_TENANT,
             AuthenticateUser.AUTHENTICATE_USER,
             FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY,
+            MemberInvitation.MEMBER_INVITATION,
             PgBlockingProcesses.PG_BLOCKING_PROCESSES,
             Product.PRODUCT,
             Tenant.TENANT,

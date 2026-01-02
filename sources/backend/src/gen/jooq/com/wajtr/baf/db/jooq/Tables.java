@@ -5,10 +5,10 @@ package com.wajtr.baf.db.jooq;
 
 
 import com.wajtr.baf.db.jooq.tables.AppUser;
-import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
 import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant;
 import com.wajtr.baf.db.jooq.tables.AuthenticateUser;
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory;
+import com.wajtr.baf.db.jooq.tables.MemberInvitation;
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses;
 import com.wajtr.baf.db.jooq.tables.Product;
 import com.wajtr.baf.db.jooq.tables.Tenant;
@@ -30,12 +30,6 @@ public class Tables {
      * The table <code>public.app_user</code>.
      */
     public static final AppUser APP_USER = AppUser.APP_USER;
-
-    /**
-     * Table holding invitations to join tenant accounts (created typically by
-     * user administrators)
-     */
-    public static final AppUserInvitation APP_USER_INVITATION = AppUserInvitation.APP_USER_INVITATION;
 
     /**
      * Contains relation between application users and their roles in tenant.
@@ -95,6 +89,12 @@ public class Tables {
      * The table <code>public.flyway_schema_history</code>.
      */
     public static final FlywaySchemaHistory FLYWAY_SCHEMA_HISTORY = FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY;
+
+    /**
+     * Table holding invitations to join tenant accounts (created typically by
+     * user administrators)
+     */
+    public static final MemberInvitation MEMBER_INVITATION = MemberInvitation.MEMBER_INVITATION;
 
     /**
      * The table <code>public.pg_blocking_processes</code>.

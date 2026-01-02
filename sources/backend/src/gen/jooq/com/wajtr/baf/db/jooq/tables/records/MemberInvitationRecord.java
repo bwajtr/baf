@@ -4,7 +4,7 @@
 package com.wajtr.baf.db.jooq.tables.records;
 
 
-import com.wajtr.baf.db.jooq.tables.AppUserInvitation;
+import com.wajtr.baf.db.jooq.tables.MemberInvitation;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -18,26 +18,26 @@ import org.jooq.impl.UpdatableRecordImpl;
  * administrators)
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
-public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitationRecord> {
+public class MemberInvitationRecord extends UpdatableRecordImpl<MemberInvitationRecord> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Setter for <code>public.app_user_invitation.id</code>.
+     * Setter for <code>public.member_invitation.id</code>.
      */
     public void setId(UUID value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>public.app_user_invitation.id</code>.
+     * Getter for <code>public.member_invitation.id</code>.
      */
     public UUID getId() {
         return (UUID) get(0);
     }
 
     /**
-     * Setter for <code>public.app_user_invitation.email</code>. Email of the
+     * Setter for <code>public.member_invitation.email</code>. Email of the
      * invited user
      */
     public void setEmail(String value) {
@@ -45,7 +45,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Getter for <code>public.app_user_invitation.email</code>. Email of the
+     * Getter for <code>public.member_invitation.email</code>. Email of the
      * invited user
      */
     public String getEmail() {
@@ -54,9 +54,9 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
 
     /**
      * Setter for
-     * <code>public.app_user_invitation.last_invitation_sent_time</code>. Date
-     * and time of last "(re)send invitation email" operation, null if no
-     * invitation email was sent yet
+     * <code>public.member_invitation.last_invitation_sent_time</code>. Date and
+     * time of last "(re)send invitation email" operation, null if no invitation
+     * email was sent yet
      */
     public void setLastInvitationSentTime(OffsetDateTime value) {
         set(2, value);
@@ -64,16 +64,16 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
 
     /**
      * Getter for
-     * <code>public.app_user_invitation.last_invitation_sent_time</code>. Date
-     * and time of last "(re)send invitation email" operation, null if no
-     * invitation email was sent yet
+     * <code>public.member_invitation.last_invitation_sent_time</code>. Date and
+     * time of last "(re)send invitation email" operation, null if no invitation
+     * email was sent yet
      */
     public OffsetDateTime getLastInvitationSentTime() {
         return (OffsetDateTime) get(2);
     }
 
     /**
-     * Setter for <code>public.app_user_invitation.tenant_id</code>. Tenant into
+     * Setter for <code>public.member_invitation.tenant_id</code>. Tenant into
      * which the user is invited
      */
     public void setTenantId(UUID value) {
@@ -81,7 +81,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Getter for <code>public.app_user_invitation.tenant_id</code>. Tenant into
+     * Getter for <code>public.member_invitation.tenant_id</code>. Tenant into
      * which the user is invited
      */
     public UUID getTenantId() {
@@ -89,7 +89,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Setter for <code>public.app_user_invitation.invited_by</code>. Existing
+     * Setter for <code>public.member_invitation.invited_by</code>. Existing
      * user who created the invitation
      */
     public void setInvitedBy(UUID value) {
@@ -97,7 +97,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Getter for <code>public.app_user_invitation.invited_by</code>. Existing
+     * Getter for <code>public.member_invitation.invited_by</code>. Existing
      * user who created the invitation
      */
     public UUID getInvitedBy() {
@@ -105,7 +105,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Setter for <code>public.app_user_invitation.created_at</code>. Creation
+     * Setter for <code>public.member_invitation.created_at</code>. Creation
      * date and time of the invitation (first invitation email was sent on this
      * time)
      */
@@ -114,7 +114,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     }
 
     /**
-     * Getter for <code>public.app_user_invitation.created_at</code>. Creation
+     * Getter for <code>public.member_invitation.created_at</code>. Creation
      * date and time of the invitation (first invitation email was sent on this
      * time)
      */
@@ -124,7 +124,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
 
     /**
      * Setter for
-     * <code>public.app_user_invitation.email_verification_token</code>. Token
+     * <code>public.member_invitation.email_verification_token</code>. Token
      * which is used to verify the invited user email address. Null if no
      * invitation email was sent yet
      */
@@ -134,12 +134,28 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
 
     /**
      * Getter for
-     * <code>public.app_user_invitation.email_verification_token</code>. Token
+     * <code>public.member_invitation.email_verification_token</code>. Token
      * which is used to verify the invited user email address. Null if no
      * invitation email was sent yet
      */
     public UUID getEmailVerificationToken() {
         return (UUID) get(6);
+    }
+
+    /**
+     * Setter for <code>public.member_invitation.role</code>. Role of the user
+     * when the invitation is accepted
+     */
+    public void setRole(String value) {
+        set(7, value);
+    }
+
+    /**
+     * Getter for <code>public.member_invitation.role</code>. Role of the user
+     * when the invitation is accepted
+     */
+    public String getRole() {
+        return (String) get(7);
     }
 
     // -------------------------------------------------------------------------
@@ -156,17 +172,17 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
     // -------------------------------------------------------------------------
 
     /**
-     * Create a detached AppUserInvitationRecord
+     * Create a detached MemberInvitationRecord
      */
-    public AppUserInvitationRecord() {
-        super(AppUserInvitation.APP_USER_INVITATION);
+    public MemberInvitationRecord() {
+        super(MemberInvitation.MEMBER_INVITATION);
     }
 
     /**
-     * Create a detached, initialised AppUserInvitationRecord
+     * Create a detached, initialised MemberInvitationRecord
      */
-    public AppUserInvitationRecord(UUID id, String email, OffsetDateTime lastInvitationSentTime, UUID tenantId, UUID invitedBy, OffsetDateTime createdAt, UUID emailVerificationToken) {
-        super(AppUserInvitation.APP_USER_INVITATION);
+    public MemberInvitationRecord(UUID id, String email, OffsetDateTime lastInvitationSentTime, UUID tenantId, UUID invitedBy, OffsetDateTime createdAt, UUID emailVerificationToken, String role) {
+        super(MemberInvitation.MEMBER_INVITATION);
 
         setId(id);
         setEmail(email);
@@ -175,6 +191,7 @@ public class AppUserInvitationRecord extends UpdatableRecordImpl<AppUserInvitati
         setInvitedBy(invitedBy);
         setCreatedAt(createdAt);
         setEmailVerificationToken(emailVerificationToken);
+        setRole(role);
         resetTouchedOnNotNull();
     }
 }

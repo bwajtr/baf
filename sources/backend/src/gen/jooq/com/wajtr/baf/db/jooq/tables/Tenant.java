@@ -6,8 +6,8 @@ package com.wajtr.baf.db.jooq.tables;
 
 import com.wajtr.baf.db.jooq.Keys;
 import com.wajtr.baf.db.jooq.Public;
-import com.wajtr.baf.db.jooq.tables.AppUserInvitation.AppUserInvitationPath;
 import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant.AppUserRoleTenantPath;
+import com.wajtr.baf.db.jooq.tables.MemberInvitation.MemberInvitationPath;
 import com.wajtr.baf.db.jooq.tables.Product.ProductPath;
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord;
 
@@ -174,19 +174,6 @@ public class Tenant extends TableImpl<TenantRecord> {
         return Keys.TENANT_PKEY;
     }
 
-    private transient AppUserInvitationPath _appUserInvitation;
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.app_user_invitation</code> table
-     */
-    public AppUserInvitationPath appUserInvitation() {
-        if (_appUserInvitation == null)
-            _appUserInvitation = new AppUserInvitationPath(this, null, Keys.APP_USER_INVITATION__APP_USER_INVITATION_TENANT_ID_FKEY.getInverseKey());
-
-        return _appUserInvitation;
-    }
-
     private transient AppUserRoleTenantPath _appUserRoleTenant;
 
     /**
@@ -198,6 +185,19 @@ public class Tenant extends TableImpl<TenantRecord> {
             _appUserRoleTenant = new AppUserRoleTenantPath(this, null, Keys.APP_USER_ROLE_TENANT__APP_USER_ROLE_TENANT_TENANT_ID_FKEY.getInverseKey());
 
         return _appUserRoleTenant;
+    }
+
+    private transient MemberInvitationPath _memberInvitation;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.member_invitation</code> table
+     */
+    public MemberInvitationPath memberInvitation() {
+        if (_memberInvitation == null)
+            _memberInvitation = new MemberInvitationPath(this, null, Keys.MEMBER_INVITATION__MEMBER_INVITATION_TENANT_ID_FKEY.getInverseKey());
+
+        return _memberInvitation;
     }
 
     private transient ProductPath _product;
