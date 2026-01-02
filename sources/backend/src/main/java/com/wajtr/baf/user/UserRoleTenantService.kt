@@ -54,4 +54,19 @@ class UserRoleTenantService(
             .fetchInto(UUID::class.java)
     }
 
+    fun getRolesForUserInTenant(userId: UUID, tenantId: UUID): List<String> {
+        return dslContext.select(APP_USER_ROLE_TENANT.ROLE)
+            .from(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
+            .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .fetchInto(String::class.java)
+    }
+
+    fun removeUserFromTenant(userId: UUID, tenantId: UUID): Int {
+        return dslContext.deleteFrom(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
+            .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .execute()
+    }
+
 }

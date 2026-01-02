@@ -19,6 +19,7 @@ import com.wajtr.baf.authentication.TenantSwitchResult
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.core.tenants.Tenant
 import com.wajtr.baf.core.tenants.TenantRepository
+import com.wajtr.baf.ui.components.userAvatar
 import com.wajtr.baf.ui.vaadin.extensions.showNotification
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
@@ -46,8 +47,7 @@ class UserMenuBarComponent(
         justifyContentMode = FlexComponent.JustifyContentMode.CENTER
         setWidthFull()
 
-        avatar(identity.authenticatedUser.name) {
-            colorIndex = 4
+        userAvatar(identity.authenticatedUser.name) {
             style.set("--vaadin-avatar-size", "2rem")
         }
 
