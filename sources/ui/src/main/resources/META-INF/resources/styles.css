@@ -1,1 +1,7 @@
 @import "styles/mainlayout.css";
+@import "styles/components/breadcrumb.css";
+
+
+vaadin-grid.pointer-cursor-on-rows::part(body-row) {
+    cursor: pointer;
+}

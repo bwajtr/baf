@@ -69,4 +69,21 @@ class UserRoleTenantService(
             .execute()
     }
 
+    fun setUserRolesForTenant(userId: UUID, tenantId: UUID, roles: Set<String>) {
+        // Remove all existing roles for user in tenant
+        dslContext.deleteFrom(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
+            .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .execute()
+
+        // Insert new roles
+        roles.forEach { role ->
+            dslContext.insertInto(APP_USER_ROLE_TENANT)
+                .set(APP_USER_ROLE_TENANT.USER_ID, userId)
+                .set(APP_USER_ROLE_TENANT.ROLE, role)
+                .set(APP_USER_ROLE_TENANT.TENANT_ID, tenantId)
+                .execute()
+        }
+    }
+
 }

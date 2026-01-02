@@ -1,14 +1,17 @@
 package com.wajtr.baf.ui.views.organization.members
 
 import com.github.mvysny.karibudsl.v10.flexGrow
+import com.github.mvysny.karibudsl.v10.flexLayout
 import com.github.mvysny.karibudsl.v10.span
 import com.vaadin.flow.component.Component
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.Span
+import com.vaadin.flow.component.orderedlayout.FlexLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.Menu
 import com.vaadin.flow.router.Route
@@ -47,13 +50,18 @@ class MembersPage(
     init {
         style.set("display", "flex")
         style.set("flex-direction", "column")
-        add(ViewToolbar(i18n("members.page.header")))
+        flexLayout {
+            flexDirection = FlexLayout.FlexDirection.COLUMN
+            flexGrow = 1.0
+            maxWidth = "1200px"
+            add(ViewToolbar(i18n("members.page.header")))
+            add(createGrid())
+        }
 
-        createGrid()
         loadMembers()
     }
 
-    private fun createGrid() {
+    private fun createGrid(): Grid<MemberGridItem> {
         grid = Grid(MemberGridItem::class.java, false)
         grid.setWidthFull()
         grid.flexGrow = 1.0
@@ -68,9 +76,16 @@ class MembersPage(
 
         // Column 3: Actions
         grid.addComponentColumn { member -> createActionsColumn(member) }
-            .setHeader(i18n("members.column.actions")).setFlexGrow(0).setWidth("150px")
+            .setHeader(i18n("members.column.actions")).setFlexGrow(0).setAutoWidth(true)
 
-        add(grid)
+
+        grid.setSelectionMode(Grid.SelectionMode.NONE)
+        grid.addItemClickListener {
+            UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${it.item.user.id}")
+        }
+        grid.addClassNames("pointer-cursor-on-rows")
+
+        return grid
     }
 
     private fun createUserInfoColumn(member: MemberGridItem): Div {
@@ -197,8 +212,6 @@ class MembersPage(
     private fun leaveOrganization(userId: UUID, tenantId: UUID) {
         try {
             userRoleTenantService.removeUserFromTenant(userId, tenantId)
-            showSuccessNotification(i18n("members.leave.success"))
-            // Logout after leaving
             authenticationContext.logout()
         } catch (_: Exception) {
             showErrorNotification(i18n("members.leave.failure"))

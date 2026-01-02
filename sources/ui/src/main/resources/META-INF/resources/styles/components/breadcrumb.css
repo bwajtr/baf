@@ -1,0 +1,14 @@
+nav.breadcrumb ol{
+    display: flex;
+    font-size: smaller;
+    list-style-type: none;
+    margin: 0;
+    margin-bottom: 1.7rem;
+    padding: 0;
+}
+
+nav.breadcrumb li + li::before {
+    content: ">";
+    display: block;
+    margin: 0 0.5rem;
+}
