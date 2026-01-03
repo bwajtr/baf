@@ -113,10 +113,13 @@ class MembersPage(
 
         grid.setSelectionMode(Grid.SelectionMode.NONE)
         grid.addItemClickListener {
-            // Only navigate for active members, not invitations
-            if (it.item is MemberGridItem.ActiveMember) {
-                val activeMember = it.item as MemberGridItem.ActiveMember
-                UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${activeMember.user.id}")
+            when (val item = it.item) {
+                is MemberGridItem.ActiveMember -> {
+                    UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${item.user.id}")
+                }
+                is MemberGridItem.InvitedMember -> {
+                    UI.getCurrent().navigate("$INVITATION_DETAILS_PAGE/${item.invitationId}")
+                }
             }
         }
         grid.addClassNames("pointer-cursor-on-rows")

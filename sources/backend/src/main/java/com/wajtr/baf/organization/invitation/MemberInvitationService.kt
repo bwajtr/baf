@@ -1,15 +1,25 @@
 package com.wajtr.baf.organization.invitation
 
+import com.wajtr.baf.db.jooq.Tables.APP_USER
 import com.wajtr.baf.db.jooq.Tables.MEMBER_INVITATION
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
 import java.util.*
 
 data class MemberInvitation(
     val id: UUID,
     val email: String,
     val role: String,
+)
+
+data class MemberInvitationDetails(
+    val id: UUID,
+    val email: String,
+    val role: String,
+    val createdAt: OffsetDateTime,
+    val invitedByName: String?,
 )
 
 @Service
@@ -56,6 +66,35 @@ class MemberInvitationService(
             dslContext.selectFrom(MEMBER_INVITATION)
                 .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
         )
+    }
+
+    fun getInvitationById(invitationId: UUID): MemberInvitationDetails? {
+        return dslContext.select(
+            MEMBER_INVITATION.ID,
+            MEMBER_INVITATION.EMAIL,
+            MEMBER_INVITATION.ROLE,
+            MEMBER_INVITATION.CREATED_AT,
+            APP_USER.NAME
+        )
+            .from(MEMBER_INVITATION)
+            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
+            .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .fetchOne { record ->
+                MemberInvitationDetails(
+                    id = record.get(MEMBER_INVITATION.ID),
+                    email = record.get(MEMBER_INVITATION.EMAIL),
+                    role = record.get(MEMBER_INVITATION.ROLE),
+                    createdAt = record.get(MEMBER_INVITATION.CREATED_AT),
+                    invitedByName = record.get(APP_USER.NAME),
+                )
+            }
+    }
+
+    fun updateRole(invitationId: UUID, role: String): Int {
+        return dslContext.update(MEMBER_INVITATION)
+            .set(MEMBER_INVITATION.ROLE, role)
+            .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .execute()
     }
 
 }
