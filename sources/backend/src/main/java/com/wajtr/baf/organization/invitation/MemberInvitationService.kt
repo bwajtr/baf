@@ -1,7 +1,7 @@
 package com.wajtr.baf.organization.invitation
 
-import com.wajtr.baf.db.jooq.Tables.APP_USER
-import com.wajtr.baf.db.jooq.Tables.MEMBER_INVITATION
+import com.wajtr.baf.db.jooq.Tables.*
+import com.wajtr.baf.user.Identity
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,10 +22,20 @@ data class MemberInvitationDetails(
     val invitedByName: String?,
 )
 
+data class InvitationAcceptanceDetails(
+    val id: UUID,
+    val email: String,
+    val role: String,
+    val tenantId: UUID,
+    val organizationName: String,
+    val invitedByName: String?,
+)
+
 @Service
 @Transactional
 class MemberInvitationService(
-    private val dslContext: DSLContext
+    private val dslContext: DSLContext,
+    private val identity: Identity
 ) {
 
     fun getAllInvitations(): List<MemberInvitation> {
@@ -35,6 +45,7 @@ class MemberInvitationService(
             MEMBER_INVITATION.ROLE,
         )
             .from(MEMBER_INVITATION)
+            .where(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
             .fetch { record ->
                 MemberInvitation(
                     id = record.get(MEMBER_INVITATION.ID),
@@ -47,6 +58,7 @@ class MemberInvitationService(
     fun deleteInvitation(invitationId: UUID): Int {
         return dslContext.deleteFrom(MEMBER_INVITATION)
             .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .execute()
     }
 
@@ -65,6 +77,7 @@ class MemberInvitationService(
         return dslContext.fetchExists(
             dslContext.selectFrom(MEMBER_INVITATION)
                 .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
+                .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
         )
     }
 
@@ -79,6 +92,7 @@ class MemberInvitationService(
             .from(MEMBER_INVITATION)
             .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
             .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .fetchOne { record ->
                 MemberInvitationDetails(
                     id = record.get(MEMBER_INVITATION.ID),
@@ -94,7 +108,33 @@ class MemberInvitationService(
         return dslContext.update(MEMBER_INVITATION)
             .set(MEMBER_INVITATION.ROLE, role)
             .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .execute()
+    }
+
+    fun getInvitationForAcceptance(invitationId: UUID): InvitationAcceptanceDetails? {
+        return dslContext.select(
+            MEMBER_INVITATION.ID,
+            MEMBER_INVITATION.EMAIL,
+            MEMBER_INVITATION.ROLE,
+            MEMBER_INVITATION.TENANT_ID,
+            TENANT.ORGANIZATION_NAME,
+            APP_USER.NAME
+        )
+            .from(MEMBER_INVITATION)
+            .join(TENANT).on(MEMBER_INVITATION.TENANT_ID.eq(TENANT.ID))
+            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
+            .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .fetchOne { record ->
+                InvitationAcceptanceDetails(
+                    id = record.get(MEMBER_INVITATION.ID),
+                    email = record.get(MEMBER_INVITATION.EMAIL),
+                    role = record.get(MEMBER_INVITATION.ROLE),
+                    tenantId = record.get(MEMBER_INVITATION.TENANT_ID),
+                    organizationName = record.get(TENANT.ORGANIZATION_NAME),
+                    invitedByName = record.get(APP_USER.NAME),
+                )
+            }
     }
 
 }

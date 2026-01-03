@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextArea
+import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.MemberInvitationService
 import com.wajtr.baf.organization.member.UserRole
@@ -25,6 +26,8 @@ class InviteMembersDialog(
 
     private val emailsField: TextArea
     private val roleComboBox: ComboBox<String>
+
+    private val logger = org.slf4j.LoggerFactory.getLogger(InviteMembersDialog::class.java)
 
     init {
         headerTitle = i18n("members.invite.dialog.header")
@@ -106,12 +109,14 @@ class InviteMembersDialog(
 
         // Create invitations
         for (email in emails) {
-            memberInvitationService.createInvitation(
+            val invitationId = memberInvitationService.createInvitation(
                 email = email,
                 role = roleComboBox.value,
                 tenantId = tenant.id,
                 invitedBy = currentUser.id
             )
+            val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/" + invitationId
+            logger.info("Created invitation $invitationId for email $email with role ${roleComboBox.value}. Url is $acceptanceUrl")
         }
 
         close()

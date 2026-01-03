@@ -4,7 +4,6 @@
 package com.wajtr.baf.db.jooq.tables;
 
 
-import com.wajtr.baf.db.jooq.Indexes;
 import com.wajtr.baf.db.jooq.Keys;
 import com.wajtr.baf.db.jooq.Public;
 import com.wajtr.baf.db.jooq.tables.AppUser.AppUserPath;
@@ -20,7 +19,6 @@ import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -171,11 +169,6 @@ public class MemberInvitation extends TableImpl<MemberInvitationRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : Public.PUBLIC;
-    }
-
-    @Override
-    public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.PUBLIC_MEMBER_INVITATION_TENANT_ID);
     }
 
     @Override

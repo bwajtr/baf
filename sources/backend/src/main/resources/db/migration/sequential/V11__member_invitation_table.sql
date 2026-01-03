@@ -22,6 +22,3 @@ COMMENT ON COLUMN member_invitation.tenant_id IS 'Tenant into which the user is 
 COMMENT ON COLUMN member_invitation.invited_by IS 'Existing user who created the invitation';
 COMMENT ON COLUMN member_invitation.created_at IS 'Creation date and time of the invitation (first invitation email was sent on this time)';
 COMMENT ON COLUMN member_invitation.role IS 'Role of the user when the invitation is accepted';
-
--- REQUIRED ON ALL USER MODIFIABLE TABLES!: Enable row level security to support multi-tenancy security
-SELECT apply_tenant_policy('public', 'member_invitation', 'tenant_id');
