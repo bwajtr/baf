@@ -6,7 +6,6 @@ CREATE TABLE member_invitation (
   tenant_id UUID NOT NULL REFERENCES tenant (id) ON DELETE CASCADE,
   invited_by UUID REFERENCES app_user(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  email_verification_token UUID DEFAULT NULL,
   role TEXT NOT NULL
 );
 
@@ -22,7 +21,6 @@ COMMENT ON COLUMN member_invitation.last_invitation_sent_time IS 'Date and time 
 COMMENT ON COLUMN member_invitation.tenant_id IS 'Tenant into which the user is invited';
 COMMENT ON COLUMN member_invitation.invited_by IS 'Existing user who created the invitation';
 COMMENT ON COLUMN member_invitation.created_at IS 'Creation date and time of the invitation (first invitation email was sent on this time)';
-COMMENT ON COLUMN member_invitation.email_verification_token IS 'Token which is used to verify the invited user email address. Null if no invitation email was sent yet';
 COMMENT ON COLUMN member_invitation.role IS 'Role of the user when the invitation is accepted';
 
 -- REQUIRED ON ALL USER MODIFIABLE TABLES!: Enable row level security to support multi-tenancy security

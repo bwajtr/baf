@@ -101,14 +101,6 @@ public class MemberInvitation extends TableImpl<MemberInvitationRecord> {
     public final TableField<MemberInvitationRecord, OffsetDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "Creation date and time of the invitation (first invitation email was sent on this time)");
 
     /**
-     * The column
-     * <code>public.member_invitation.email_verification_token</code>. Token
-     * which is used to verify the invited user email address. Null if no
-     * invitation email was sent yet
-     */
-    public final TableField<MemberInvitationRecord, UUID> EMAIL_VERIFICATION_TOKEN = createField(DSL.name("email_verification_token"), SQLDataType.UUID, this, "Token which is used to verify the invited user email address. Null if no invitation email was sent yet");
-
-    /**
      * The column <code>public.member_invitation.role</code>. Role of the user
      * when the invitation is accepted
      */

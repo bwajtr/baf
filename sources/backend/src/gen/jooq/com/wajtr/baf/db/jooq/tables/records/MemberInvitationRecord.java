@@ -123,31 +123,11 @@ public class MemberInvitationRecord extends UpdatableRecordImpl<MemberInvitation
     }
 
     /**
-     * Setter for
-     * <code>public.member_invitation.email_verification_token</code>. Token
-     * which is used to verify the invited user email address. Null if no
-     * invitation email was sent yet
-     */
-    public void setEmailVerificationToken(UUID value) {
-        set(6, value);
-    }
-
-    /**
-     * Getter for
-     * <code>public.member_invitation.email_verification_token</code>. Token
-     * which is used to verify the invited user email address. Null if no
-     * invitation email was sent yet
-     */
-    public UUID getEmailVerificationToken() {
-        return (UUID) get(6);
-    }
-
-    /**
      * Setter for <code>public.member_invitation.role</code>. Role of the user
      * when the invitation is accepted
      */
     public void setRole(String value) {
-        set(7, value);
+        set(6, value);
     }
 
     /**
@@ -155,7 +135,7 @@ public class MemberInvitationRecord extends UpdatableRecordImpl<MemberInvitation
      * when the invitation is accepted
      */
     public String getRole() {
-        return (String) get(7);
+        return (String) get(6);
     }
 
     // -------------------------------------------------------------------------
@@ -181,7 +161,7 @@ public class MemberInvitationRecord extends UpdatableRecordImpl<MemberInvitation
     /**
      * Create a detached, initialised MemberInvitationRecord
      */
-    public MemberInvitationRecord(UUID id, String email, OffsetDateTime lastInvitationSentTime, UUID tenantId, UUID invitedBy, OffsetDateTime createdAt, UUID emailVerificationToken, String role) {
+    public MemberInvitationRecord(UUID id, String email, OffsetDateTime lastInvitationSentTime, UUID tenantId, UUID invitedBy, OffsetDateTime createdAt, String role) {
         super(MemberInvitation.MEMBER_INVITATION);
 
         setId(id);
@@ -190,7 +170,6 @@ public class MemberInvitationRecord extends UpdatableRecordImpl<MemberInvitation
         setTenantId(tenantId);
         setInvitedBy(invitedBy);
         setCreatedAt(createdAt);
-        setEmailVerificationToken(emailVerificationToken);
         setRole(role);
         resetTouchedOnNotNull();
     }

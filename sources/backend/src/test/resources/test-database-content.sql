@@ -42,14 +42,17 @@ $$
         VALUES (joe_user_id, current_timestamp - interval '1 day', 'Chrome 90', 'Desktop', 'Windows 10', '127.0.0.1'),
                (jane_admin_id, current_timestamp - interval '2 days', 'Firefox 88', 'Laptop', 'Ubuntu 20.04',
                 '127.0.0.1'),
-               (developer_tenant_1_owner_id, current_timestamp - interval '3 days', 'Safari 14', 'Tablet', 'iOS 14', '127.0.0.1');
+               (developer_tenant_1_owner_id, current_timestamp - interval '3 days', 'Safari 14', 'Tablet', 'iOS 14',
+                '127.0.0.1');
 
-        INSERT INTO member_invitation (id, email, tenant_id, invited_by, last_invitation_sent_time, email_verification_token, role)
-        VALUES
-            ('019b5afd-3566-7f26-92b1-b63c7a6eae54'::UUID, 'invited1@acme.com', developer_tenant_1_id, developer_tenant_1_owner_id, current_timestamp, '6963f137-c20c-4423-b007-82ec07b41ccb'::UUID, 'USER'),
-            ('019b5afd-6774-7dd5-b2d1-b0f34c3e2b7c'::UUID, 'invited2@acme.com', developer_tenant_1_id, developer_tenant_1_owner_id, NULL, NULL, 'ADMIN'),
-            (DEFAULT, 'invited.user1@acme.com', developer_tenant_2_id, developer_tenant_2_owner_id, current_timestamp, '8b88e7b9-8850-49af-bb2f-59207dc75c69'::UUID, 'USER'),
-            (DEFAULT, 'invited.user2@acme.com', developer_tenant_2_id, developer_tenant_2_owner_id, NULL, NULL, 'USER');
+        INSERT INTO member_invitation (id, email, tenant_id, invited_by, last_invitation_sent_time, role)
+        VALUES ('019b5afd-3566-7f26-92b1-b63c7a6eae54'::UUID, 'invited1@acme.com', developer_tenant_1_id,
+                developer_tenant_1_owner_id, current_timestamp, 'USER'),
+               ('019b5afd-6774-7dd5-b2d1-b0f34c3e2b7c'::UUID, 'invited2@acme.com', developer_tenant_1_id,
+                developer_tenant_1_owner_id, NULL, 'ADMIN'),
+               (DEFAULT, 'invited.user1@acme.com', developer_tenant_2_id, developer_tenant_2_owner_id,
+                current_timestamp, 'USER'),
+               (DEFAULT, 'invited.user2@acme.com', developer_tenant_2_id, developer_tenant_2_owner_id, NULL, 'USER');
 
 
         INSERT INTO product (name, description, price, tenant_id)
