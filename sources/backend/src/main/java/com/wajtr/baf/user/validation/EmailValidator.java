@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class EmailValidator
         implements ConstraintValidator<ValidEmail, String> {
 
-    private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+    private final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private static final String EMAIL_PATTERN = "^" + "[_A-Za-z0-9+]+(\\.[_A-Za-z0-9-]+)*" // local
             + "@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*" // domain
             + "\\." + "[a-zA-Z]{2,}" // tld
@@ -21,10 +21,10 @@ public class EmailValidator
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        return (validateEmail(email));
+        return isValid(email);
     }
 
-    private boolean validateEmail(String email) {
+    public boolean isValid(String email) {
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }

@@ -40,4 +40,22 @@ class MemberInvitationService(
             .execute()
     }
 
+    fun createInvitation(email: String, role: String, tenantId: UUID, invitedBy: UUID): UUID {
+        return dslContext.insertInto(MEMBER_INVITATION)
+            .set(MEMBER_INVITATION.EMAIL, email.lowercase().trim())
+            .set(MEMBER_INVITATION.ROLE, role)
+            .set(MEMBER_INVITATION.TENANT_ID, tenantId)
+            .set(MEMBER_INVITATION.INVITED_BY, invitedBy)
+            .returning(MEMBER_INVITATION.ID)
+            .fetchOne()!!
+            .get(MEMBER_INVITATION.ID)
+    }
+
+    fun emailAlreadyInvited(email: String): Boolean {
+        return dslContext.fetchExists(
+            dslContext.selectFrom(MEMBER_INVITATION)
+                .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
+        )
+    }
+
 }

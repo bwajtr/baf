@@ -11,6 +11,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.Span
+import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.orderedlayout.FlexLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.Menu
@@ -67,11 +68,22 @@ class MembersPage(
             flexDirection = FlexLayout.FlexDirection.COLUMN
             flexGrow = 1.0
             maxWidth = "1200px"
-            add(ViewToolbar(i18n("members.page.header")))
+            add(ViewToolbar(i18n("members.page.header"), createInviteMembersButton()))
             add(createGrid())
         }
 
         loadMembers()
+    }
+
+    private fun createInviteMembersButton(): Button {
+        return Button(i18n("members.invite.members.button.label"), VaadinIcon.PLUS.create()).apply {
+            addThemeVariants(ButtonVariant.AURA_PRIMARY)
+            addClassName("aura-accent-green")
+            style.set("--vaadin-button-primary-background", "var(--aura-green)")
+            addClickListener {
+                InviteMembersDialog(identity, memberInvitationService) { loadMembers() }.open()
+            }
+        }
     }
 
     private fun createGrid(): Grid<MemberGridItem> {
