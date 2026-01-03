@@ -18,24 +18,34 @@ import com.vaadin.flow.router.Route
 import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.organization.invitation.MemberInvitationService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.components.UserAvatar
-import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
-import com.wajtr.baf.user.*
+import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.User
+import com.wajtr.baf.user.UserRepository
 import jakarta.annotation.security.RolesAllowed
 import java.util.*
 
 const val MEMBERS_PAGE = "members"
 
-data class MemberGridItem(
-    val user: User,
-    val roles: List<String>
-)
+sealed interface MemberGridItem {
+    data class ActiveMember(
+        val user: User,
+        val roles: List<String>
+    ) : MemberGridItem
+
+    data class InvitedMember(
+        val invitationId: UUID,
+        val email: String,
+        val role: String
+    ) : MemberGridItem
+}
 
 @RolesAllowed(UserRole.OWNER_ROLE, UserRole.ADMIN_ROLE)
 @Route(MEMBERS_PAGE, layout = MainLayout::class)
@@ -44,7 +54,8 @@ class MembersPage(
     private val identity: Identity,
     private val userRoleTenantService: UserRoleTenantService,
     private val userRepository: UserRepository,
-    private val authenticationContext: AuthenticationContext
+    private val authenticationContext: AuthenticationContext,
+    private val memberInvitationService: MemberInvitationService,
 ) : MainLayoutPage() {
 
     private lateinit var grid: Grid<MemberGridItem>
@@ -73,8 +84,15 @@ class MembersPage(
             .setHeader(i18n("members.column.user")).setFlexGrow(2)
 
         // Column 2: Roles
-        grid.addColumn { member -> member.roles.joinToString(", ") { i18n("role.$it") } }
-            .setHeader(i18n("members.column.roles")).setFlexGrow(1)
+        grid.addColumn { member ->
+            when (member) {
+                is MemberGridItem.ActiveMember -> member.roles.joinToString(", ") { i18n("role.$it") }
+                is MemberGridItem.InvitedMember -> i18n(
+                    "members.invitation.role.invited.as",
+                    i18n("role.${member.role}")
+                )
+            }
+        }.setHeader(i18n("members.column.roles")).setFlexGrow(1)
 
         // Column 3: Actions
         grid.addComponentColumn { member -> createActionsColumn(member) }
@@ -83,7 +101,11 @@ class MembersPage(
 
         grid.setSelectionMode(Grid.SelectionMode.NONE)
         grid.addItemClickListener {
-            UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${it.item.user.id}")
+            // Only navigate for active members, not invitations
+            if (it.item is MemberGridItem.ActiveMember) {
+                val activeMember = it.item as MemberGridItem.ActiveMember
+                UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${activeMember.user.id}")
+            }
         }
         grid.addClassNames("pointer-cursor-on-rows")
 
@@ -96,17 +118,29 @@ class MembersPage(
         container.style.set("align-items", "center")
         container.style.set("gap", "0.75rem")
 
-        val avatar = UserAvatar(member.user.name)
+        val (avatarName, primaryText, secondaryText) = when (member) {
+            is MemberGridItem.ActiveMember -> {
+                Triple(member.user.name, member.user.name, member.user.email)
+            }
+
+            is MemberGridItem.InvitedMember -> {
+                Triple(null, member.email, i18n("members.invitation.label"))
+            }
+        }
+
+        val avatar = if (avatarName != null) {
+            UserAvatar(avatarName)
+        } else Div().apply { width = "28px" }
         avatar.style.set("flex-shrink", "0")
 
         val textContainer = VerticalLayout().apply {
             isSpacing = false
             isPadding = false
 
-            span(member.user.name) {
+            span(primaryText) {
                 style.set("font-weight", "500")
             }
-            span(member.user.email) {
+            span(secondaryText) {
                 style.set("font-size", "0.8rem")
                 style.set("line-height", "1rem")
                 style.set("color", "var(--vaadin-text-color-secondary)")
@@ -119,10 +153,25 @@ class MembersPage(
     }
 
     private fun createActionsColumn(member: MemberGridItem): Component {
-        val currentUser = identity.authenticatedUser
         val tenant = identity.authenticatedTenant
             ?: throw IllegalStateException("No authenticated tenant found")
 
+        return when (member) {
+            is MemberGridItem.ActiveMember -> {
+                createLeaveOrRemoveButton(member, tenant)
+            }
+
+            is MemberGridItem.InvitedMember -> {
+                createCancelInvitationButton(member)
+            }
+        }
+    }
+
+    private fun createLeaveOrRemoveButton(
+        member: MemberGridItem.ActiveMember,
+        tenant: AuthenticatedTenant
+    ): Component {
+        val currentUser = identity.authenticatedUser
         val isCurrentUser = member.user.id == currentUser.id
         return if (isCurrentUser) {
             createLeaveButtonIfPossible(currentUser, tenant)
@@ -132,7 +181,7 @@ class MembersPage(
     }
 
     private fun createRemoveButton(
-        member: MemberGridItem,
+        member: MemberGridItem.ActiveMember,
         tenant: AuthenticatedTenant
     ): Button {
         val removeButton = Button(i18n("members.action.remove"))
@@ -166,6 +215,19 @@ class MembersPage(
         } else {
             Span()
         }
+    }
+
+    private fun createCancelInvitationButton(
+        invitation: MemberGridItem.InvitedMember
+    ): Button {
+        val cancelButton = Button(i18n("members.action.cancel"))
+        cancelButton.addThemeVariants(ButtonVariant.AURA_DANGER)
+
+        cancelButton.addClickListener {
+            showCancelInvitationConfirmation(invitation.invitationId)
+        }
+
+        return cancelButton
     }
 
     private fun showLeaveConfirmation(userId: UUID, tenantId: UUID) {
@@ -204,6 +266,24 @@ class MembersPage(
         dialog.open()
     }
 
+    private fun showCancelInvitationConfirmation(invitationId: UUID) {
+        val dialog = ConfirmDialog()
+        dialog.setHeader(i18n("members.confirm.cancel.title"))
+        dialog.setText(i18n("members.confirm.cancel.message"))
+
+        dialog.setCancelable(true)
+        dialog.setConfirmText(i18n("members.confirm.cancel.yes"))
+        dialog.setCancelText(i18n("members.confirm.cancel.no"))
+
+        dialog.setConfirmButtonTheme("error primary")
+
+        dialog.addConfirmListener {
+            cancelInvitation(invitationId)
+        }
+
+        dialog.open()
+    }
+
     /**
      * Removes a user from an organization and logs out the user upon successful removal.
      * This method displays a success or error notification based on the operation's outcome.
@@ -212,12 +292,8 @@ class MembersPage(
      * @param tenantId The unique identifier of the tenant (organization) the user is leaving.
      */
     private fun leaveOrganization(userId: UUID, tenantId: UUID) {
-        try {
-            userRoleTenantService.removeUserFromTenant(userId, tenantId)
-            authenticationContext.logout()
-        } catch (_: Exception) {
-            showErrorNotification(i18n("members.leave.failure"))
-        }
+        userRoleTenantService.removeUserFromTenant(userId, tenantId)
+        authenticationContext.logout()
     }
 
     /**
@@ -229,39 +305,60 @@ class MembersPage(
      * @param tenantId The unique identifier of the tenant (organization) from which the user will be removed.
      */
     private fun removeUserFromOrganization(userId: UUID, tenantId: UUID) {
-        try {
-            // Remove user from this tenant
-            userRoleTenantService.removeUserFromTenant(userId, tenantId)
+        // Remove user from this tenant
+        userRoleTenantService.removeUserFromTenant(userId, tenantId)
 
-            // Check if user is member of other tenants and if not remove user completely
-            val userTenants = userRepository.resolveTenantIdsOfUser(userId)
-            if (userTenants.isEmpty()) {
-                userRepository.remove(userId)
-            }
-
-            showSuccessNotification(i18n("members.remove.success"))
-            loadMembers() // Reload grid
-        } catch (_: Exception) {
-            showErrorNotification(i18n("members.remove.failure"))
+        // Check if user is member of other tenants and if not remove user completely
+        val userTenants = userRepository.resolveTenantIdsOfUser(userId)
+        if (userTenants.isEmpty()) {
+            userRepository.remove(userId)
         }
+
+        showSuccessNotification(i18n("members.remove.success"))
+        loadMembers() // Reload grid
+    }
+
+    /**
+     * Cancels a member invitation by deleting it from the database.
+     * Displays a success or error notification based on the operation's outcome
+     * and updates the members grid on successful cancellation.
+     *
+     * @param invitationId The unique identifier of the invitation to be cancelled.
+     */
+    private fun cancelInvitation(invitationId: UUID) {
+        memberInvitationService.deleteInvitation(invitationId)
+        showSuccessNotification(i18n("members.cancel.success"))
+        loadMembers() // Reload grid
     }
 
     private fun loadMembers() {
         val tenant = identity.authenticatedTenant
             ?: throw IllegalStateException("No authenticated tenant found")
 
+        // Load active members
         val userIds = userRoleTenantService.getUserIdsForTenant(tenant.id)
-        val members = userIds.mapNotNull { userId ->
+        val activeMembers = userIds.mapNotNull { userId ->
             val user = userRepository.findById(userId)
             if (user != null) {
                 val roles = userRoleTenantService.getRolesForUserInTenant(userId, tenant.id)
-                MemberGridItem(user, roles)
+                MemberGridItem.ActiveMember(user, roles)
             } else {
                 null
             }
         }
 
-        grid.setItems(members)
+        // Load invitations
+        val invitations = memberInvitationService.getAllInvitations().map { invitation ->
+            MemberGridItem.InvitedMember(
+                invitationId = invitation.id,
+                email = invitation.email,
+                role = invitation.role
+            )
+        }
+
+        // Combine and set items
+        val allItems = activeMembers + invitations
+        grid.setItems(allItems)
     }
 
 }
