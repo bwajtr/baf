@@ -3,14 +3,10 @@ package com.wajtr.baf.ui.views.organization.members
 import com.github.mvysny.karibudsl.v10.*
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.ButtonVariant
-import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H1
-import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup
 import com.vaadin.flow.data.binder.Binder
-import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.Route
@@ -48,7 +44,7 @@ class InvitationDetailsPage(
     private val binder = Binder<InvitationDetailsFormData>()
     private val formData = InvitationDetailsFormData()
 
-    private lateinit var organizationRoleGroup: RadioButtonGroup<String>
+    private lateinit var roleSelectionComponent: RoleSelectionComponent
 
     init {
         style.set("display", "flex")
@@ -93,7 +89,9 @@ class InvitationDetailsPage(
         }
 
         container.add(createBasicsSection())
-        container.add(createOrganizationRoleSection())
+
+        roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = false)
+        container.add(roleSelectionComponent)
 
         // Save button
         container.button(i18n("invitation.details.save")) {
@@ -136,42 +134,8 @@ class InvitationDetailsPage(
         }
     }
 
-    private fun createOrganizationRoleSection(): VerticalLayout {
-        return VerticalLayout().apply {
-            isPadding = false
-            style.set("margin-bottom", "2rem")
-
-            add(H2(i18n("member.settings.role.section")))
-
-            organizationRoleGroup = radioButtonGroup {
-                setItems(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
-                setRenderer(ComponentRenderer { role ->
-                    createRoleOption(role, i18n("member.settings.role.description.$role"))
-                })
-            }
-
-            add(organizationRoleGroup)
-        }
-    }
-
-    private fun createRoleOption(roleName: String, description: String): Div {
-        return Div().apply {
-            val nameSpan = Span(i18n("role.$roleName"))
-            nameSpan.style.set("font-weight", "bold")
-            nameSpan.style.set("display", "block")
-
-            val descSpan = Span(description)
-            descSpan.style.set("font-size", "0.875rem")
-            descSpan.style.set("color", "var(--vaadin-text-color-secondary)")
-            descSpan.style.set("display", "block")
-            descSpan.style.set("margin-top", "0.25rem")
-
-            add(nameSpan, descSpan)
-        }
-    }
-
     private fun bindModel() {
-        binder.forField(organizationRoleGroup)
+        binder.forField(roleSelectionComponent.organizationRoleGroup)
             .bind(
                 { it.organizationRole },
                 { formData, value -> formData.organizationRole = value }
