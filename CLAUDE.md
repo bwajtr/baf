@@ -78,6 +78,13 @@ Database credentials for local dev:
 - Views use `@Route` and `@Menu` annotations for navigation
 - Karibu DSL for building Vaadin components in Kotlin
 
+**UI Theming**:
+- The project uses Vaadin's **Aura theme** (not Lumo)
+- Do NOT use `--lumo-*` CSS variables - they are not available
+- Use `--vaadin-*` prefixed variables (e.g., `--vaadin-text-color-secondary`, `--vaadin-padding-m`, `--vaadin-radius-l`, `--vaadin-background-primary`)
+- Use `--aura-*` prefixed variables for accent colors (e.g., `--aura-red`, `--aura-green`)
+- Button variants use `ButtonVariant.AURA_PRIMARY` instead of `LUMO_PRIMARY`
+
 ### Important Packages
 
 Backend (`sources/backend/src/main/java/com/wajtr/baf/`):
