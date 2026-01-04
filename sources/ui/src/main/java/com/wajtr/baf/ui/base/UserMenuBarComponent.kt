@@ -1,17 +1,22 @@
 package com.wajtr.baf.ui.base
 
-import com.github.mvysny.karibudsl.v10.avatar
 import com.github.mvysny.karibudsl.v10.menuBar
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.span
+import com.vaadin.flow.component.AttachEvent
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.contextmenu.SubMenu
+import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.menubar.MenuBarVariant
 import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
+import com.vaadin.flow.component.popover.Popover
+import com.vaadin.flow.component.popover.PopoverPosition
+import com.vaadin.flow.component.popover.PopoverVariant
+import com.vaadin.flow.server.VaadinSession
 import com.vaadin.flow.spring.annotation.SpringComponent
 import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.authentication.ChangeAuthenticatedTenantService
@@ -23,6 +28,7 @@ import com.wajtr.baf.ui.components.userAvatar
 import com.wajtr.baf.ui.vaadin.extensions.showNotification
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
+import com.wajtr.baf.ui.views.organization.members.SESSION_ATTR_ORGANIZATION_ADDED
 import com.wajtr.baf.ui.views.user.settings.UserSettingsPage
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
@@ -80,7 +86,49 @@ class UserMenuBarComponent(
                 }
             }
         }
+    }
 
+    override fun onAttach(attachEvent: AttachEvent) {
+        super.onAttach(attachEvent)
+        checkAndShowOrganizationAddedHint()
+    }
+
+    private fun checkAndShowOrganizationAddedHint() {
+        val session = VaadinSession.getCurrent() ?: return
+        val organizationAdded = session.getAttribute(SESSION_ATTR_ORGANIZATION_ADDED) as? Boolean ?: false
+
+        if (organizationAdded) {
+            // Remove attribute immediately to prevent showing again
+            session.setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, null)
+
+            // Create and show the popover
+            val popover = Popover().apply {
+                target = this@UserMenuBarComponent
+                isModal = true
+                isCloseOnEsc = true
+                isCloseOnOutsideClick = true
+                isBackdropVisible = true
+                isOpenOnClick = false
+                position = PopoverPosition.END
+                addThemeVariants(PopoverVariant.AURA_ARROW)
+
+                add(Div().apply {
+                    text = i18n("user.menu.bar.organization.added.hint")
+                    style.set("padding", "var(--vaadin-padding-s)")
+                    width = "17rem"
+                })
+
+                addOpenedChangeListener {
+                    if (!it.isOpened) {
+                        // remove from DOM after closed
+                        UI.getCurrent().remove(it.source)
+                    }
+                }
+            }
+
+            UI.getCurrent().add(popover)
+            popover.open()
+        }
     }
 
     private fun addOrganizationsSectionAsSubmenu(subMenu: SubMenu) {

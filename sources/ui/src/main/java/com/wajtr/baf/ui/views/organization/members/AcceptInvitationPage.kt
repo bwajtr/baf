@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.Route
+import com.vaadin.flow.server.VaadinSession
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.InvitationAcceptanceDetails
 import com.wajtr.baf.organization.invitation.MemberInvitationService
@@ -24,6 +25,7 @@ import jakarta.annotation.security.PermitAll
 import java.util.*
 
 const val ACCEPT_INVITATION_PAGE = "accept-invitation"
+const val SESSION_ATTR_ORGANIZATION_ADDED = "organization-added"
 
 @PermitAll
 @Route(ACCEPT_INVITATION_PAGE, layout = MainLayout::class)
@@ -135,6 +137,9 @@ class AcceptInvitationPage(
 
         // Delete the invitation
         memberInvitationService.deleteInvitation(invitationId)
+
+        // Set session attribute to show the organization switch hint
+        VaadinSession.getCurrent().setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, true)
 
         // Navigate to root to reload UI
         UI.getCurrent().page.setLocation("/")
