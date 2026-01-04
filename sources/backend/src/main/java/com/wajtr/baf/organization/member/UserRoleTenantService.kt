@@ -62,6 +62,14 @@ class UserRoleTenantService(
             .fetchInto(String::class.java)
     }
 
+    fun isUserMemberOfTenant(userId: UUID, tenantId: UUID): Boolean {
+        return dslContext.fetchExists(
+            dslContext.selectFrom(APP_USER_ROLE_TENANT)
+                .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
+                .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+        )
+    }
+
     fun removeUserFromTenant(userId: UUID, tenantId: UUID): Int {
         return dslContext.deleteFrom(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))

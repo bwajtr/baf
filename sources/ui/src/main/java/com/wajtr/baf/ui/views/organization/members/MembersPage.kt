@@ -341,7 +341,7 @@ class MembersPage(
      * @param invitationId The unique identifier of the invitation to be cancelled.
      */
     private fun cancelInvitation(invitationId: UUID) {
-        memberInvitationService.deleteInvitation(invitationId)
+        memberInvitationService.deleteInvitationById(invitationId)
         showSuccessNotification(i18n("members.cancel.success"))
         loadMembers() // Reload grid
     }

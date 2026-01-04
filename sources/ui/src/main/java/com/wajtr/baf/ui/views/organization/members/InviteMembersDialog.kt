@@ -105,6 +105,10 @@ class InviteMembersDialog(
                 showErrorNotification(i18n("members.invite.dialog.email.already.invited", email))
                 return
             }
+            if (memberInvitationService.emailAlreadyMemberOfCurrentTenant(email)) {
+                showErrorNotification(i18n("members.invite.dialog.email.already.member", email))
+                return
+            }
         }
 
         // Create invitations

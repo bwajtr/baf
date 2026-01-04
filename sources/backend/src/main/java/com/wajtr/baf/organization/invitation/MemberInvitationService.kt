@@ -55,10 +55,9 @@ class MemberInvitationService(
             }
     }
 
-    fun deleteInvitation(invitationId: UUID): Int {
+    fun deleteInvitationById(invitationId: UUID): Int {
         return dslContext.deleteFrom(MEMBER_INVITATION)
             .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .execute()
     }
 
@@ -78,6 +77,17 @@ class MemberInvitationService(
             dslContext.selectFrom(MEMBER_INVITATION)
                 .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
                 .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
+        )
+    }
+
+    fun emailAlreadyMemberOfCurrentTenant(email: String): Boolean {
+        val tenantId = identity.authenticatedTenant?.id ?: return false
+        return dslContext.fetchExists(
+            dslContext.select()
+                .from(APP_USER)
+                .join(APP_USER_ROLE_TENANT).on(APP_USER.ID.eq(APP_USER_ROLE_TENANT.USER_ID))
+                .where(APP_USER.EMAIL.equalIgnoreCase(email.trim()))
+                .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
         )
     }
 

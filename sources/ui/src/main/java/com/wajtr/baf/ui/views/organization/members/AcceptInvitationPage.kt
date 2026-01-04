@@ -65,6 +65,15 @@ class AcceptInvitationPage(
             return
         }
 
+        // Check if user is already a member of the target tenant
+        val currentUserId = identity.authenticatedUser.id
+        if (userRoleTenantService.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
+            showErrorNotification(i18n("invitation.accept.already.member"))
+            memberInvitationService.deleteInvitationById(invitationId)
+            event.rerouteTo("/")
+            return
+        }
+
         buildUI()
     }
 
@@ -136,7 +145,7 @@ class AcceptInvitationPage(
         )
 
         // Delete the invitation
-        memberInvitationService.deleteInvitation(invitationId)
+        memberInvitationService.deleteInvitationById(invitationId)
 
         // Set session attribute to show the organization switch hint
         VaadinSession.getCurrent().setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, true)
