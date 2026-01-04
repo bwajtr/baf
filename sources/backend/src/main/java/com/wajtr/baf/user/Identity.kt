@@ -52,6 +52,10 @@ class Identity {
         return null // no tenant context available
     }
 
+    fun hasRole(role: String): Boolean {
+        return this.grantedRoles.contains(role)
+    }
+
 
 }
 

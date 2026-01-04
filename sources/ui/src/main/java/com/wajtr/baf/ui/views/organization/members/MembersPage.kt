@@ -30,7 +30,7 @@ import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.UserRepository
-import jakarta.annotation.security.RolesAllowed
+import jakarta.annotation.security.PermitAll
 import java.util.*
 
 const val MEMBERS_PAGE = "members"
@@ -48,7 +48,7 @@ sealed interface MemberGridItem {
     ) : MemberGridItem
 }
 
-@RolesAllowed(UserRole.OWNER_ROLE, UserRole.ADMIN_ROLE)
+@PermitAll
 @Route(MEMBERS_PAGE, layout = MainLayout::class)
 @Menu(order = 3.0, icon = "vaadin:cog")
 class MembersPage(
@@ -83,6 +83,7 @@ class MembersPage(
             addClickListener {
                 InviteMembersDialog(identity, memberInvitationService) { loadMembers() }.open()
             }
+            isEnabled = identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)
         }
     }
 
@@ -112,17 +113,20 @@ class MembersPage(
 
 
         grid.setSelectionMode(Grid.SelectionMode.NONE)
-        grid.addItemClickListener {
-            when (val item = it.item) {
-                is MemberGridItem.ActiveMember -> {
-                    UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${item.user.id}")
-                }
-                is MemberGridItem.InvitedMember -> {
-                    UI.getCurrent().navigate("$INVITATION_DETAILS_PAGE/${item.invitationId}")
+        if (identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)) {
+            grid.addItemClickListener {
+                when (val item = it.item) {
+                    is MemberGridItem.ActiveMember -> {
+                        UI.getCurrent().navigate("$MEMBER_SETTINGS_PAGE/${item.user.id}")
+                    }
+
+                    is MemberGridItem.InvitedMember -> {
+                        UI.getCurrent().navigate("$INVITATION_DETAILS_PAGE/${item.invitationId}")
+                    }
                 }
             }
+            grid.addClassNames("pointer-cursor-on-rows")
         }
-        grid.addClassNames("pointer-cursor-on-rows")
 
         return grid
     }
@@ -205,6 +209,7 @@ class MembersPage(
         removeButton.addClickListener {
             showRemoveConfirmation(member.user.id, tenant.id)
         }
+        removeButton.isEnabled = identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)
 
         return removeButton
     }
@@ -241,6 +246,8 @@ class MembersPage(
         cancelButton.addClickListener {
             showCancelInvitationConfirmation(invitation.invitationId)
         }
+
+        cancelButton.isEnabled = identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)
 
         return cancelButton
     }
