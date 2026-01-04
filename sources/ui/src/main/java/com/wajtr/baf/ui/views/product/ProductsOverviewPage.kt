@@ -1,7 +1,6 @@
 package com.wajtr.baf.ui.views.product
 
 import com.github.mvysny.karibudsl.v10.*
-import com.vaadin.flow.router.Menu
 import com.vaadin.flow.router.Route
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.features.product.ProductRepository
@@ -13,7 +12,6 @@ import jakarta.annotation.security.PermitAll
 
 @PermitAll
 @Route("", layout = MainLayout::class)
-@Menu(order = 0.0, icon = "vaadin:clipboard-check")
 class ProductsOverviewPage(
     productRepository: ProductRepository, identity: Identity
 ) : MainLayoutPage() {
@@ -27,7 +25,7 @@ class ProductsOverviewPage(
             li("Current user email: " + identity.authenticatedUser.email)
             li("Current user name: " + identity.authenticatedUser.name)
             li("Tenant ID: " + identity.authenticatedTenant?.id)
-            li("Granted authorities: " + identity.grantedAuthorities?.joinToString(", "))
+            li("Granted authorities: " + identity.grantedAuthorities.joinToString(", "))
         }
 
         h2("Products findAll()")

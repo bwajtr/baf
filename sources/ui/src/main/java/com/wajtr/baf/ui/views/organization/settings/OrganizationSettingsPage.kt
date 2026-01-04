@@ -1,7 +1,6 @@
 package com.wajtr.baf.ui.views.organization.settings
 
 import com.github.mvysny.karibudsl.v10.verticalLayout
-import com.vaadin.flow.router.Menu
 import com.vaadin.flow.router.Route
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.base.MainLayout
@@ -16,7 +15,6 @@ const val ORGANIZATION_SETTINGS_PAGE = "organization-settings"
 
 @RolesAllowed(UserRole.OWNER_ROLE)
 @Route(ORGANIZATION_SETTINGS_PAGE, layout = MainLayout::class)
-@Menu(order = 2.0, icon = "vaadin:cog")
 class OrganizationSettingsPage(
     organizationDetailsComponent: OrganizationDetailsComponent,
     deleteOrganizationComponent: DeleteOrganizationComponent

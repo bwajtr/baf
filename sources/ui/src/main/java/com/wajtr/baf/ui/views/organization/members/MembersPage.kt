@@ -14,7 +14,6 @@ import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.orderedlayout.FlexLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
-import com.vaadin.flow.router.Menu
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.authentication.AuthenticatedTenant
@@ -50,7 +49,6 @@ sealed interface MemberGridItem {
 
 @PermitAll
 @Route(MEMBERS_PAGE, layout = MainLayout::class)
-@Menu(order = 3.0, icon = "vaadin:cog")
 class MembersPage(
     private val identity: Identity,
     private val userRoleTenantService: UserRoleTenantService,
