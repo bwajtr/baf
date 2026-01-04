@@ -70,6 +70,22 @@ class UserRoleTenantService(
         )
     }
 
+    fun countOwnersInTenant(tenantId: UUID): Int {
+        return dslContext.selectCount()
+            .from(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .and(APP_USER_ROLE_TENANT.ROLE.eq(UserRole.OWNER_ROLE))
+            .fetchOne(0, Int::class.java) ?: 0
+    }
+
+    fun isUserLastOwnerInTenant(userId: UUID, tenantId: UUID): Boolean {
+        val userRoles = getRolesForUserInTenant(userId, tenantId)
+        if (UserRole.OWNER_ROLE !in userRoles) {
+            return false
+        }
+        return countOwnersInTenant(tenantId) == 1
+    }
+
     fun removeUserFromTenant(userId: UUID, tenantId: UUID): Int {
         return dslContext.deleteFrom(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
@@ -77,7 +93,7 @@ class UserRoleTenantService(
             .execute()
     }
 
-    fun setUserRolesForTenant(userId: UUID, tenantId: UUID, roles: Set<String>) {
+    fun writeUserRolesForTenant(userId: UUID, tenantId: UUID, roles: Set<String>) {
         // Remove all existing roles for user in tenant
         dslContext.deleteFrom(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))

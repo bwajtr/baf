@@ -13,6 +13,8 @@ import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.organization.member.MemberManagementService
+import com.wajtr.baf.organization.member.MemberOperationResult
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.ui.base.MainLayout
@@ -41,6 +43,7 @@ data class MemberSettingsFormData(
 class MemberSettingsPage(
     private val userRepository: UserRepository,
     private val userRoleTenantService: UserRoleTenantService,
+    private val memberManagementService: MemberManagementService,
     private val identity: Identity
 ) : MainLayoutPage(), HasUrlParameter<String> {
 
@@ -84,10 +87,13 @@ class MemberSettingsPage(
         // Check for additional roles
         formData.isBillingManager = UserRole.BILLING_MANAGER_ROLE in currentRoles
 
-        buildUI()
+        // Get allowed roles for this user
+        val allowedRoles = memberManagementService.getAllowedRolesForUser(userId, tenant.id)
+
+        buildUI(allowedRoles)
     }
 
-    private fun buildUI() {
+    private fun buildUI(allowedRoles: Set<String>) {
         breadcrumb(
             BreadcrumbItem(RouterLink(i18n("members.page.header"), MembersPage::class.java)),
             BreadcrumbItem(i18n("core.ui.common.details"))
@@ -113,7 +119,7 @@ class MemberSettingsPage(
 
         container.add(createBasicsSection())
 
-        roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = true)
+        roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = true, allowedRoles = allowedRoles)
         container.add(roleSelectionComponent)
 
         // Save button
@@ -174,22 +180,23 @@ class MemberSettingsPage(
             ?: throw IllegalStateException("No authenticated tenant found")
 
         if (binder.writeBeanIfValid(formData)) {
-            // Build the set of roles
-            val roles = mutableSetOf<String>()
-
-            // Add primary organization role
-            roles.add(formData.organizationRole)
-
-            // Add additional roles
+            val primaryRole = formData.organizationRole
+            val additionalRights = mutableSetOf<String>()
             if (formData.isBillingManager) {
-                roles.add(UserRole.BILLING_MANAGER_ROLE)
+                additionalRights.add(UserRole.BILLING_MANAGER_ROLE)
             }
 
-            // Update roles in database
-            userRoleTenantService.setUserRolesForTenant(userId, tenant.id, roles)
+            val result = memberManagementService.setUserRolesForTenant(
+                userId, tenant.id, primaryRole, additionalRights
+            )
 
-            showSuccessNotification(i18n("member.settings.update.success"))
-            UI.getCurrent().navigate(MEMBERS_PAGE)
+            if (result is MemberOperationResult.Denied) {
+                showOperationDeniedDialog(result.reason)
+                return
+            } else {
+                showSuccessNotification(i18n("member.settings.update.success"))
+                UI.getCurrent().navigate(MEMBERS_PAGE)
+            }
         }
     }
 }

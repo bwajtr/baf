@@ -12,12 +12,17 @@ import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.member.UserRole
 
+private val ALL_ORGANIZATION_ROLES = setOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
+
 class RoleSelectionComponent(
-    showAdditionalRights: Boolean = true
+    showAdditionalRights: Boolean = true,
+    allowedRoles: Set<String> = ALL_ORGANIZATION_ROLES
 ) : VerticalLayout() {
 
     val organizationRoleGroup: RadioButtonGroup<String>
     lateinit var billingManagerCheckbox: Checkbox
+
+    private val hasRestrictedRoles = allowedRoles != ALL_ORGANIZATION_ROLES
 
     init {
         isPadding = false
@@ -34,9 +39,20 @@ class RoleSelectionComponent(
                 setRenderer(ComponentRenderer { role ->
                     createRoleOption(role, i18n("member.settings.role.description.$role"))
                 })
+                setItemEnabledProvider { role -> role in allowedRoles }
+            }
+            add(organizationRoleGroup)
+
+            // Show warning if some roles are restricted
+            if (hasRestrictedRoles) {
+                val warningSpan = Span(i18n("member.settings.role.last.owner.warning"))
+                warningSpan.style.set("color", "var(--aura-red)")
+                warningSpan.style.set("font-size", "0.875rem")
+                warningSpan.style.set("display", "block")
+                warningSpan.style.set("margin-bottom", "1rem")
+                add(warningSpan)
             }
 
-            add(organizationRoleGroup)
         }
         add(roleSection)
 

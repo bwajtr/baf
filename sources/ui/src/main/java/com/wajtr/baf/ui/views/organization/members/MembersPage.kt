@@ -19,6 +19,8 @@ import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.member.MemberManagementService
+import com.wajtr.baf.organization.member.MemberOperationResult
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.ui.base.MainLayout
@@ -55,6 +57,7 @@ class MembersPage(
     private val userRepository: UserRepository,
     private val authenticationContext: AuthenticationContext,
     private val memberInvitationService: MemberInvitationService,
+    private val memberManagementService: MemberManagementService,
 ) : MainLayoutPage() {
 
     private lateinit var grid: Grid<MemberGridItem>
@@ -205,7 +208,10 @@ class MembersPage(
         removeButton.addThemeVariants(ButtonVariant.AURA_DANGER)
 
         removeButton.addClickListener {
-            showRemoveConfirmation(member.user.id, tenant.id)
+            when (val result = memberManagementService.canUserBeRemoved(member.user.id, tenant.id)) {
+                is MemberOperationResult.Allowed -> showRemoveConfirmation(member.user.id, tenant.id)
+                is MemberOperationResult.Denied -> showOperationDeniedDialog(result.reason)
+            }
         }
         removeButton.isEnabled = identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)
 
@@ -226,7 +232,10 @@ class MembersPage(
             leaveButton.addThemeVariants(ButtonVariant.AURA_DANGER)
 
             leaveButton.addClickListener {
-                showLeaveConfirmation(currentUser.id, tenant.id)
+                when (val result = memberManagementService.canUserLeaveOrganization(currentUser.id, tenant.id)) {
+                    is MemberOperationResult.Allowed -> showLeaveConfirmation(currentUser.id, tenant.id)
+                    is MemberOperationResult.Denied -> showOperationDeniedDialog(result.reason)
+                }
             }
 
             leaveButton
