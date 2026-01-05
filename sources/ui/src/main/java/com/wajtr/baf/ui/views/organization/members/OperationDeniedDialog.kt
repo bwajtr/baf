@@ -21,6 +21,14 @@ fun showOperationDeniedDialog(reason: DenialReason) {
             i18n("members.last.owner.cannot.change.role.title"),
             i18n("members.last.owner.cannot.change.role.message")
         )
+        DenialReason.ONLY_OWNER_CAN_GRANT_OR_REVOKE_OWNER_ROLE -> Pair(
+            i18n("members.only.owner.can.grant.owner.title"),
+            i18n("members.only.owner.can.grant.owner.message")
+        )
+        DenialReason.ONLY_OWNER_CAN_REMOVE_OWNER -> Pair(
+            i18n("members.only.owner.can.remove.owner.title"),
+            i18n("members.only.owner.can.remove.owner.message")
+        )
     }
 
     val dialog = ConfirmDialog()

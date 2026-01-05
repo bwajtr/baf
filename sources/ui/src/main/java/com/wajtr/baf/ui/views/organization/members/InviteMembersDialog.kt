@@ -49,9 +49,14 @@ class InviteMembersDialog(
         }
         content.add(emailsField)
 
-        // Role combobox
+        // Role combobox - only owners can invite with OWNER role
+        val availableRoles = if (identity.hasRole(UserRole.OWNER_ROLE)) {
+            listOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
+        } else {
+            listOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE)
+        }
         roleComboBox = ComboBox<String>(i18n("members.invite.dialog.role.label")).apply {
-            setItems(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
+            setItems(availableRoles)
             setItemLabelGenerator { role -> i18n("role.$role") }
             value = UserRole.USER_ROLE
             setWidthFull()

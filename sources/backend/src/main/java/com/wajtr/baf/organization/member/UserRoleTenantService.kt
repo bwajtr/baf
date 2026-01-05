@@ -86,6 +86,11 @@ class UserRoleTenantService(
         return countOwnersInTenant(tenantId) == 1
     }
 
+    fun isUserOwnerInTenant(userId: UUID, tenantId: UUID): Boolean {
+        val userRoles = getRolesForUserInTenant(userId, tenantId)
+        return UserRole.OWNER_ROLE in userRoles
+    }
+
     fun removeUserFromTenant(userId: UUID, tenantId: UUID): Int {
         return dslContext.deleteFrom(APP_USER_ROLE_TENANT)
             .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
