@@ -21,12 +21,6 @@ class TenantRepository(private val create: DSLContext) {
             .fetchOneInto<Tenant?>(Tenant::class.java)
     }
 
-    fun findAll(): List<Tenant> {
-        return create
-            .selectFrom<TenantRecord>(TENANT)
-            .fetchInto<Tenant>(Tenant::class.java)
-    }
-
     fun insert(tenant: Tenant) {
         val id = create
             .insertInto(TENANT)
@@ -51,14 +45,6 @@ class TenantRepository(private val create: DSLContext) {
 
     fun deleteById(id: UUID): Int {
         return create.deleteFrom(TENANT).where(TENANT.ID.eq(id)).execute()
-    }
-
-    fun updateTenantMandatoryData(tenantId: UUID, tenantName: String, setupRequired: Boolean) {
-        create.update(TENANT)
-            .set(TENANT.SETUP_REQUIRED, setupRequired)
-            .set(TENANT.ORGANIZATION_NAME, tenantName)
-            .where(TENANT.ID.eq(tenantId))
-            .execute()
     }
 
     fun updateOrganizationDetails(

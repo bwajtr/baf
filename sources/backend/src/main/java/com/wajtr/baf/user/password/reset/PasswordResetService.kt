@@ -10,7 +10,6 @@ import java.security.SecureRandom
 const val PASSWORD_RESET_PAGE = "accounts/reset"
 const val PASSWORD_RESET_URL = "/" + PASSWORD_RESET_PAGE
 const val PASSWORD_RESET_PREPARATION_PAGE = "accounts/resetprep"
-const val PASSWORD_RESET_PREPARATION_URL = "/" + PASSWORD_RESET_PREPARATION_PAGE
 
 
 /**
@@ -49,7 +48,6 @@ interface PasswordResetService {
 
 enum class PasswordResetInitiationResult {
     ACCOUNT_NOT_FOUND, // No account with provided email has been found
-    INVITATION_REMINDER_EMAIL_SENT, // An account with provided email exists, but it's in INVITED status (user hasn't accepted the invitation yet) - we reminded him about this fact
     EMAIL_NOT_VERIFIED, // An account with provided email exists, but the email has not been verified yet
     PROCESS_ALREADY_STARTED, // An account with such email exists and is verified, but the password reset process was already initiated and email sent; no new token was generated
     RESET_PROCESS_INITIATED, // An account with such email exists and is ready for password reset; password token was generated and email sent
@@ -81,7 +79,6 @@ class PasswordResetServiceImpl(
             NOT_FOUND -> handleAccountNotFoundResult(email)
             NOT_VERIFIED -> handleAccountNotVerifiedResult(email)
             OK -> handleAccountCheckOkResult(email, baseServerUrl)
-            INVITED -> handleAccountInInvitedStatus(email)
         }
     }
 
@@ -118,31 +115,10 @@ class PasswordResetServiceImpl(
         return PasswordResetInitiationResult.EMAIL_NOT_VERIFIED
     }
 
-    @Suppress("LiftReturnOrAssignment")
-    private fun handleAccountInInvitedStatus(email: String): PasswordResetInitiationResult {
-        log.info("Attempt to initiate password reset process failed: account with email $email is still in INVITED status")
-
-        val ret: PasswordResetInitiationResult
-
-        // cannot reset password when still in INVITED status -> just send reminder email to user that he has to accept the invitation first
-        val success = mailSender.sendInvitationReminderEmail(email)
-        if (success) {
-            log.info("Sent reminder email that user is in INVITED status {}", email)
-            ret = PasswordResetInitiationResult.INVITATION_REMINDER_EMAIL_SENT
-        } else {
-            log.error("Sending invitation reminder email to $email as part of password reset process FAILED")
-            ret = PasswordResetInitiationResult.EMAIL_SENDING_FAILED
-        }
-
-        return ret
-    }
-
-
     fun handleAccountNotFoundResult(email: String): PasswordResetInitiationResult {
         log.info("Attempt to initiate password reset process failed: account with email $email was not found")
         return PasswordResetInitiationResult.ACCOUNT_NOT_FOUND
     }
-
 
     override fun performPasswordReset(token: String, newPassword: String): PasswordResetResult {
         val ret: PasswordResetResult

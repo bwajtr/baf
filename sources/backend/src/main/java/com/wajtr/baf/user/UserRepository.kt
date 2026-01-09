@@ -6,7 +6,6 @@ import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.records.AppUserRecord
 import org.jooq.DSLContext
 import org.jooq.RecordMapper
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -58,12 +57,6 @@ class UserRepository(private val create: DSLContext) {
             .fetchOne(mapIntoUser)
     }
 
-    fun findAll(): MutableList<User> {
-        return create
-            .selectFrom(APP_USER)
-            .fetch(mapIntoUser)
-    }
-
     fun update(input: User): Int {
         return create.update(APP_USER)
             .set(APP_USER.NAME, input.name)
@@ -110,23 +103,6 @@ class UserRepository(private val create: DSLContext) {
             .execute()
     }
 
-    fun updateUserEmail(id: UUID, email: String): UpdateUserEmailResult {
-        var result: UpdateUserEmailResult
-
-        try {
-            val updateCount: Int = create.update(APP_USER)
-                .set(APP_USER.EMAIL, email)
-                .where(APP_USER.ID.eq(id))
-                .execute()
-
-            result = if (updateCount > 0) UpdateUserEmailResult.OK else UpdateUserEmailResult.NOT_OK
-        } catch (_: DuplicateKeyException) {
-            result = UpdateUserEmailResult.DUPLICATE_VALUE
-        }
-
-        return result
-    }
-
     fun remove(userId: UUID): Boolean {
         // note that additional data related to this user will be removed from database as well thanks to ON DELETE CASCADE
         return create.deleteFrom(APP_USER).where(APP_USER.ID.eq(userId)).execute() > 0
@@ -138,7 +114,7 @@ class UserRepository(private val create: DSLContext) {
             .fetchOne(loadUserFunctionMapIntoUser)
 
         if (user == null) {
-            throw UsernameNotFoundException("User with email " + email + " not found")
+            throw UsernameNotFoundException("User with email $email not found")
         }
         return user
     }
@@ -150,18 +126,7 @@ class UserRepository(private val create: DSLContext) {
             .fetchOne()
 
         return if (userRecord == null) {
-            // TODO fix this when invitations are implemented
-//            val invitationRecord: Record? = create.select()
-//                .from(USER_INVITATION)
-//                .where(org.jooq.impl.DSL.field("email").eq(email))
-//                .fetchOne()
-
-            val invitationRecord = null
-            if (invitationRecord != null) {
-                AccountStatusCheckResult.INVITED
-            } else {
-                AccountStatusCheckResult.NOT_FOUND
-            }
+            AccountStatusCheckResult.NOT_FOUND
         } else {
             val emailVerified: Boolean = userRecord.get(APP_USER.EMAIL_VERIFIED)
             if (!emailVerified) {
@@ -182,14 +147,7 @@ class UserRepository(private val create: DSLContext) {
 }
 
 enum class AccountStatusCheckResult {
-    NOT_FOUND, // account with such email was not found
-    NOT_VERIFIED, // account with such email exists, but it's not verified
-    INVITED,  // account with such email was not found, but there is an invitation pending
-    OK // account is OK and active
-}
-
-enum class UpdateUserEmailResult {
-    OK, // email updated
-    NOT_OK, // email not updated for other reasons (possibly because no record to be updated was found)
-    DUPLICATE_VALUE  // email not updated because another account with same email already exists
+    NOT_FOUND, // an account with such email was not found
+    NOT_VERIFIED, // an account with such email exists, but it's not verified
+    OK // an account is OK and active
 }

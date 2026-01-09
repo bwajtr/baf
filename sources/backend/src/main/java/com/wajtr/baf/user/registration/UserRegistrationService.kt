@@ -112,9 +112,6 @@ class UserRegistrationServiceImpl(
         if (status == AccountStatusCheckResult.OK || status == AccountStatusCheckResult.NOT_VERIFIED) {
             return UserRegistrationFailure(UserRegistrationResultStatus.ERROR_DUPLICATE)
         }
-        if (status == AccountStatusCheckResult.INVITED) {
-            return UserRegistrationFailure(UserRegistrationResultStatus.ERROR_INVITATION_EXISTS)
-        }
 
         // Generate new user ID
         val userId = Uuid.generateV7().toJavaUuid()
