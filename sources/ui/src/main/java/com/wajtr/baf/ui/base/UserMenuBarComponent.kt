@@ -151,7 +151,7 @@ class UserMenuBarComponent(
     private fun addOrganizationOption(tenantId: UUID, organizationsSubMenu: SubMenu) {
         val tenant = tenantRepository.findById(tenantId)
         if (tenant != null) {
-            organizationsSubMenu.addItem(tenant.organizationName).apply {
+            organizationsSubMenu.addItem(getOrganizationName(tenant)).apply {
                 if (isCurrentTenant(tenant)) {
                     isCheckable = true
                     isChecked = true
@@ -162,6 +162,8 @@ class UserMenuBarComponent(
             }
         }
     }
+
+    private fun getOrganizationName(tenant: Tenant): String = tenant.organizationName.ifBlank { i18n("organization.empty.name") }
 
     private fun switchToTenant(tenant: Tenant) {
         val tenantId = tenant.id
