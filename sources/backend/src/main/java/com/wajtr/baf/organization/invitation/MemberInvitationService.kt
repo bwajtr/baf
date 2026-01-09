@@ -2,6 +2,8 @@ package com.wajtr.baf.organization.invitation
 
 import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.organization.member.UserRole
+import com.wajtr.baf.organization.member.UserRoleTenant
+import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.validation.EmailValidator
 import org.slf4j.LoggerFactory
@@ -17,10 +19,16 @@ sealed class InviteMembersResult {
     data class ValidationError(val messageKey: String, val parameter: String? = null) : InviteMembersResult()
 }
 
+sealed class AcceptInvitationResult {
+    data object Success : AcceptInvitationResult()
+    data class Error(val messageKey: String) : AcceptInvitationResult()
+}
+
 @Service
 @Transactional
 class MemberInvitationService(
     private val memberInvitationRepository: MemberInvitationRepository,
+    private val userRoleTenantService: UserRoleTenantService,
     private val identity: Identity
 ) {
 
@@ -77,5 +85,39 @@ class MemberInvitationService(
     fun getAllInvitations() = memberInvitationRepository.getAllInvitations()
 
     fun deleteInvitationById(invitationId: UUID) = memberInvitationRepository.deleteInvitationById(invitationId)
+
+    fun acceptInvitation(invitationId: UUID): AcceptInvitationResult {
+        // Fetch the invitation
+        val invitation = memberInvitationRepository.getInvitationForAcceptance(invitationId)
+            ?: return AcceptInvitationResult.Error("invitation.accept.not.found")
+
+        // Verify that current user's email matches invitation email
+        val currentUserEmail = identity.authenticatedUser.email
+        if (!currentUserEmail.equals(invitation.email, ignoreCase = true)) {
+            return AcceptInvitationResult.Error("invitation.accept.email.mismatch")
+        }
+
+        // Check if user is already a member of the target tenant
+        val currentUserId = identity.authenticatedUser.id
+        if (userRoleTenantService.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
+            // User is already a member, clean up the invitation
+            memberInvitationRepository.deleteInvitationById(invitationId)
+            return AcceptInvitationResult.Error("invitation.accept.already.member")
+        }
+
+        // Create entry in app_user_role_tenant
+        userRoleTenantService.insertRole(
+            UserRoleTenant(
+                userId = currentUserId,
+                role = invitation.role,
+                tenantId = invitation.tenantId
+            )
+        )
+
+        // Delete the invitation
+        memberInvitationRepository.deleteInvitationById(invitationId)
+
+        return AcceptInvitationResult.Success
+    }
 
 }

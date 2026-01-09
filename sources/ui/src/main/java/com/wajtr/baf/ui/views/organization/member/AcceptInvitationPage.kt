@@ -14,14 +14,13 @@ import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.VaadinSession
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.ACCEPT_INVITATION_PAGE
+import com.wajtr.baf.organization.invitation.AcceptInvitationResult
 import com.wajtr.baf.organization.invitation.InvitationAcceptanceDetails
 import com.wajtr.baf.organization.invitation.MemberInvitationRepository
-import com.wajtr.baf.organization.member.UserRoleTenant
-import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.invitation.MemberInvitationService
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
-import com.wajtr.baf.user.Identity
 import jakarta.annotation.security.PermitAll
 import java.util.*
 
@@ -31,8 +30,7 @@ const val SESSION_ATTR_ORGANIZATION_ADDED = "organization-added"
 @Route(ACCEPT_INVITATION_PAGE, layout = MainLayout::class)
 class AcceptInvitationPage(
     private val memberInvitationRepository: MemberInvitationRepository,
-    private val userRoleTenantService: UserRoleTenantService,
-    private val identity: Identity
+    private val memberInvitationService: MemberInvitationService
 ) : MainLayoutPage(), HasUrlParameter<String> {
 
     private lateinit var invitation: InvitationAcceptanceDetails
@@ -56,23 +54,6 @@ class AcceptInvitationPage(
                 event.rerouteTo("/")
                 return
             }
-
-        // Verify that current user's email matches invitation email
-        val currentUserEmail = identity.authenticatedUser.email
-        if (!currentUserEmail.equals(invitation.email, ignoreCase = true)) {
-            showErrorNotification(i18n("invitation.accept.email.mismatch"))
-            event.rerouteTo("/")
-            return
-        }
-
-        // Check if user is already a member of the target tenant
-        val currentUserId = identity.authenticatedUser.id
-        if (userRoleTenantService.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
-            showErrorNotification(i18n("invitation.accept.already.member"))
-            memberInvitationRepository.deleteInvitationById(invitationId)
-            event.rerouteTo("/")
-            return
-        }
 
         buildUI()
     }
@@ -133,24 +114,18 @@ class AcceptInvitationPage(
     }
 
     private fun acceptInvitation() {
-        val currentUser = identity.authenticatedUser
+        when (val result = memberInvitationService.acceptInvitation(invitationId)) {
+            is AcceptInvitationResult.Success -> {
+                // Set session attribute to show the organization switch hint
+                VaadinSession.getCurrent().setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, true)
 
-        // Create entry in app_user_role_tenant
-        userRoleTenantService.insertRole(
-            UserRoleTenant(
-                userId = currentUser.id,
-                role = invitation.role,
-                tenantId = invitation.tenantId
-            )
-        )
-
-        // Delete the invitation
-        memberInvitationRepository.deleteInvitationById(invitationId)
-
-        // Set session attribute to show the organization switch hint
-        VaadinSession.getCurrent().setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, true)
-
-        // Navigate to root to reload UI
-        UI.getCurrent().page.setLocation("/")
+                // Navigate to root to reload UI
+                UI.getCurrent().page.setLocation("/")
+            }
+            is AcceptInvitationResult.Error -> {
+                showErrorNotification(i18n(result.messageKey))
+                UI.getCurrent().navigate("/")
+            }
+        }
     }
 }

@@ -4,12 +4,12 @@ import com.wajtr.baf.core.tenants.Tenant
 import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.AppUser
-import com.wajtr.baf.user.AccountStatusCheckResult
-import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.organization.member.UserRole.OWNER_ROLE
 import com.wajtr.baf.organization.member.UserRole.USER_ROLE
-import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.organization.member.UserRoleTenant
+import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.user.AccountStatusCheckResult
+import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,15 +20,6 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-data class RegisterUserBasedOnInvitationRequest(
-    val name: String,
-    val password: String,
-    val ipAddress: InetAddress,
-    val preferredLocale: Locale,
-    val preferredTimezoneId: ZoneId,
-    val invitationId: UUID,
-    val emailVerificationToken: UUID
-)
 
 /**
  * Business service dealing with user registration process
@@ -47,26 +38,12 @@ interface UserRegistrationService {
 
 
     /**
-     * Registers new user for existing tenant based on invitation
-     *
-     * This method can be called without logged-in user.
-     */
-    fun registerUserBasedOnInvitation(request: RegisterUserBasedOnInvitationRequest): UserRegistrationResult
-
-    /**
      * Returns collection of role IDs (see BasicRoles class or content of table users.role) which should be initially
      * assigned to the user who created new tenant (i.e. by registering completely
      * new account) during registration. It makes sense to grant such roles to the user, which would give him access to every
      * part of the application (full access).
      */
     fun initialTenantOwnerRolesCollection(): Collection<String>
-
-    /**
-     * Returns collection of role IDs (see BasicRoles class or content of table users.role) which should be initially
-     * assigned to the user was invited to join an existing tenant during registration. It makes sense to grant such roles to the user, which would
-     * grant the user "basic user" access to the application (so no administration areas)
-     */
-    fun initialInvitedUserRolesCollection(): Collection<String>
 }
 
 
@@ -81,25 +58,6 @@ class UserRegistrationServiceImpl(
     private val userRepository: UserRepository,
     private val tenantRepository: TenantRepository
 ) : UserRegistrationService {
-
-    override fun registerUserBasedOnInvitation(request: RegisterUserBasedOnInvitationRequest): UserRegistrationResult {
-//        val result =
-//            userRegistrationDAO.registerUserBasedOnInvitation(
-//                request.name,
-//                request.password,
-//                request.ipAddress,
-//                request.invitationId,
-//                request.emailVerificationToken,
-//                request.preferredLocale.toLanguageTag(),
-//                request.preferredTimezoneId.id
-//            )
-//
-//        if (result is UserRegistrationSuccess) {
-//            grantedAuthorityDAO.setUserRoles(result.userId, result.tenantId, initialInvitedUserRolesCollection())
-//        }
-
-        return UserRegistrationFailure(UserRegistrationResultStatus.ERROR_INVALID_EMAIL_TOKEN)
-    }
 
     override fun registerUserOfNewTenant(request: UserAndTenantRegistrationRequest): UserRegistrationResult {
         val result = registerUser(
@@ -127,43 +85,8 @@ class UserRegistrationServiceImpl(
         return result
     }
 
-    fun registerUserBasedOnInvitation(
-        name: String?, password: String?, ipAddress: InetAddress,
-        invitationId: UUID?, emailVerificationToken: UUID?,
-        preferredLocale: String?, preferredTimezoneId: String?
-    ): UserRegistrationResult {
-        // TODO finish when invitation process is done
-//        val result: RegisterAppUserByInvitationRecord? = create.selectFrom(
-//            Routines.registerAppUserByInvitation(
-//                name,
-//                password,
-//                ipAddress.getHostAddress(),
-//                invitationId,
-//                emailVerificationToken,
-//                ADMIN_SECURITY_KEY,
-//                preferredLocale,
-//                preferredTimezoneId
-//            )
-//        )
-//            .fetchOne()
-//
-//        if (result.getStatus().equals(UserRegistrationResultStatus.OK.name)) {
-//            return UserRegistrationSuccess(
-//                UserRegistrationResultStatus.valueOf(result.getStatus()),
-//                result.getNewUserId(),
-//                result.getTenantId()
-//            )
-//        } else {
-        return UserRegistrationFailure(UserRegistrationResultStatus.ERROR_INVITATION_EXISTS)
-//        }
-    }
-
     override fun initialTenantOwnerRolesCollection(): Collection<String> {
         return listOf(OWNER_ROLE)
-    }
-
-    override fun initialInvitedUserRolesCollection(): Collection<String> {
-        return listOf(USER_ROLE)
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -225,7 +148,6 @@ class UserRegistrationServiceImpl(
             resolvedTenantId!!
         )
     }
-
 }
 
 
