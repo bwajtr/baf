@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.onClick
@@ -13,8 +13,9 @@ import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.VaadinSession
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.organization.invitation.ACCEPT_INVITATION_PAGE
 import com.wajtr.baf.organization.invitation.InvitationAcceptanceDetails
-import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.invitation.MemberInvitationRepository
 import com.wajtr.baf.organization.member.UserRoleTenant
 import com.wajtr.baf.organization.member.UserRoleTenantService
 import com.wajtr.baf.ui.base.MainLayout
@@ -24,13 +25,12 @@ import com.wajtr.baf.user.Identity
 import jakarta.annotation.security.PermitAll
 import java.util.*
 
-const val ACCEPT_INVITATION_PAGE = "accept-invitation"
 const val SESSION_ATTR_ORGANIZATION_ADDED = "organization-added"
 
 @PermitAll
 @Route(ACCEPT_INVITATION_PAGE, layout = MainLayout::class)
 class AcceptInvitationPage(
-    private val memberInvitationService: MemberInvitationService,
+    private val memberInvitationRepository: MemberInvitationRepository,
     private val userRoleTenantService: UserRoleTenantService,
     private val identity: Identity
 ) : MainLayoutPage(), HasUrlParameter<String> {
@@ -50,7 +50,7 @@ class AcceptInvitationPage(
     override fun setParameter(event: BeforeEvent, parameter: String) {
         invitationId = UUID.fromString(parameter)
 
-        invitation = memberInvitationService.getInvitationForAcceptance(invitationId)
+        invitation = memberInvitationRepository.getInvitationForAcceptance(invitationId)
             ?: run {
                 showErrorNotification(i18n("invitation.accept.not.found"))
                 event.rerouteTo("/")
@@ -69,7 +69,7 @@ class AcceptInvitationPage(
         val currentUserId = identity.authenticatedUser.id
         if (userRoleTenantService.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
             showErrorNotification(i18n("invitation.accept.already.member"))
-            memberInvitationService.deleteInvitationById(invitationId)
+            memberInvitationRepository.deleteInvitationById(invitationId)
             event.rerouteTo("/")
             return
         }
@@ -145,7 +145,7 @@ class AcceptInvitationPage(
         )
 
         // Delete the invitation
-        memberInvitationService.deleteInvitationById(invitationId)
+        memberInvitationRepository.deleteInvitationById(invitationId)
 
         // Set session attribute to show the organization switch hint
         VaadinSession.getCurrent().setAttribute(SESSION_ATTR_ORGANIZATION_ADDED, true)

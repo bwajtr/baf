@@ -99,14 +99,16 @@ class MemberManagementService(
     fun canUserRoleBeChanged(userId: UUID, tenantId: UUID, newRole: String): MemberOperationResult {
         // If the new role is OWNER or target user is OWNER, check if current user is an owner
         val isTargetUserOwner = userRoleTenantService.isUserOwnerInTenant(userId, tenantId)
-        if (newRole == UserRole.OWNER_ROLE || isTargetUserOwner) {
+        if ((newRole == UserRole.OWNER_ROLE && !isTargetUserOwner)
+            || (isTargetUserOwner && newRole != UserRole.OWNER_ROLE)
+        ) {
             if (!identity.hasRole(UserRole.OWNER_ROLE)) {
                 return MemberOperationResult.Denied(DenialReason.ONLY_OWNER_CAN_GRANT_OR_REVOKE_OWNER_ROLE)
             }
         }
 
         // If changing away from OWNER, check if user is last owner in the tenant
-        if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId)) {
+        if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId) && newRole != UserRole.OWNER_ROLE) {
             return MemberOperationResult.Denied(DenialReason.LAST_OWNER_ROLE_CANNOT_BE_CHANGED)
         }
 
@@ -136,5 +138,14 @@ class MemberManagementService(
 
         // If current user is an owner, they can grant all roles
         return setOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
+    }
+
+    fun getAllowedRolesForInvitation(): Set<String> {
+        // Role combobox - only owners can invite with OWNER role
+        return if (identity.hasRole(UserRole.OWNER_ROLE)) {
+            setOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
+        } else {
+            setOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE)
+        }
     }
 }

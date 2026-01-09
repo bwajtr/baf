@@ -1,6 +1,8 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
-import com.github.mvysny.karibudsl.v10.*
+import com.github.mvysny.karibudsl.v10.button
+import com.github.mvysny.karibudsl.v10.formLayout
+import com.github.mvysny.karibudsl.v10.onClick
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.html.H1
@@ -13,7 +15,9 @@ import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.MemberInvitationDetails
+import com.wajtr.baf.organization.invitation.MemberInvitationRepository
 import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.components.BreadcrumbItem
@@ -36,7 +40,8 @@ data class InvitationDetailsFormData(
 @RolesAllowed(UserRole.OWNER_ROLE, UserRole.ADMIN_ROLE)
 @Route(INVITATION_DETAILS_PAGE, layout = MainLayout::class)
 class InvitationDetailsPage(
-    private val memberInvitationService: MemberInvitationService
+    private val memberInvitationRepository: MemberInvitationRepository,
+    private val memberManagementService: MemberManagementService
 ) : MainLayoutPage(), HasUrlParameter<String> {
 
     private lateinit var invitation: MemberInvitationDetails
@@ -55,7 +60,7 @@ class InvitationDetailsPage(
     override fun setParameter(event: BeforeEvent, parameter: String) {
         invitationId = UUID.fromString(parameter)
 
-        invitation = memberInvitationService.getInvitationById(invitationId)
+        invitation = memberInvitationRepository.getInvitationById(invitationId)
             ?: run {
                 showErrorNotification(i18n("invitation.details.not.found"))
                 event.rerouteTo(MEMBERS_PAGE)
@@ -90,7 +95,8 @@ class InvitationDetailsPage(
 
         container.add(createBasicsSection())
 
-        roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = false)
+        val availableRoles = memberManagementService.getAllowedRolesForInvitation()
+        roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = false, allowedRoles = availableRoles)
         container.add(roleSelectionComponent)
 
         // Save button
@@ -144,7 +150,7 @@ class InvitationDetailsPage(
 
     private fun saveInvitationSettings() {
         if (binder.writeBeanIfValid(formData)) {
-            memberInvitationService.updateRole(invitationId, formData.organizationRole)
+            memberInvitationRepository.updateRole(invitationId, formData.organizationRole)
             showSuccessNotification(i18n("invitation.details.update.success"))
             UI.getCurrent().navigate(MEMBERS_PAGE)
         }

@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
 import com.github.mvysny.karibudsl.v10.checkBox
 import com.github.mvysny.karibudsl.v10.radioButtonGroup
@@ -22,8 +22,6 @@ class RoleSelectionComponent(
     val organizationRoleGroup: RadioButtonGroup<String>
     lateinit var billingManagerCheckbox: Checkbox
 
-    private val hasRestrictedRoles = allowedRoles != ALL_ORGANIZATION_ROLES
-
     init {
         isPadding = false
 
@@ -42,17 +40,6 @@ class RoleSelectionComponent(
                 setItemEnabledProvider { role -> role in allowedRoles }
             }
             add(organizationRoleGroup)
-
-            // Show warning if some roles are restricted
-            if (hasRestrictedRoles) {
-                val warningSpan = Span(i18n("member.settings.role.last.owner.warning"))
-                warningSpan.style.set("color", "var(--aura-red)")
-                warningSpan.style.set("font-size", "0.875rem")
-                warningSpan.style.set("display", "block")
-                warningSpan.style.set("margin-bottom", "1rem")
-                add(warningSpan)
-            }
-
         }
         add(roleSection)
 

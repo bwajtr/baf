@@ -1,150 +1,81 @@
 package com.wajtr.baf.organization.invitation
 
-import com.wajtr.baf.db.jooq.Tables.*
+import com.wajtr.baf.core.commons.HttpServletUtils
+import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.user.Identity
-import org.jooq.DSLContext
+import com.wajtr.baf.user.validation.EmailValidator
+import org.slf4j.LoggerFactory
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 import java.util.*
 
-data class MemberInvitation(
-    val id: UUID,
-    val email: String,
-    val role: String,
-)
+const val ACCEPT_INVITATION_PAGE = "accept-invitation"
 
-data class MemberInvitationDetails(
-    val id: UUID,
-    val email: String,
-    val role: String,
-    val createdAt: OffsetDateTime,
-    val invitedByName: String?,
-)
-
-data class InvitationAcceptanceDetails(
-    val id: UUID,
-    val email: String,
-    val role: String,
-    val tenantId: UUID,
-    val organizationName: String,
-    val invitedByName: String?,
-)
+sealed class InviteMembersResult {
+    data class Success(val invitationIds: List<UUID>) : InviteMembersResult()
+    data class ValidationError(val messageKey: String, val parameter: String? = null) : InviteMembersResult()
+}
 
 @Service
 @Transactional
 class MemberInvitationService(
-    private val dslContext: DSLContext,
+    private val memberInvitationRepository: MemberInvitationRepository,
     private val identity: Identity
 ) {
 
-    fun getAllInvitations(): List<MemberInvitation> {
-        return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
-        )
-            .from(MEMBER_INVITATION)
-            .where(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
-            .fetch { record ->
-                MemberInvitation(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
-                )
+    private val logger = LoggerFactory.getLogger(MemberInvitationService::class.java)
+
+    @PreAuthorize("hasAnyRole(${UserRole.OWNER_ROLE}, ${UserRole.ADMIN_ROLE})")
+    fun inviteMembers(emailsInput: String, role: String): InviteMembersResult {
+
+        val tenant = identity.authenticatedTenant
+            ?: throw IllegalStateException("No authenticated tenant found")
+        val currentUser = identity.authenticatedUser
+
+        // Parse and normalize emails
+        val emails = emailsInput.split(",", ";", "\n")
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() }
+
+        if (emails.isEmpty()) {
+            return InviteMembersResult.ValidationError("members.invite.dialog.emails.required")
+        }
+
+        // Validate email format and check for duplicates
+        val emailValidator = EmailValidator()
+        for (email in emails) {
+            if (!emailValidator.isValid(email)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.invalid", email)
             }
-    }
-
-    fun deleteInvitationById(invitationId: UUID): Int {
-        return dslContext.deleteFrom(MEMBER_INVITATION)
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .execute()
-    }
-
-    fun createInvitation(email: String, role: String, tenantId: UUID, invitedBy: UUID): UUID {
-        return dslContext.insertInto(MEMBER_INVITATION)
-            .set(MEMBER_INVITATION.EMAIL, email.lowercase().trim())
-            .set(MEMBER_INVITATION.ROLE, role)
-            .set(MEMBER_INVITATION.TENANT_ID, tenantId)
-            .set(MEMBER_INVITATION.INVITED_BY, invitedBy)
-            .returning(MEMBER_INVITATION.ID)
-            .fetchOne()!!
-            .get(MEMBER_INVITATION.ID)
-    }
-
-    fun emailAlreadyInvited(email: String): Boolean {
-        return dslContext.fetchExists(
-            dslContext.selectFrom(MEMBER_INVITATION)
-                .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
-                .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
-        )
-    }
-
-    fun emailAlreadyMemberOfCurrentTenant(email: String): Boolean {
-        val tenantId = identity.authenticatedTenant?.id ?: return false
-        return dslContext.fetchExists(
-            dslContext.select()
-                .from(APP_USER)
-                .join(APP_USER_ROLE_TENANT).on(APP_USER.ID.eq(APP_USER_ROLE_TENANT.USER_ID))
-                .where(APP_USER.EMAIL.equalIgnoreCase(email.trim()))
-                .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
-        )
-    }
-
-    fun getInvitationById(invitationId: UUID): MemberInvitationDetails? {
-        return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
-            MEMBER_INVITATION.CREATED_AT,
-            APP_USER.NAME
-        )
-            .from(MEMBER_INVITATION)
-            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
-            .fetchOne { record ->
-                MemberInvitationDetails(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
-                    createdAt = record.get(MEMBER_INVITATION.CREATED_AT),
-                    invitedByName = record.get(APP_USER.NAME),
-                )
+            if (memberInvitationRepository.emailAlreadyInvited(email)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.invited",email)
             }
-    }
-
-    fun updateRole(invitationId: UUID, role: String): Int {
-        return dslContext.update(MEMBER_INVITATION)
-            .set(MEMBER_INVITATION.ROLE, role)
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
-            .execute()
-    }
-
-    fun getInvitationForAcceptance(invitationId: UUID): InvitationAcceptanceDetails? {
-        return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
-            MEMBER_INVITATION.TENANT_ID,
-            TENANT.ORGANIZATION_NAME,
-            APP_USER.NAME
-        )
-            .from(MEMBER_INVITATION)
-            .join(TENANT).on(MEMBER_INVITATION.TENANT_ID.eq(TENANT.ID))
-            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .fetchOne { record ->
-                InvitationAcceptanceDetails(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
-                    tenantId = record.get(MEMBER_INVITATION.TENANT_ID),
-                    organizationName = record.get(TENANT.ORGANIZATION_NAME),
-                    invitedByName = record.get(APP_USER.NAME),
-                )
+            if (memberInvitationRepository.emailAlreadyMemberOfCurrentTenant(email)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.member", email)
             }
+        }
+
+        // Create invitations
+        val invitationIds = emails.map { email ->
+            memberInvitationRepository.createInvitation(
+                email = email,
+                role = role,
+                tenantId = tenant.id,
+                invitedBy = currentUser.id
+            )
+        }
+
+        invitationIds.forEach { id ->
+            val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/" + id
+            logger.info("Created invitation $id. Url is $acceptanceUrl")
+        }
+
+        return InviteMembersResult.Success(invitationIds)
     }
+
+    fun getAllInvitations() = memberInvitationRepository.getAllInvitations()
+
+    fun deleteInvitationById(invitationId: UUID) = memberInvitationRepository.deleteInvitationById(invitationId)
 
 }

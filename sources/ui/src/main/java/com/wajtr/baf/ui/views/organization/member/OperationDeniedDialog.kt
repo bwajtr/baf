@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog
 import com.wajtr.baf.core.i18n.i18n

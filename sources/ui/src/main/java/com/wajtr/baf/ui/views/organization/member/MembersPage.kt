@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
 import com.github.mvysny.karibudsl.v10.flexGrow
 import com.github.mvysny.karibudsl.v10.flexLayout
@@ -82,7 +82,7 @@ class MembersPage(
             addClassName("aura-accent-green")
             style.set("--vaadin-button-primary-background", "var(--aura-green)")
             addClickListener {
-                InviteMembersDialog(identity, memberInvitationService) { loadMembers() }.open()
+                InviteMembersDialog(memberInvitationService, memberManagementService) { loadMembers() }.open()
             }
             isEnabled = identity.hasRole(UserRole.OWNER_ROLE) || identity.hasRole(UserRole.ADMIN_ROLE)
         }

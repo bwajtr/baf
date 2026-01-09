@@ -1,6 +1,9 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
-import com.github.mvysny.karibudsl.v10.*
+import com.github.mvysny.karibudsl.v10.button
+import com.github.mvysny.karibudsl.v10.formLayout
+import com.github.mvysny.karibudsl.v10.horizontalLayout
+import com.github.mvysny.karibudsl.v10.onClick
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.html.H1
@@ -24,7 +27,9 @@ import com.wajtr.baf.ui.components.breadcrumb
 import com.wajtr.baf.ui.components.userAvatar
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
-import com.wajtr.baf.user.*
+import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.User
+import com.wajtr.baf.user.UserRepository
 import jakarta.annotation.security.RolesAllowed
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -118,6 +123,19 @@ class MemberSettingsPage(
         }
 
         container.add(createBasicsSection())
+
+        if (allowedRoles.size == 1
+            && allowedRoles.first() == UserRole.OWNER_ROLE
+            && identity.hasRole(UserRole.OWNER_ROLE)
+        ) {
+            // Show explanation that the last owner's role cannot be changed
+            val warningSpan = Span(i18n("member.settings.role.last.owner.warning"))
+            warningSpan.style.set("color", "var(--aura-red)")
+            warningSpan.style.set("font-size", "0.875rem")
+            warningSpan.style.set("display", "block")
+            warningSpan.style.set("margin-bottom", "1rem")
+            container.add(warningSpan)
+        }
 
         roleSelectionComponent = RoleSelectionComponent(showAdditionalRights = true, allowedRoles = allowedRoles)
         container.add(roleSelectionComponent)

@@ -7,7 +7,7 @@ import com.vaadin.flow.component.sidenav.SideNav
 import com.vaadin.flow.component.sidenav.SideNavItem
 import com.vaadin.flow.server.auth.AccessAnnotationChecker
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.views.organization.members.MembersPage
+import com.wajtr.baf.ui.views.organization.member.MembersPage
 import com.wajtr.baf.ui.views.organization.settings.OrganizationSettingsPage
 import com.wajtr.baf.ui.views.product.ProductsOverviewPage
 import org.springframework.stereotype.Component as SpringComponent

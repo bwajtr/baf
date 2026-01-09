@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.views.organization.members
+package com.wajtr.baf.ui.views.organization.member
 
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
@@ -9,25 +9,22 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextArea
-import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.organization.invitation.InviteMembersResult
 import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
-import com.wajtr.baf.user.Identity
-import com.wajtr.baf.user.validation.EmailValidator
 
 class InviteMembersDialog(
-    private val identity: Identity,
     private val memberInvitationService: MemberInvitationService,
+    memberManagementService: MemberManagementService,
     private val onInvitationsSent: () -> Unit
 ) : Dialog() {
 
     private val emailsField: TextArea
     private val roleComboBox: ComboBox<String>
-
-    private val logger = org.slf4j.LoggerFactory.getLogger(InviteMembersDialog::class.java)
 
     init {
         headerTitle = i18n("members.invite.dialog.header")
@@ -49,12 +46,7 @@ class InviteMembersDialog(
         }
         content.add(emailsField)
 
-        // Role combobox - only owners can invite with OWNER role
-        val availableRoles = if (identity.hasRole(UserRole.OWNER_ROLE)) {
-            listOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE, UserRole.OWNER_ROLE)
-        } else {
-            listOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE)
-        }
+        val availableRoles = memberManagementService.getAllowedRolesForInvitation()
         roleComboBox = ComboBox<String>(i18n("members.invite.dialog.role.label")).apply {
             setItems(availableRoles)
             setItemLabelGenerator { role -> i18n("role.$role") }
@@ -85,51 +77,25 @@ class InviteMembersDialog(
     }
 
     private fun sendInvitations() {
-        val tenant = identity.authenticatedTenant
-            ?: throw IllegalStateException("No authenticated tenant found")
-        val currentUser = identity.authenticatedUser
+        val result = memberInvitationService.inviteMembers(
+            emailsInput = emailsField.value,
+            role = roleComboBox.value
+        )
 
-        // Parse and validate emails
-        val emails = emailsField.value.split(",", ";", "\n")
-            .map { it.trim().lowercase() }
-            .filter { it.isNotBlank() }
-
-        if (emails.isEmpty()) {
-            showErrorNotification(i18n("members.invite.dialog.emails.required"))
-            return
-        }
-
-        // Validate email format and check for duplicates
-        val emailValidator = EmailValidator()
-        for (email in emails) {
-            if (!emailValidator.isValid(email)) {
-                showErrorNotification(i18n("members.invite.dialog.email.invalid", email))
-                return
+        when (result) {
+            is InviteMembersResult.ValidationError -> {
+                val errorMessage = if (result.parameter != null) {
+                    i18n(result.messageKey, result.parameter!!)
+                } else {
+                    i18n(result.messageKey)
+                }
+                showErrorNotification(errorMessage)
             }
-            if (memberInvitationService.emailAlreadyInvited(email)) {
-                showErrorNotification(i18n("members.invite.dialog.email.already.invited", email))
-                return
-            }
-            if (memberInvitationService.emailAlreadyMemberOfCurrentTenant(email)) {
-                showErrorNotification(i18n("members.invite.dialog.email.already.member", email))
-                return
+            is InviteMembersResult.Success -> {
+                close()
+                showSuccessNotification(i18n("members.invite.dialog.success"))
+                onInvitationsSent()
             }
         }
-
-        // Create invitations
-        for (email in emails) {
-            val invitationId = memberInvitationService.createInvitation(
-                email = email,
-                role = roleComboBox.value,
-                tenantId = tenant.id,
-                invitedBy = currentUser.id
-            )
-            val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/" + invitationId
-            logger.info("Created invitation $invitationId for email $email with role ${roleComboBox.value}. Url is $acceptanceUrl")
-        }
-
-        close()
-        showSuccessNotification(i18n("members.invite.dialog.success"))
-        onInvitationsSent()
     }
 }

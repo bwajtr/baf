@@ -28,7 +28,7 @@ import com.wajtr.baf.ui.components.userAvatar
 import com.wajtr.baf.ui.vaadin.extensions.showNotification
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
-import com.wajtr.baf.ui.views.organization.members.SESSION_ATTR_ORGANIZATION_ADDED
+import com.wajtr.baf.ui.views.organization.member.SESSION_ATTR_ORGANIZATION_ADDED
 import com.wajtr.baf.ui.views.user.settings.UserSettingsPage
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
