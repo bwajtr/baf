@@ -1,11 +1,18 @@
 package com.wajtr.baf.user.emailverification
 
+import com.wajtr.baf.db.jooq.Tables.APP_USER
+import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.user.emailverification.EmailVerificationConfirmationResult.TOKEN_VALID
 import com.wajtr.baf.user.emailverification.EmailVerificationTokenCreationStatus.*
+import org.jooq.DSLContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 const val CONFIRM_EMAIL_OWNERSHIP_URL = "/api/confirm"
 
@@ -22,15 +29,12 @@ const val CONFIRM_EMAIL_OWNERSHIP_URL = "/api/confirm"
  * @author Bretislav Wajtr
  */
 @Service
+@Transactional
 class EmailVerificationService(
     private val mailSender: EmailVerificationMailSender,
-    userEmailVerificationService: UserEmailVerificationService
+    private val create: DSLContext,
+    private val userRepository: UserRepository
 ) {
-    private val userEmailVerificationService: UserEmailVerificationService
-
-    init {
-        this.userEmailVerificationService = userEmailVerificationService
-    }
 
     /**
      * Starts (or continues) the process of verifying the ownership of email address. If user's email is not verified (stored as a flag in the users record), then a new
@@ -51,7 +55,7 @@ class EmailVerificationService(
     ): UserEmailVerificationStatus {
 
         val emailVerificationTokenCreationResult =
-            userEmailVerificationService.createEmailVerificationToken(emailAddressToVerify, forceSendNewMail)
+            createEmailVerificationToken(emailAddressToVerify, forceSendNewMail)
 
         return when (emailVerificationTokenCreationResult.status) {
             ALREADY_VERIFIED -> {
@@ -84,7 +88,7 @@ class EmailVerificationService(
                         "Sending email to {} to verify email ownership FAILED, rolling back the process",
                         emailAddressToVerify
                     )
-                    userEmailVerificationService.clearEmailVerificationToken(emailAddressToVerify)
+                    clearEmailVerificationToken(emailAddressToVerify)
                     UserEmailVerificationStatus.EMAIL_SENDING_FAILED
                 }
             }
@@ -100,15 +104,50 @@ class EmailVerificationService(
      * @return Returns success or failure - see documentation in EmailVerificationConfirmationResult.
      */
     fun confirmEmailVerificationToken(token: String): EmailVerificationConfirmationResult {
-        val result: EmailVerificationConfirmationResult = userEmailVerificationService.confirmEmailVerificationToken(token)
-        if (result === TOKEN_VALID) {
+        val userId = create.select(APP_USER.ID).from(APP_USER)
+            .where(APP_USER.EMAIL_VERIFICATION_TOKEN.eq(UUID.fromString(token)))
+            .fetchOneInto(UUID::class.java)
+
+        return if (userId != null) {
+            userRepository.updateUserEmailVerified(userId, true)
             LOG.info("Email verification process confirmed for token {}", token)
+            TOKEN_VALID
         } else {
             LOG.warn("Failed to verify email ownership based on token {}", token)
+            EmailVerificationConfirmationResult.TOKEN_INVALID
         }
-        return result
     }
 
+    @OptIn(ExperimentalUuidApi::class)
+    fun createEmailVerificationToken(
+        email: String,
+        forceCreateNew: Boolean
+    ): EmailVerificationTokenCreationResult {
+        val user = userRepository.loadUserByUsername(email)
+
+        if (user.emailIsVerified)
+            return EmailVerificationTokenCreationResult(ALREADY_VERIFIED, null)
+
+        if (user.emailVerificationToken == null || forceCreateNew) {
+            val newToken = Uuid.generateV7().toJavaUuid()
+            userRepository.updateUserEmailVerificationToken(user.id, newToken)
+            return EmailVerificationTokenCreationResult(
+                NEW_TOKEN_CREATED,
+                newToken
+            )
+        } else {
+            return EmailVerificationTokenCreationResult(
+                TOKEN_EXISTS,
+                user.emailVerificationToken
+            )
+        }
+    }
+
+
+    fun clearEmailVerificationToken(email: String) {
+        val user = userRepository.loadUserByUsername(email)
+        userRepository.updateUserEmailVerificationToken(user.id, null)
+    }
 
     private fun createEmailVerificationUrl(baseServerUrl: String?, token: UUID): String {
         return "$baseServerUrl$CONFIRM_EMAIL_OWNERSHIP_URL?$KEY_PARAM=$token"
@@ -127,3 +166,19 @@ enum class UserEmailVerificationStatus {
     ALREADY_VERIFIED, // the user's email is already verified, no further verification action is necessary
     EMAIL_SENDING_FAILED // attempt to send new verification email failed, the verification process was interrupted
 }
+
+enum class EmailVerificationConfirmationResult {
+    TOKEN_VALID, // token matched record in database, email assigned to the token was therefore verified
+    TOKEN_INVALID // no record matched this token -> no email was verified
+}
+
+enum class EmailVerificationTokenCreationStatus {
+    TOKEN_EXISTS, // verification token already exists, so no new token was created
+    NEW_TOKEN_CREATED, // a new token was created
+    ALREADY_VERIFIED // no token is actually needed, because the user is already verified
+}
+
+data class EmailVerificationTokenCreationResult(
+    val status: EmailVerificationTokenCreationStatus,
+    val token: UUID? // may be null if status is ALREADY_VERIFIED
+)
