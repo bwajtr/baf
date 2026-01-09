@@ -3,7 +3,7 @@ package com.wajtr.baf.organization.invitation
 import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenant
-import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.validation.EmailValidator
 import org.slf4j.LoggerFactory
@@ -28,7 +28,7 @@ sealed class AcceptInvitationResult {
 @Transactional
 class MemberInvitationService(
     private val memberInvitationRepository: MemberInvitationRepository,
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val identity: Identity
 ) {
 
@@ -99,14 +99,14 @@ class MemberInvitationService(
 
         // Check if user is already a member of the target tenant
         val currentUserId = identity.authenticatedUser.id
-        if (userRoleTenantService.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
+        if (userRoleTenantRepository.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
             // User is already a member, clean up the invitation
             memberInvitationRepository.deleteInvitationById(invitationId)
             return AcceptInvitationResult.Error("invitation.accept.already.member")
         }
 
         // Create entry in app_user_role_tenant
-        userRoleTenantService.insertRole(
+        userRoleTenantRepository.insertRole(
             UserRoleTenant(
                 userId = currentUserId,
                 role = invitation.role,

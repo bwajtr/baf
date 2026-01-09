@@ -29,7 +29,7 @@ enum class DenialReason {
 @Service
 @Transactional
 class MemberManagementService(
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val identity: Identity
 ) {
 
@@ -40,7 +40,7 @@ class MemberManagementService(
      * - The last owner of an organization cannot leave
      */
     fun canUserLeaveOrganization(userId: UUID, tenantId: UUID): MemberOperationResult {
-        if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId)) {
+        if (userRoleTenantRepository.isUserLastOwnerInTenant(userId, tenantId)) {
             return MemberOperationResult.Denied(DenialReason.LAST_OWNER_CANNOT_LEAVE)
         }
         return MemberOperationResult.Allowed
@@ -55,12 +55,12 @@ class MemberManagementService(
      */
     fun canUserBeRemoved(userId: UUID, tenantId: UUID): MemberOperationResult {
         // Check if target user is an owner - only owners can remove other owners
-        if (userRoleTenantService.isUserOwnerInTenant(userId, tenantId)) {
+        if (userRoleTenantRepository.isUserOwnerInTenant(userId, tenantId)) {
             if (!identity.hasRole(UserRole.OWNER_ROLE)) {
                 return MemberOperationResult.Denied(DenialReason.ONLY_OWNER_CAN_REMOVE_OWNER)
             }
             // Check if this is the last owner
-            if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId)) {
+            if (userRoleTenantRepository.isUserLastOwnerInTenant(userId, tenantId)) {
                 return MemberOperationResult.Denied(DenialReason.LAST_OWNER_CANNOT_BE_REMOVED)
             }
         }
@@ -85,7 +85,7 @@ class MemberManagementService(
         val roles = setOf(primaryRole) + additionalRights
 
         // All OK, Update roles in database
-        userRoleTenantService.writeUserRolesForTenant(userId, tenantId, roles)
+        userRoleTenantRepository.writeUserRolesForTenant(userId, tenantId, roles)
         return MemberOperationResult.Allowed
     }
 
@@ -98,7 +98,7 @@ class MemberManagementService(
      */
     fun canUserRoleBeChanged(userId: UUID, tenantId: UUID, newRole: String): MemberOperationResult {
         // If the new role is OWNER or target user is OWNER, check if current user is an owner
-        val isTargetUserOwner = userRoleTenantService.isUserOwnerInTenant(userId, tenantId)
+        val isTargetUserOwner = userRoleTenantRepository.isUserOwnerInTenant(userId, tenantId)
         if ((newRole == UserRole.OWNER_ROLE && !isTargetUserOwner)
             || (isTargetUserOwner && newRole != UserRole.OWNER_ROLE)
         ) {
@@ -108,7 +108,7 @@ class MemberManagementService(
         }
 
         // If changing away from OWNER, check if user is last owner in the tenant
-        if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId) && newRole != UserRole.OWNER_ROLE) {
+        if (userRoleTenantRepository.isUserLastOwnerInTenant(userId, tenantId) && newRole != UserRole.OWNER_ROLE) {
             return MemberOperationResult.Denied(DenialReason.LAST_OWNER_ROLE_CANNOT_BE_CHANGED)
         }
 
@@ -124,13 +124,13 @@ class MemberManagementService(
      */
     fun getAllowedRolesForUser(userId: UUID, tenantId: UUID): Set<String> {
         // If the target user is the last owner, only OWNER role is allowed
-        if (userRoleTenantService.isUserLastOwnerInTenant(userId, tenantId)) {
+        if (userRoleTenantRepository.isUserLastOwnerInTenant(userId, tenantId)) {
             return setOf(UserRole.OWNER_ROLE)
         }
 
         // If current user is not an owner, they cannot grant or revoke OWNER role
         if (!identity.hasRole(UserRole.OWNER_ROLE)) {
-            return if (userRoleTenantService.isUserOwnerInTenant(userId, tenantId))
+            return if (userRoleTenantRepository.isUserOwnerInTenant(userId, tenantId))
                 setOf(UserRole.OWNER_ROLE) // this prevents to select any other role
             else
                 setOf(UserRole.USER_ROLE, UserRole.ADMIN_ROLE)

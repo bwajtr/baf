@@ -24,12 +24,12 @@ const val CONFIRM_EMAIL_OWNERSHIP_URL = "/api/confirm"
 @Service
 class EmailVerificationService(
     private val mailSender: EmailVerificationMailSender,
-    userEmailVerificationDAO: UserEmailVerificationDAO
+    userEmailVerificationService: UserEmailVerificationService
 ) {
-    private val userEmailVerificationDAO: UserEmailVerificationDAO
+    private val userEmailVerificationService: UserEmailVerificationService
 
     init {
-        this.userEmailVerificationDAO = userEmailVerificationDAO
+        this.userEmailVerificationService = userEmailVerificationService
     }
 
     /**
@@ -51,7 +51,7 @@ class EmailVerificationService(
     ): UserEmailVerificationStatus {
 
         val emailVerificationTokenCreationResult =
-            userEmailVerificationDAO.createEmailVerificationToken(emailAddressToVerify, forceSendNewMail)
+            userEmailVerificationService.createEmailVerificationToken(emailAddressToVerify, forceSendNewMail)
 
         return when (emailVerificationTokenCreationResult.status) {
             ALREADY_VERIFIED -> {
@@ -84,7 +84,7 @@ class EmailVerificationService(
                         "Sending email to {} to verify email ownership FAILED, rolling back the process",
                         emailAddressToVerify
                     )
-                    userEmailVerificationDAO.clearEmailVerificationToken(emailAddressToVerify)
+                    userEmailVerificationService.clearEmailVerificationToken(emailAddressToVerify)
                     UserEmailVerificationStatus.EMAIL_SENDING_FAILED
                 }
             }
@@ -100,7 +100,7 @@ class EmailVerificationService(
      * @return Returns success or failure - see documentation in EmailVerificationConfirmationResult.
      */
     fun confirmEmailVerificationToken(token: String): EmailVerificationConfirmationResult {
-        val result: EmailVerificationConfirmationResult = userEmailVerificationDAO.confirmEmailVerificationToken(token)
+        val result: EmailVerificationConfirmationResult = userEmailVerificationService.confirmEmailVerificationToken(token)
         if (result === TOKEN_VALID) {
             LOG.info("Email verification process confirmed for token {}", token)
         } else {

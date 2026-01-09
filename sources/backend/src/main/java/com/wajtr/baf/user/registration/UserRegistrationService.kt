@@ -5,9 +5,8 @@ import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.AppUser
 import com.wajtr.baf.organization.member.UserRole.OWNER_ROLE
-import com.wajtr.baf.organization.member.UserRole.USER_ROLE
 import com.wajtr.baf.organization.member.UserRoleTenant
-import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import com.wajtr.baf.user.AccountStatusCheckResult
 import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext
@@ -53,7 +52,7 @@ interface UserRegistrationService {
 @Service
 @Transactional
 class UserRegistrationServiceImpl(
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val create: DSLContext,
     private val userRepository: UserRepository,
     private val tenantRepository: TenantRepository
@@ -72,7 +71,7 @@ class UserRegistrationServiceImpl(
         if (result is UserRegistrationSuccess) {
             val roles = initialTenantOwnerRolesCollection()
             for (role in roles) {
-                userRoleTenantService.insertRole(
+                userRoleTenantRepository.insertRole(
                     UserRoleTenant(
                         result.userId,
                         role,

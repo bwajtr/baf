@@ -19,7 +19,7 @@ import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.MemberOperationResult
 import com.wajtr.baf.organization.member.UserRole
-import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.components.BreadcrumbItem
 import com.wajtr.baf.ui.components.MainLayoutPage
@@ -47,7 +47,7 @@ data class MemberSettingsFormData(
 @Route(MEMBER_SETTINGS_PAGE, layout = MainLayout::class)
 class MemberSettingsPage(
     private val userRepository: UserRepository,
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val memberManagementService: MemberManagementService,
     private val identity: Identity
 ) : MainLayoutPage(), HasUrlParameter<String> {
@@ -80,7 +80,7 @@ class MemberSettingsPage(
             }
 
         // Load current roles
-        val currentRoles = userRoleTenantService.getRolesForUserInTenant(userId, tenant.id)
+        val currentRoles = userRoleTenantRepository.getRolesForUserInTenant(userId, tenant.id)
 
         // Determine organization role (primary role: OWNER, ADMIN, or USER)
         formData.organizationRole = when {

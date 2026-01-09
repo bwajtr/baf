@@ -15,7 +15,7 @@ import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
-import com.wajtr.baf.organization.member.UserRoleTenantService
+import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -26,7 +26,7 @@ class DeleteOrganizationComponent(
     private val identity: Identity,
     private val tenantRepository: TenantRepository,
     private val userRepository: UserRepository,
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val authenticationContext: AuthenticationContext
 ) : VerticalLayout() {
 
@@ -78,7 +78,7 @@ class DeleteOrganizationComponent(
             ?: throw IllegalStateException("No authenticated tenant found")
 
         // Get all user IDs in this tenant
-        val userIds = userRoleTenantService.getUserIdsForTenant(tenant.id)
+        val userIds = userRoleTenantRepository.getUserIdsForTenant(tenant.id)
 
         // Delete all users in the tenant
         userIds.forEach { userId ->

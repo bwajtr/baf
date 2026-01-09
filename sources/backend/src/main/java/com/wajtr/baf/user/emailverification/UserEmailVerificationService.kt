@@ -15,7 +15,7 @@ import kotlin.uuid.toJavaUuid
  */
 @Repository
 @Transactional
-class UserEmailVerificationDAO(
+class UserEmailVerificationService(
     private val create: DSLContext,
     private val userRepository: UserRepository
 ) {

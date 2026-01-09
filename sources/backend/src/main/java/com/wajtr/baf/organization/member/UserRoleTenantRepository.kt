@@ -21,7 +21,7 @@ data class TenantIdAndName(
 
 @Service
 @Transactional
-class UserRoleTenantService(
+class UserRoleTenantRepository(
     private val dslContext: DSLContext
 ) {
 
