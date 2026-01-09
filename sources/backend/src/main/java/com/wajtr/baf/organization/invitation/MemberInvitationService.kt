@@ -1,6 +1,7 @@
 package com.wajtr.baf.organization.invitation
 
 import com.wajtr.baf.core.commons.HttpServletUtils
+import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenant
 import com.wajtr.baf.organization.member.UserRoleTenantRepository
@@ -24,11 +25,17 @@ sealed class AcceptInvitationResult {
     data class Error(val messageKey: String) : AcceptInvitationResult()
 }
 
+sealed class UpdateInvitationRoleResult {
+    data object Success : UpdateInvitationRoleResult()
+    data class Error(val messageKey: String) : UpdateInvitationRoleResult()
+}
+
 @Service
 @Transactional
 class MemberInvitationService(
     private val memberInvitationRepository: MemberInvitationRepository,
     private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val memberManagementService: MemberManagementService,
     private val identity: Identity
 ) {
 
@@ -118,6 +125,24 @@ class MemberInvitationService(
         memberInvitationRepository.deleteInvitationById(invitationId)
 
         return AcceptInvitationResult.Success
+    }
+
+    @PreAuthorize("hasAnyRole(${UserRole.OWNER_ROLE}, ${UserRole.ADMIN_ROLE})")
+    fun updateInvitationRole(invitationId: UUID, newRole: String): UpdateInvitationRoleResult {
+        // Check if invitation exists
+        memberInvitationRepository.getInvitationById(invitationId)
+            ?: return UpdateInvitationRoleResult.Error("invitation.details.not.found")
+
+        // Validate that the new role is in the allowed roles for invitations
+        val allowedRoles = memberManagementService.getAllowedRolesForInvitation()
+        if (newRole !in allowedRoles) {
+            return UpdateInvitationRoleResult.Error("invitation.details.role.not.allowed")
+        }
+
+        // Update the role
+        memberInvitationRepository.updateRole(invitationId, newRole)
+
+        return UpdateInvitationRoleResult.Success
     }
 
 }

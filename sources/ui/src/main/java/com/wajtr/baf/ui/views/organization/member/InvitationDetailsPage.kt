@@ -17,6 +17,7 @@ import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.MemberInvitationDetails
 import com.wajtr.baf.organization.invitation.MemberInvitationRepository
 import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.invitation.UpdateInvitationRoleResult
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.ui.base.MainLayout
@@ -41,6 +42,7 @@ data class InvitationDetailsFormData(
 @Route(INVITATION_DETAILS_PAGE, layout = MainLayout::class)
 class InvitationDetailsPage(
     private val memberInvitationRepository: MemberInvitationRepository,
+    private val memberInvitationService: MemberInvitationService,
     private val memberManagementService: MemberManagementService
 ) : MainLayoutPage(), HasUrlParameter<String> {
 
@@ -150,9 +152,15 @@ class InvitationDetailsPage(
 
     private fun saveInvitationSettings() {
         if (binder.writeBeanIfValid(formData)) {
-            memberInvitationRepository.updateRole(invitationId, formData.organizationRole)
-            showSuccessNotification(i18n("invitation.details.update.success"))
-            UI.getCurrent().navigate(MEMBERS_PAGE)
+            when (val result = memberInvitationService.updateInvitationRole(invitationId, formData.organizationRole)) {
+                is UpdateInvitationRoleResult.Success -> {
+                    showSuccessNotification(i18n("invitation.details.update.success"))
+                    UI.getCurrent().navigate(MEMBERS_PAGE)
+                }
+                is UpdateInvitationRoleResult.Error -> {
+                    showErrorNotification(i18n(result.messageKey))
+                }
+            }
         }
     }
 }
