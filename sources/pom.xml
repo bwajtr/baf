@@ -140,29 +140,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <!-- So the message.properties files are copied to target also from the src/main/java/ directory -->
-            <resource>
-                <directory>${basedir}/src/main/java</directory>
-                <includes>
-                    <include>**/messages*.properties</include>
-                </includes>
-            </resource>
-            <!-- So the message.properties files are copied to target also from the src/main/kotlin/ directory -->
-            <resource>
-                <directory>${basedir}/src/main/kotlin</directory>
-                <includes>
-                    <include>**/messages*.properties</include>
-                </includes>
-            </resource>
-            <!-- This is required to include webapp directory as resource folder -->
-            <resource>
-                <directory>src/main/webapp</directory>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <pluginManagement>
             <plugins>
                 <!-- Apply more sensible defaults for user projects -->
@@ -178,17 +155,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>${maven-resources-plugin.version}</version>
-                    <configuration>
-                        <delimiters>
-                            <delimiter>${resource.delimiter}</delimiter>
-                        </delimiters>
-                        <useDefaultDelimiters>false</useDefaultDelimiters>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
@@ -256,47 +222,19 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            
+            <!-- Disable default Java compilation since we only use Kotlin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
-                    <!-- Replacing default-compile as it is treated specially by maven. This is required so the
-                     Kotlin sources are built before java sources -->
                     <execution>
                         <id>default-compile</id>
                         <phase>none</phase>
                     </execution>
-                    <!-- Replacing default-testCompile as it is treated specially by maven. This is required so the
-                     Kotlin sources are built before java sources -->
                     <execution>
                         <id>default-testCompile</id>
                         <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>java-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>java-test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
