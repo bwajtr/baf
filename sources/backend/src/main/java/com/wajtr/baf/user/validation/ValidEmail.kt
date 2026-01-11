@@ -1,24 +1,15 @@
-package com.wajtr.baf.user.validation;
+package com.wajtr.baf.user.validation
 
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-@Target({TYPE, FIELD, ANNOTATION_TYPE})
-@Retention(RUNTIME)
-@Constraint(validatedBy = EmailValidator.class)
-@Documented
-public @interface ValidEmail {
-    String message() default "{org.hibernate.validator.constraints.Email.message}";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
-}
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FIELD, AnnotationTarget.ANNOTATION_CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [EmailValidator::class])
+@MustBeDocumented
+annotation class ValidEmail(
+    val message: String = "{org.hibernate.validator.constraints.Email.message}",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
+)
