@@ -197,9 +197,25 @@ SELECT apply_tenant_policy('public', 'example', 'tenant_id');
 ```
 
 ### jOOQ
+- **Code Generation**: Uses `KotlinGenerator` to generate Kotlin classes (not Java)
 - Generated code in `sources/backend/src/gen/jooq/` - **DO NOT EDIT**
 - Regenerate after schema changes: `mvn jooq-codegen:generate`
-- Access tables: `Tables.TABLE_NAME`
+- Access tables: `Tables.TABLE_NAME` or use `com.wajtr.baf.db.jooq.tables.references.*`
+- **IMPORTANT**: All generated fields are nullable (`UUID?`, `String?`, etc.) regardless of database NOT NULL constraints
+  - When mapping to data classes, use `!!` for NOT NULL columns to respect proper nullability
+  - Example from `UserRepository`:
+    ```kotlin
+    private val mapIntoUser: RecordMapper<AppUserRecord, User> = RecordMapper { record ->
+        User(
+            record.id!!,              // NOT NULL in DB, use !!
+            record.name!!,            // NOT NULL in DB, use !!
+            record.email!!,           // NOT NULL in DB, use !!
+            record.emailVerified!!,   // NOT NULL in DB, use !!
+            record.createdAt!!.toInstant(),
+            record.emailVerificationToken  // nullable in DB, no !!
+        )
+    }
+    ```
 
 ## Testing Patterns
 
