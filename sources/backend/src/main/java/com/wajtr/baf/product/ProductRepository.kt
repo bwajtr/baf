@@ -1,7 +1,7 @@
 package com.wajtr.baf.features.product
 
-import com.wajtr.baf.db.jooq.Tables
 import com.wajtr.baf.db.jooq.tables.records.ProductRecord
+import com.wajtr.baf.db.jooq.tables.references.PRODUCT
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -18,7 +18,7 @@ import java.util.*
 data class Product(
     var id: UUID?,
     var name: String,
-    var price: BigDecimal,
+    var price: BigDecimal?,
     var description: String?
 )
 
@@ -37,7 +37,7 @@ class ProductRepository(
     private val mapIntoProduct = { record: ProductRecord ->
         Product(
             record.id,
-            record.name,
+            record.name ?: "",
             record.price,
             record.description
         )
@@ -45,23 +45,23 @@ class ProductRepository(
 
     fun findById(id: UUID): Product {
         return context
-            .selectFrom(Tables.PRODUCT)
-            .where(Tables.PRODUCT.ID.eq(id))
+            .selectFrom(PRODUCT)
+            .where(PRODUCT.ID.eq(id))
             .fetchOne(mapIntoProduct)!!
     }
 
     fun findAll(): List<Product> {
         return context
-            .selectFrom(Tables.PRODUCT)
+            .selectFrom(PRODUCT)
             .fetch(mapIntoProduct)
     }
 
     fun insert(input: Product) {
-        val id = context.insertInto(Tables.PRODUCT)
-            .set(Tables.PRODUCT.NAME, input.name)
-            .set(Tables.PRODUCT.PRICE, input.price)
-            .set(Tables.PRODUCT.DESCRIPTION, input.description)
-            .returning(Tables.PRODUCT.ID)
+        val id = context.insertInto(PRODUCT)
+            .set(PRODUCT.NAME, input.name)
+            .set(PRODUCT.PRICE, input.price)
+            .set(PRODUCT.DESCRIPTION, input.description)
+            .returning(PRODUCT.ID)
             .fetchOne()!!
             .id
 
@@ -75,10 +75,10 @@ class ProductRepository(
     }
 
     fun deleteById(id: UUID): Int {
-        return context.deleteFrom(Tables.PRODUCT).where(Tables.PRODUCT.ID.eq(id)).execute()
+        return context.deleteFrom(PRODUCT).where(PRODUCT.ID.eq(id)).execute()
     }
 
     fun findByName(name: String): Product {
-        return context.selectFrom(Tables.PRODUCT).where(Tables.PRODUCT.NAME.eq(name)).fetchOne(mapIntoProduct)!!
+        return context.selectFrom(PRODUCT).where(PRODUCT.NAME.eq(name)).fetchOne(mapIntoProduct)!!
     }
 }

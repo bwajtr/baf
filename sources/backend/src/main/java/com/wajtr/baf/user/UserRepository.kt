@@ -1,7 +1,7 @@
 package com.wajtr.baf.user
 
-import com.wajtr.baf.db.jooq.Tables.APP_USER
-import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
+import com.wajtr.baf.db.jooq.tables.references.APP_USER
+import com.wajtr.baf.db.jooq.tables.references.APP_USER_ROLE_TENANT
 import com.wajtr.baf.db.jooq.routines.EncryptPassword
 import com.wajtr.baf.db.jooq.tables.records.AppUserRecord
 import org.jooq.DSLContext
@@ -22,11 +22,11 @@ class UserRepository(private val create: DSLContext) {
     private val mapIntoUser: RecordMapper<AppUserRecord, User> = RecordMapper { record: AppUserRecord ->
         try {
             return@RecordMapper User(
-                record.id,
-                record.name,
-                record.email,
-                record.emailVerified,
-                record.createdAt.toInstant(),
+                record.id!!,
+                record.name!!,
+                record.email!!,
+                record.emailVerified!!,
+                record.createdAt!!.toInstant(),
                 record.emailVerificationToken
             )
         } catch (e: UnknownHostException) {
@@ -38,11 +38,11 @@ class UserRepository(private val create: DSLContext) {
         RecordMapper { record: AppUserRecord ->
             try {
                 return@RecordMapper User(
-                    record.id,
-                    record.name,
-                    record.email,
-                    record.emailVerified,
-                    record.createdAt.toInstant(),
+                    record.id!!,
+                    record.name!!,
+                    record.email!!,
+                    record.emailVerified!!,
+                    record.createdAt!!.toInstant(),
                     record.emailVerificationToken
                 )
             } catch (e: UnknownHostException) {
@@ -128,7 +128,7 @@ class UserRepository(private val create: DSLContext) {
         return if (userRecord == null) {
             AccountStatusCheckResult.NOT_FOUND
         } else {
-            val emailVerified: Boolean = userRecord.get(APP_USER.EMAIL_VERIFIED)
+            val emailVerified: Boolean = userRecord.get(APP_USER.EMAIL_VERIFIED)!!
             if (!emailVerified) {
                 AccountStatusCheckResult.NOT_VERIFIED
             } else {

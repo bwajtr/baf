@@ -1,7 +1,7 @@
 package com.wajtr.baf.organization.member
 
-import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
-import com.wajtr.baf.db.jooq.Tables.TENANT
+import com.wajtr.baf.db.jooq.tables.references.APP_USER_ROLE_TENANT
+import com.wajtr.baf.db.jooq.tables.references.TENANT
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -41,8 +41,8 @@ class UserRoleTenantRepository(
             .and(APP_USER_ROLE_TENANT.ROLE.eq(UserRole.OWNER_ROLE))
             .fetch { record ->
                 TenantIdAndName(
-                    tenantId = record.get(TENANT.ID),
-                    organizationName = record.get(TENANT.ORGANIZATION_NAME)
+                    tenantId = record.get(TENANT.ID)!!,
+                    organizationName = record.get(TENANT.ORGANIZATION_NAME)!!
                 )
             }
     }

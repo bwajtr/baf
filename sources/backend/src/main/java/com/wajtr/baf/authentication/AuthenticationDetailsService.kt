@@ -1,6 +1,6 @@
 package com.wajtr.baf.authentication
 
-import com.wajtr.baf.db.jooq.Tables.APP_USER_ROLE_TENANT
+import com.wajtr.baf.db.jooq.tables.references.APP_USER_ROLE_TENANT
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext

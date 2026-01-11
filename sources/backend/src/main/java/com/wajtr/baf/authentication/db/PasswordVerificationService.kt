@@ -1,6 +1,6 @@
 package com.wajtr.baf.authentication.db
 
-import com.wajtr.baf.db.jooq.Public.AUTHENTICATE_USER
+import com.wajtr.baf.db.jooq.tables.references.AUTHENTICATE_USER
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

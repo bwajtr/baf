@@ -1,6 +1,6 @@
 package com.wajtr.baf.organization.invitation
 
-import com.wajtr.baf.db.jooq.Tables.*
+import com.wajtr.baf.db.jooq.tables.references.*
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.user.Identity
 import org.jooq.DSLContext
@@ -49,9 +49,9 @@ class MemberInvitationRepository(
             .where(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
             .fetch { record ->
                 MemberInvitation(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
+                    id = record.get(MEMBER_INVITATION.ID)!!,
+                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(MEMBER_INVITATION.ROLE)!!,
                 )
             }
     }
@@ -75,7 +75,7 @@ class MemberInvitationRepository(
             .set(MEMBER_INVITATION.INVITED_BY, invitedBy)
             .returning(MEMBER_INVITATION.ID)
             .fetchOne()!!
-            .get(MEMBER_INVITATION.ID)
+            .get(MEMBER_INVITATION.ID)!!
     }
 
     fun emailAlreadyInvited(email: String): Boolean {
@@ -111,10 +111,10 @@ class MemberInvitationRepository(
             .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .fetchOne { record ->
                 MemberInvitationDetails(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
-                    createdAt = record.get(MEMBER_INVITATION.CREATED_AT),
+                    id = record.get(MEMBER_INVITATION.ID)!!,
+                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(MEMBER_INVITATION.ROLE)!!,
+                    createdAt = record.get(MEMBER_INVITATION.CREATED_AT)!!,
                     invitedByName = record.get(APP_USER.NAME),
                 )
             }
@@ -143,11 +143,11 @@ class MemberInvitationRepository(
             .where(MEMBER_INVITATION.ID.eq(invitationId))
             .fetchOne { record ->
                 InvitationAcceptanceDetails(
-                    id = record.get(MEMBER_INVITATION.ID),
-                    email = record.get(MEMBER_INVITATION.EMAIL),
-                    role = record.get(MEMBER_INVITATION.ROLE),
-                    tenantId = record.get(MEMBER_INVITATION.TENANT_ID),
-                    organizationName = record.get(TENANT.ORGANIZATION_NAME),
+                    id = record.get(MEMBER_INVITATION.ID)!!,
+                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(MEMBER_INVITATION.ROLE)!!,
+                    tenantId = record.get(MEMBER_INVITATION.TENANT_ID)!!,
+                    organizationName = record.get(TENANT.ORGANIZATION_NAME)!!,
                     invitedByName = record.get(APP_USER.NAME),
                 )
             }
