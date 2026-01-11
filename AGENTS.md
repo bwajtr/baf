@@ -51,14 +51,14 @@ cd deployment/baf-local-dev && docker compose up -d
 ```
 sources/
 ├── backend/          # Spring Boot: REST API, services, repositories, DB
-│   └── src/main/java/com/wajtr/baf/
+│   └── src/main/kotlin/com/wajtr/baf/
 │       ├── core/           # Config, datasource, multi-tenancy, i18n
 │       ├── user/           # User entity, repository, authentication
 │       ├── authentication/ # Security services, OAuth2
 │       ├── organization/   # Tenant/organization management
-│       └── features/       # Domain modules (e.g., product/)
+│       └── product/        # Domain modules (e.g., product)
 ├── ui/               # Vaadin 25 frontend: views, components
-│   └── src/main/java/com/wajtr/baf/ui/
+│   └── src/main/kotlin/com/wajtr/baf/ui/
 │       ├── base/           # MainLayout, ViewToolbar
 │       ├── components/     # Reusable UI components
 │       ├── views/          # Vaadin routes by domain
@@ -67,7 +67,7 @@ sources/
 
 ## Technology Stack
 
-- **Language**: Kotlin 2.3.0 / Java 25
+- **Language**: Kotlin 2.3.0 (pure Kotlin project)
 - **Framework**: Spring Boot 4.0.0
 - **UI**: Vaadin 25 with Karibu DSL
 - **Database**: PostgreSQL 18, jOOQ 3.20.7, Flyway
@@ -86,7 +86,7 @@ sources/
 - One primary class per file
 - Related data classes, enums, sealed classes may be in same file
 - Result types (sealed classes/enums) at end of file
-- Kotlin files are in `src/main/java/` (not `src/main/kotlin/`)
+- Kotlin files are in `src/main/kotlin/` and `src/test/kotlin/`
 
 ### Import Order
 1. Java/Kotlin stdlib
@@ -220,7 +220,7 @@ SELECT apply_tenant_policy('public', 'example', 'tenant_id');
 ## Testing Patterns
 
 ### Unit Tests
-- **Location**: `sources/backend/src/test/java/`
+- **Location**: `sources/backend/src/test/kotlin/`
 - **Naming**: `*Test.kt` (e.g., `SecureRandomExtensionsTest.kt`)
 - **Characteristics**: Pure JUnit 5, no Spring context, fast execution
 - **Use for**: Testing utility functions, extensions, pure logic without dependencies
@@ -245,7 +245,7 @@ class SecureRandomExtensionsTest {
 ```
 
 ### Integration Tests
-- **Location**: `sources/backend/src/test/java/`
+- **Location**: `sources/backend/src/test/kotlin/`
 - **Naming**: `*IT.kt` (e.g., `MemberManagementServiceIT.kt`)
 - **Base Class**: Extend `BaseIntegrationTest`
 - **Features**: Spring Boot context, Testcontainers (PostgreSQL 18), transactional rollback, default authentication as Owner
