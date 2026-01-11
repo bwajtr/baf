@@ -53,7 +53,7 @@ class MemberManagementService(
      * - Only owners can remove other owners
      * - The last owner of an organization cannot be removed
      */
-    fun canUserBeRemoved(userId: UUID, tenantId: UUID): MemberOperationResult {
+    fun canMemberBeRemoved(userId: UUID, tenantId: UUID): MemberOperationResult {
         // Check if target user is an owner - only owners can remove other owners
         if (userRoleTenantRepository.isUserOwnerInTenant(userId, tenantId)) {
             if (!identity.hasRole(UserRole.OWNER_ROLE)) {

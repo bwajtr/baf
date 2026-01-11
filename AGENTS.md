@@ -14,8 +14,20 @@ cd sources && mvn clean install -DskipTests
 # Run the application (requires local dev environment)
 cd sources/ui && mvn spring-boot:run
 
-# Run a single test class
-cd sources && mvn test -pl backend -Dtest=ClassName
+# Run all tests (unit + integration)
+cd sources/backend && mvn test verify
+
+# Run only unit tests (*Test.kt, fast, no Testcontainers)
+cd sources/backend && mvn test
+
+# Run only integration tests (*IT.kt, slower, uses Testcontainers)
+cd sources/backend && mvn verify -DskipTests
+
+# Run a single unit test class
+cd sources && mvn test -pl backend -Dtest=SecureRandomExtensionsTest
+
+# Run a single integration test class
+cd sources && mvn verify -pl backend -Dit.test=MemberManagementServiceIT
 
 # Run a single test method
 cd sources && mvn test -pl backend -Dtest=ClassName#methodName
@@ -188,6 +200,126 @@ SELECT apply_tenant_policy('public', 'example', 'tenant_id');
 - Generated code in `sources/backend/src/gen/jooq/` - **DO NOT EDIT**
 - Regenerate after schema changes: `mvn jooq-codegen:generate`
 - Access tables: `Tables.TABLE_NAME`
+
+## Testing Patterns
+
+### Unit Tests
+- **Location**: `sources/backend/src/test/java/`
+- **Naming**: `*Test.kt` (e.g., `SecureRandomExtensionsTest.kt`)
+- **Characteristics**: Pure JUnit 5, no Spring context, fast execution
+- **Use for**: Testing utility functions, extensions, pure logic without dependencies
+- **Assertions**: Use AssertJ's `assertThat()` for fluent, readable assertions
+- **Example**: `SecureRandomExtensionsTest.kt`
+
+```kotlin
+import org.assertj.core.api.Assertions.assertThat
+
+class SecureRandomExtensionsTest {
+    private val secureRandom = SecureRandom()
+    
+    @Test
+    fun `generateRandomAlphanumeric should return string of correct length`() {
+        val result = secureRandom.generateRandomAlphanumeric(10)
+        
+        assertThat(result)
+            .hasSize(10)
+            .`as`("Generated string should have exactly 10 characters")
+    }
+}
+```
+
+### Integration Tests
+- **Location**: `sources/backend/src/test/java/`
+- **Naming**: `*IT.kt` (e.g., `MemberManagementServiceIT.kt`)
+- **Base Class**: Extend `BaseIntegrationTest`
+- **Features**: Spring Boot context, Testcontainers (PostgreSQL 18), transactional rollback, default authentication as Owner
+- **Use for**: Testing services, repositories, business logic with real database
+- **Assertions**: Use AssertJ's `assertThat()` for fluent, readable assertions
+- **Authentication**: Each test runs as Owner by default (via `@BeforeTransaction`), override with `authenticationTestHelper.loginAsXxx()` if needed
+
+```kotlin
+import org.assertj.core.api.Assertions.assertThat
+
+class MyServiceIT : BaseIntegrationTest() {
+    
+    @Autowired
+    private lateinit var myService: MyService
+    
+    @Test
+    fun `test something as owner`() {
+        // No authentication setup needed - logged in as Owner by default
+        val result = myService.doSomething()
+        
+        assertThat(result).isEqualTo("xxx")
+    }
+
+     @Test
+     fun `test something as admin`() {
+        // Override default Owner authentication
+        authenticationTestHelper.loginAsAdmin()
+        val result = myService.doSomething()
+        assertThat(result).isEqualTo("yyy")
+     }
+}
+```
+
+### Test Users (from integration-test-basic-database-content.sql)
+- **Joe User**: USER role in Tenant 1
+  - ID: `019b5aa6-97b6-7358-8ffe-bb68f70c8fc6`
+  - Email: joe.user@acme.com
+  - Password: test
+- **Jane Admin**: ADMIN role in Tenant 1
+  - ID: `019b5aa6-cd48-75f9-8b74-59878b0ea7d9`
+  - Email: jane.admin@acme.com
+  - Password: test
+- **Josh Owner**: OWNER role in Tenant 1 (also BILLING_MANAGER)
+  - ID: `019b5aa6-eae4-76f0-9077-571f50df349b`
+  - Email: josh.owner@acme.com
+  - Password: test
+- **William Owner**: OWNER role in Tenant 2 (also BILLING_MANAGER)
+  - ID: `019b5ab7-72c3-739d-b548-b13d1d59fe11`
+  - Email: william.owner@acme.com
+  - Password: test
+
+### Test Tenants
+- **Tenant 1**: `019b25f2-3cc6-761c-9e6e-1c0d279bfd30` (Development Tenant 1)
+- **Tenant 2**: `019b25f2-6e55-7f32-bf82-9e2d116873ce` (Development Tenant 2)
+
+### Test Helpers
+
+#### DatabaseTestHelper
+- `loadBasicTestData()` - Loads test users, tenants, and sample data
+- `executeSqlScript(path)` - Execute custom SQL scripts
+- `truncateAllTables()` - Manual cleanup (rarely needed due to @Transactional)
+
+#### AuthenticationTestHelper
+- `loginAsUser()` - Login as Joe (USER role, Tenant 1)
+- `loginAsAdmin()` - Login as Jane (ADMIN role, Tenant 1)
+- `loginAsOwner()` - Login as Josh (OWNER role, Tenant 1)
+- `loginAsOwnerTenant2()` - Login as William (OWNER role, Tenant 2)
+- `loginAs(userId, tenantId, roles)` - Custom login
+- `logout()` - Clear security context (automatic in BaseIntegrationTest)
+
+#### Constants for Test IDs
+Available in `AuthenticationTestHelper` companion object:
+- `JOE_USER_ID`, `JANE_ADMIN_ID`, `JOSH_OWNER_ID`, `WILLIAM_OWNER_ID`
+- `TENANT_1_ID`, `TENANT_2_ID`
+
+### Test Infrastructure
+- **Testcontainers**: Shared PostgreSQL 18 container for all integration tests
+- **Transactional Rollback**: Each test automatically rolls back database changes
+- **Spring Security**: Real authentication context (no OAuth2 flow in tests)
+- **Flyway**: Automatic migrations on container startup
+- **OAuth2 Configuration**: OAuth2 client auto-configuration is excluded in tests via `@SpringBootApplication(exclude = [OAuth2ClientAutoConfiguration::class])` in `BackendTestApplication`. Tests use mock authentication via `AuthenticationTestHelper` instead of real OAuth2/Keycloak.
+- **Timezone**: All tests run in UTC timezone with US locale for consistency
+
+### Testing Best Practices
+1. Tests run as Owner by default - no authentication setup needed unless testing with different roles
+2. Override authentication with `authenticationTestHelper.loginAsXxx()` when testing other roles
+3. Use descriptive test names with backticks: `` `test description` ``
+4. Test both success and failure scenarios
+5. Integration tests automatically roll back - no manual cleanup needed
+6. Each test runs in its own transaction with automatic rollback after completion
 
 ## Common Gotchas
 

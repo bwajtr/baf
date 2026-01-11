@@ -208,7 +208,7 @@ class MembersPage(
         removeButton.addThemeVariants(ButtonVariant.AURA_DANGER)
 
         removeButton.addClickListener {
-            when (val result = memberManagementService.canUserBeRemoved(member.user.id, tenant.id)) {
+            when (val result = memberManagementService.canMemberBeRemoved(member.user.id, tenant.id)) {
                 is MemberOperationResult.Allowed -> showRemoveConfirmation(member.user.id, tenant.id)
                 is MemberOperationResult.Denied -> showOperationDeniedDialog(result.reason)
             }
