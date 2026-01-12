@@ -8,6 +8,12 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+
+.gradle
+**/build/
+!**/src/**/build/
+.gradletasknamecache
+
 *.iml
 .idea
 **/frontend/generated
