@@ -11,3 +11,7 @@ repositories {
     // Use the plugin portal to apply community plugins in convention plugins.
     gradlePluginPortal()
 }
+
+dependencies {
+    implementation("io.spring.gradle:dependency-management-plugin:${libs.versions.spring.dependency.management.plugin.get()}")
+}

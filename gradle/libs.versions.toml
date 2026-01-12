@@ -9,6 +9,7 @@ com-vaadin-vaadin-core = "25.0.2"
 com-vaadin-vaadin-dev = "25.0.2"
 com-vaadin-vaadin-spring-boot-starter = "25.0.2"
 commons-codec-commons-codec = "1.16.0"
+spring-dependency-management-plugin = "1.1.7"
 jakarta-validation-jakarta-validation-api = "3.1.1"
 net-logstash-logback-logstash-logback-encoder = "7.0.1"
 net-sf-jasperreports-jasperreports = "6.18.1"
@@ -17,14 +18,6 @@ org-flywaydb-flyway-database-postgresql = "11.11.2"
 org-jooq-jooq-kotlin = "3.20.7"
 org-postgresql-postgresql = "42.7.7"
 org-slf4j-jul-to-slf4j = "2.0.17"
-org-springframework-boot-spring-boot-starter-cache = "4.0.0"
-org-springframework-boot-spring-boot-starter-flyway = "4.0.0"
-org-springframework-boot-spring-boot-starter-jooq = "4.0.0"
-org-springframework-boot-spring-boot-starter-oauth2-client = "4.0.0"
-org-springframework-boot-spring-boot-starter-security = "4.0.0"
-org-springframework-boot-spring-boot-starter-test = "4.0.0"
-org-springframework-boot-spring-boot-starter-web = "4.0.0"
-org-springframework-boot-spring-boot-testcontainers = "4.0.0"
 org-testcontainers-testcontainers-junit-jupiter = "2.0.3"
 org-testcontainers-testcontainers-postgresql = "2.0.3"
 
@@ -44,13 +37,13 @@ org-flywaydb-flyway-database-postgresql = { module = "org.flywaydb:flyway-databa
 org-jooq-jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "org-jooq-jooq-kotlin" }
 org-postgresql-postgresql = { module = "org.postgresql:postgresql", version.ref = "org-postgresql-postgresql" }
 org-slf4j-jul-to-slf4j = { module = "org.slf4j:jul-to-slf4j", version.ref = "org-slf4j-jul-to-slf4j" }
-org-springframework-boot-spring-boot-starter-cache = { module = "org.springframework.boot:spring-boot-starter-cache", version.ref = "org-springframework-boot-spring-boot-starter-cache" }
-org-springframework-boot-spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway", version.ref = "org-springframework-boot-spring-boot-starter-flyway" }
-org-springframework-boot-spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "org-springframework-boot-spring-boot-starter-jooq" }
-org-springframework-boot-spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-oauth2-client", version.ref = "org-springframework-boot-spring-boot-starter-oauth2-client" }
-org-springframework-boot-spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "org-springframework-boot-spring-boot-starter-security" }
-org-springframework-boot-spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "org-springframework-boot-spring-boot-starter-test" }
-org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "org-springframework-boot-spring-boot-starter-web" }
-org-springframework-boot-spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers", version.ref = "org-springframework-boot-spring-boot-testcontainers" }
+org-springframework-boot-spring-boot-starter-cache = { module = "org.springframework.boot:spring-boot-starter-cache" }
+org-springframework-boot-spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+org-springframework-boot-spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
+org-springframework-boot-spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-oauth2-client" }
+org-springframework-boot-spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+org-springframework-boot-spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+org-springframework-boot-spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
 org-testcontainers-testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "org-testcontainers-testcontainers-junit-jupiter" }
 org-testcontainers-testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "org-testcontainers-testcontainers-postgresql" }

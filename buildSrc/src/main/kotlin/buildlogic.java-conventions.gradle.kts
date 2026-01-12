@@ -5,6 +5,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    id("io.spring.dependency-management")
 }
 
 repositories {
@@ -15,6 +16,12 @@ repositories {
 
     maven {
         url = uri("https://maven.vaadin.com/vaadin-addons")
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.0")
     }
 }
 
