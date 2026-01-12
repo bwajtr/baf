@@ -38,8 +38,8 @@
     </properties>
 
     <modules>
-        <module>backend</module>
-        <module>ui</module>
+        <module>sources/backend</module>
+        <module>sources/ui</module>
     </modules>
 
     <dependencyManagement>
