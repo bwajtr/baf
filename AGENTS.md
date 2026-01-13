@@ -4,36 +4,55 @@ Instructions for AI coding agents working in this repository.
 
 ## Build & Test Commands
 
-```bash
-# Build entire project
-cd sources && mvn clean install
+### Quick Reference for AI Agents
 
-# Build without tests
-cd sources && mvn clean install -DskipTests
+**MOST IMPORTANT:** When verifying code changes, ALWAYS use the fast compilation command:
+
+| Task                                     | Command                                                                    |
+|------------------------------------------|----------------------------------------------------------------------------|
+| **✅ Verify code compiles (RECOMMENDED)** | `mvn compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true` |
+| Run tests (unit and integration)         | `mvn verify -Dkotlin.compiler.incremental=true`                            |
+| Full build (slow)                        | `mvn clean install`                                                        |
+| Run application                          | `mvn -pl sources/ui spring-boot:run`                                     |
+
+### Detailed Commands
+
+```bash
+# === FAST COMPILATION (USE THIS for verifying code changes) ===
+
+# Compile to verify code changes - FASTEST method for AI agents
+# Skips tests, Vaadin build, uses incremental Kotlin compilation
+# ALWAYS USE THIS after making code changes to verify compilation
+mvn compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+
+# Clean build (removes incremental compilation cache, use when compilation issues occur)
+mvn clean compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+
+# === FULL BUILDS (slow, only when necessary) ===
+
+# Build entire project (includes Vaadin frontend, tests, packaging)
+mvn clean install
+
+# === RUNNING THE APPLICATION ===
 
 # Run the application (requires local dev environment)
-cd sources/ui && mvn spring-boot:run
+mvn -pl sources/ui spring-boot:run
+
+# === TESTING ===
 
 # Run all tests (unit + integration)
-cd sources/backend && mvn test verify
+mvn verify -Dkotlin.compiler.incremental=true
 
 # Run only unit tests (*Test.kt, fast, no Testcontainers)
-cd sources/backend && mvn test
-
-# Run only integration tests (*IT.kt, slower, uses Testcontainers)
-cd sources/backend && mvn verify -DskipTests
+mvn test -Dkotlin.compiler.incremental=true
 
 # Run a single unit test class
-cd sources && mvn test -pl backend -Dtest=SecureRandomExtensionsTest
+mvn test -pl sources/backend -Dtest=SecureRandomExtensionsTest -Dkotlin.compiler.incremental=true
 
 # Run a single integration test class
-cd sources && mvn verify -pl backend -Dit.test=MemberManagementServiceIT
+mvn verify -pl sources/backend -Dit.test=MemberManagementServiceIT -Dkotlin.compiler.incremental=true
 
-# Run a single test method
-cd sources && mvn test -pl backend -Dtest=ClassName#methodName
-
-# Run UI module tests
-cd sources && mvn test -pl ui -Dtest=ClassName
+# === DATABASE ===
 
 # Generate jOOQ code (requires database running)
 cd sources/backend && mvn jooq-codegen:generate
@@ -41,6 +60,8 @@ cd sources/backend && mvn jooq-codegen:generate
 # Flyway migrations
 cd sources/backend && mvn flyway:migrate
 cd sources/backend && mvn flyway:clean flyway:migrate  # Reset and re-run
+
+# === LOCAL DEVELOPMENT ENVIRONMENT ===
 
 # Start local dev environment (PostgreSQL + Keycloak)
 cd deployment/baf-local-dev && docker compose up -d
@@ -336,6 +357,52 @@ Available in `AuthenticationTestHelper` companion object:
 4. Test both success and failure scenarios
 5. Integration tests automatically roll back - no manual cleanup needed
 6. Each test runs in its own transaction with automatic rollback after completion
+
+## Build Optimization
+
+### Maven Build Performance
+
+This project uses several Maven flags to optimize build performance during development:
+
+**Optimization Flags:**
+
+- **`-Dvaadin.skip`**: Skips Vaadin frontend build (npm install, webpack, etc.)
+  - The Vaadin frontend build is time-consuming and only needed when:
+    - Building the final executable JAR
+    - Running the application with `mvn spring-boot:run`
+    - Making changes to frontend resources or TypeScript/JavaScript
+  - **Always use** when you only need to verify Kotlin code compilation
+
+- **`-Dkotlin.compiler.incremental=true`**: Enables Kotlin incremental compilation
+  - Only recompiles changed files and their dependencies
+  - Can reduce compilation time from minutes to seconds
+  - **Always use** during iterative development
+
+- **`-DskipTests`**: Skips running tests during compilation
+  - Use when you only need to verify that code compiles
+  - Run tests separately after compilation succeeds
+
+**When to Use `mvn clean`:**
+
+Use `mvn clean` to remove the `target/` directory and force a full rebuild when:
+- Incremental compilation produces unexpected errors
+- After major refactoring across many files
+- After pulling significant changes from version control
+- After changing build configuration (pom.xml)
+- When you suspect stale compiled classes are causing issues
+
+**Example workflow:**
+```bash
+# 1. Make code changes
+# 2. Verify compilation (fast - seconds)
+mvn compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+
+# 3. If compilation succeeds, run tests for a final verification of your changes
+mvn verify -Dkotlin.compiler.incremental=true
+
+# 4. If you encounter strange compilation errors, clean and retry
+mvn clean compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+```
 
 ## Common Gotchas
 
