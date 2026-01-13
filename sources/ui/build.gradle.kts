@@ -4,6 +4,8 @@
 
 plugins {
     id("buildlogic.java-conventions")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.vaadin)
 }
 
 dependencies {
@@ -12,6 +14,10 @@ dependencies {
     api(libs.com.vaadin.vaadin.dev)
     api(libs.com.vaadin.vaadin.spring.boot.starter)
     api(libs.com.github.mvysny.karibudsl.karibu.dsl.v23)
+}
+
+springBoot {
+    mainClass.set("com.wajtr.baf.ApplicationMainKt")
 }
 
 description = "ui"

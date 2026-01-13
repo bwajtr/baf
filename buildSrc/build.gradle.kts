@@ -14,4 +14,6 @@ repositories {
 
 dependencies {
     implementation("io.spring.gradle:dependency-management-plugin:${libs.versions.spring.dependency.management.plugin.get()}")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
+    implementation("org.jetbrains.kotlin:kotlin-allopen:2.3.0")
 }

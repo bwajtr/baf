@@ -6,6 +6,15 @@ plugins {
     id("buildlogic.java-conventions")
 }
 
+// Add jOOQ generated sources directory
+sourceSets {
+    main {
+        kotlin {
+            srcDir("src/gen/jooq")
+        }
+    }
+}
+
 dependencies {
     api(libs.org.springframework.boot.spring.boot.starter.cache)
     api(libs.org.springframework.boot.spring.boot.starter.web)
@@ -28,6 +37,7 @@ dependencies {
     testImplementation(libs.org.springframework.boot.spring.boot.testcontainers)
     testImplementation(libs.org.testcontainers.testcontainers.postgresql)
     testImplementation(libs.org.testcontainers.testcontainers.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 description = "backend"

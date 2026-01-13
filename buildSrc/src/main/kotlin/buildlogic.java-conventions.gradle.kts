@@ -4,8 +4,10 @@
 
 plugins {
     `java-library`
-    `maven-publish`
+    kotlin("jvm")
+    kotlin("plugin.spring")
     id("io.spring.dependency-management")
+    `maven-publish`
 }
 
 repositories {
@@ -21,7 +23,11 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.0")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.0") {
+            bomProperty("postgresql.version", "42.7.7")
+            bomProperty("flyway.version", "11.11.2")
+            bomProperty("jooq.version", "3.20.7")
+        }
     }
 }
 
@@ -30,16 +36,17 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.0")
     api("org.jetbrains.kotlin:kotlin-reflect:2.3.0")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.1")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:2.3.0")
+    //testImplementation("org.jetbrains.kotlin:kotlin-test:2.3.0")
 }
 
 group = "com.wajtr.baf"
 version = "1.0.0-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
     }
 }
 
@@ -49,4 +56,8 @@ tasks.withType<JavaCompile>() {
 
 tasks.withType<Javadoc>() {
     options.encoding = "UTF-8"
+}
+
+tasks.withType<Test>() {
+    useJUnitPlatform()
 }
