@@ -130,35 +130,117 @@ sources/
 
 ## Architectural Patterns
 
-### Repository Pattern
-```kotlin
-@Repository
-@Transactional
-class UserRepository(private val create: DSLContext) {
-    fun findById(id: UUID): User? {
-        return create.selectFrom(APP_USER)
-            .where(APP_USER.ID.eq(id))
-            .fetchOne(mapIntoUser)
-    }
-}
-```
-- Use jOOQ `DSLContext` for type-safe SQL
-- `RecordMapper` lambdas for mapping to domain objects
-- Return nullable types for single results
+### Service and Repository Architecture
 
-### Service Pattern
+**General Principle**: Business logic should be organized into `*Service` and `*Repository` classes following a clear separation of concerns.
+
+#### Service Layer (`*Service` classes)
+- **Purpose**: Encapsulate business logic and orchestrate multiple operations
+- **When to create**: When you have complex business logic, multiple business methods, or need to coordinate multiple repositories
+- **Responsibilities**:
+  - Implement business rules and validation
+  - Coordinate multiple repository calls
+  - Call other services when needed
+  - Return domain-specific result types (sealed classes, enums)
+- **Database access**: 
+  - Prefer delegating to `*Repository` classes
+  - Simple queries can be added directly to Service if no suitable Repository exists
+- **Example**: See `MemberManagementService`, `MemberInvitationService` in `sources/backend/src/main/kotlin/com/wajtr/baf/organization`
+
 ```kotlin
 @Service
 @Transactional
 class MemberManagementService(
-    private val userRoleTenantService: UserRoleTenantService,
+    private val userRoleTenantRepository: UserRoleTenantRepository,
     private val identity: Identity
 ) {
-    fun canUserLeaveOrganization(userId: UUID, tenantId: UUID): MemberOperationResult
+    // Business logic with multiple checks
+    fun canUserLeaveOrganization(userId: UUID, tenantId: UUID): MemberOperationResult {
+        if (userRoleTenantRepository.isUserLastOwnerInTenant(userId, tenantId)) {
+            return MemberOperationResult.Denied(DenialReason.LAST_OWNER_CANNOT_LEAVE)
+        }
+        return MemberOperationResult.Allowed
+    }
+    
+    // Orchestrating multiple operations
+    fun setUserRolesForTenant(userId: UUID, tenantId: UUID, 
+                              primaryRole: String, additionalRights: Set<String>): MemberOperationResult {
+        // Validation logic
+        val roleChangeResult = canUserRoleBeChanged(userId, tenantId, primaryRole)
+        if (roleChangeResult is MemberOperationResult.Denied) {
+            return roleChangeResult
+        }
+        // Coordinate repository operations
+        userRoleTenantRepository.deleteAllRolesForUserInTenant(userId, tenantId)
+        userRoleTenantRepository.insertRole(UserRoleTenant(userId, primaryRole, tenantId))
+        additionalRights.forEach { role ->
+            userRoleTenantRepository.insertRole(UserRoleTenant(userId, role, tenantId))
+        }
+        return MemberOperationResult.Allowed
+    }
 }
 ```
-- Constructor injection for dependencies
-- Return sealed class results for operations that can fail
+
+#### Repository Layer (`*Repository` classes)
+- **Purpose**: Handle database access using jOOQ
+- **When to create**: When you have reusable database queries or complex SQL operations
+- **Responsibilities**:
+  - Execute database queries via jOOQ `DSLContext`
+  - Map database records to domain objects
+  - Provide data access methods with clear, descriptive names
+- **Best practices**:
+  - Use `@Repository` or `@Service` annotation (both work, use `@Service` for consistency in this project)
+  - Use `@Transactional` annotation
+  - Use `RecordMapper` lambdas for mapping to domain objects
+  - Return nullable types for single results, collections for multiple results
+- **Example**: See `UserRoleTenantRepository`, `MemberInvitationRepository` in `sources/backend/src/main/kotlin/com/wajtr/baf/organization`
+
+```kotlin
+@Service
+@Transactional
+class UserRoleTenantRepository(private val dslContext: DSLContext) {
+    
+    fun getRolesForUserInTenant(userId: UUID, tenantId: UUID): List<String> {
+        return dslContext.select(APP_USER_ROLE_TENANT.ROLE)
+            .from(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.USER_ID.eq(userId))
+            .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .fetchInto(String::class.java)
+    }
+    
+    fun isUserLastOwnerInTenant(userId: UUID, tenantId: UUID): Boolean {
+        val ownerCount = dslContext.selectCount()
+            .from(APP_USER_ROLE_TENANT)
+            .where(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .and(APP_USER_ROLE_TENANT.ROLE.eq(UserRole.OWNER_ROLE))
+            .fetchOne(0, Int::class.java) ?: 0
+        
+        return ownerCount == 1 && isUserOwnerInTenant(userId, tenantId)
+    }
+}
+```
+
+#### When to Use Which Pattern
+1. **Create a `*Service`** when:
+   - You have complex business logic or business rules to enforce
+   - You need to coordinate multiple repository calls
+   - You need to call other services
+   - You have multiple related business methods
+
+2. **Create a `*Repository`** when:
+   - You have reusable database queries
+   - Your SQL queries are complex
+   - You want to centralize data access for a specific entity/domain
+
+3. **Put simple queries in `*Service`** when:
+   - The query is simple and used only in one place
+   - No suitable repository exists and creating one would be overkill
+   - The query is tightly coupled to the business logic
+
+#### Naming Conventions
+- Services: `*Service` (e.g., `MemberManagementService`, `MemberInvitationService`)
+- Repositories: `*Repository` (e.g., `UserRepository`, `UserRoleTenantRepository`)
+- Result types: Sealed classes or enums (e.g., `MemberOperationResult`, `InviteMembersResult`)
 
 ### Error Handling
 - Use `sealed class` for operation results (Allowed/Denied patterns)
