@@ -25,7 +25,7 @@ import com.wajtr.baf.ui.components.BreadcrumbItem
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.components.breadcrumb
 import com.wajtr.baf.ui.components.userAvatar
-import com.wajtr.baf.ui.l12n.toLocalizedString
+import com.wajtr.baf.ui.commons.l12n.toLocalizedString
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
 import com.wajtr.baf.user.Identity

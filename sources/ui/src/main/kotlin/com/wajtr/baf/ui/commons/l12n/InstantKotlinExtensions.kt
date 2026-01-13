@@ -1,4 +1,4 @@
-package com.wajtr.baf.ui.l12n
+package com.wajtr.baf.ui.commons.l12n
 
 import com.github.mvysny.kaributools.timeZone
 import com.vaadin.flow.component.UI
