@@ -22,7 +22,6 @@ import com.wajtr.baf.authentication.db.EmailNotVerifiedException
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.components.ApplicationPage
 import com.wajtr.baf.ui.vaadin.extensions.bindMutableProperty
-import com.wajtr.baf.ui.vaadin.extensions.ensureSessionTimeZoneIsSet
 import com.wajtr.baf.ui.views.legal.PUBLIC_PRIVACY_POLICY_VIEW
 import com.wajtr.baf.ui.views.legal.PUBLIC_TERMS_OF_SERVICE_VIEW
 import com.wajtr.baf.ui.views.user.emailverification.VERIFY_EMAIL_PAGE
@@ -67,9 +66,7 @@ abstract class AbstractRegistrationPage(
     protected abstract fun processRegistration(regData: RegistrationFormData)
 
     override fun onAttach(attachEvent: AttachEvent?) {
-        UI.getCurrent().ensureSessionTimeZoneIsSet {
-            createUI()
-        }
+        createUI()
     }
 
     protected fun createRegistrationFormComponent(): FormLayout {

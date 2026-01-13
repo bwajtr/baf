@@ -198,6 +198,20 @@ class MembersPage(
 - Access via `i18n("key")` or `i18n("key", arg1, arg2)`
 - Key format: `domain.component.property` (e.g., `members.page.header`)
 
+### Date and Time Formatting
+- **ALWAYS use `toLocalizedString` extension functions** when displaying dates/times to users
+- Import from `com.wajtr.baf.ui.l12n.toLocalizedString`
+- Available variants:
+  - `instant.toLocalizedString(FormatStyle.MEDIUM)` - Single style for both date and time
+  - `instant.toLocalizedString(FormatStyle.MEDIUM, FormatStyle.SHORT)` - Separate styles for date and time
+  - `instant.toLocalizedString(DateTimeFormatter.ofPattern("..."))` - Custom formatter
+- These functions automatically:
+  - Convert from server timezone (GMT) to user's timezone
+  - Format according to user's locale
+  - Handle VaadinSession context
+- **DO NOT** use `DateTimeFormatter` directly or `ZoneId.systemDefault()` in UI code
+- If you need to get ZoneId of the currently logged user in the UI module, use `UI.getCurrent().page.extendedClientDetails.timeZone`
+
 ## Database Patterns
 
 ### Migration Files

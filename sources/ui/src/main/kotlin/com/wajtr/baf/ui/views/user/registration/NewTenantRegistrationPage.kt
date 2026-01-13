@@ -3,13 +3,14 @@ package com.wajtr.baf.ui.views.user.registration
 import com.github.mvysny.karibudsl.v10.h1
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.kaributools.textAlign
+import com.github.mvysny.kaributools.timeZone
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.VaadinSession
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.wajtr.baf.authentication.db.DatabaseBasedAuthenticationProvider
 import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.ui.vaadin.extensions.getTimezone
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.views.user.common.UserAccountRelatedBaseLayout
 import com.wajtr.baf.user.registration.UserAndTenantRegistrationRequest
@@ -59,7 +60,7 @@ class RegistrationPage(
             regData.password,
             InetAddress.getByName(HttpServletUtils.getClientIp()),
             VaadinSession.getCurrent().locale,
-            VaadinSession.getCurrent().getTimezone(),
+            UI.getCurrent().page.extendedClientDetails.timeZone,
         )
         val userRegistrationResult: UserRegistrationResult =
             userRegistrationService.registerUserOfNewTenant(registrationRequest)

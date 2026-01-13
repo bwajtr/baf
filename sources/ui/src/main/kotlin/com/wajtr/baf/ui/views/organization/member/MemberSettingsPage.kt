@@ -25,14 +25,13 @@ import com.wajtr.baf.ui.components.BreadcrumbItem
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.components.breadcrumb
 import com.wajtr.baf.ui.components.userAvatar
+import com.wajtr.baf.ui.l12n.toLocalizedString
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.UserRepository
 import jakarta.annotation.security.RolesAllowed
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
@@ -168,11 +167,9 @@ class MemberSettingsPage(
                     i18n("member.settings.basics.email")
                 )
 
-                val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                    .withZone(ZoneId.systemDefault())
-                val createdAt = formatter.format(user.createdAt)
+                // Created at (readonly)
                 addFormItem(
-                    Span(createdAt),
+                    Span(user.createdAt.toLocalizedString(FormatStyle.MEDIUM)),
                     i18n("member.settings.basics.added")
                 )
             }

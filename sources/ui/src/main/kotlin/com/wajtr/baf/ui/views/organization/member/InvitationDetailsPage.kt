@@ -24,11 +24,10 @@ import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.components.BreadcrumbItem
 import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.components.breadcrumb
+import com.wajtr.baf.ui.l12n.toLocalizedString
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
 import jakarta.annotation.security.RolesAllowed
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
@@ -124,11 +123,8 @@ class InvitationDetailsPage(
                 setAutoResponsive(true)
 
                 // Invited on (readonly)
-                val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                    .withZone(ZoneId.systemDefault())
-                val createdAt = formatter.format(invitation.createdAt)
                 addFormItem(
-                    Span(createdAt),
+                    Span(invitation.createdAt.toInstant().toLocalizedString(FormatStyle.MEDIUM)),
                     i18n("invitation.details.created.at")
                 )
 

@@ -1,6 +1,7 @@
 package com.wajtr.baf.ui.l12n
 
-import com.wajtr.baf.ui.vaadin.extensions.getTimezone
+import com.github.mvysny.kaributools.timeZone
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.server.VaadinSession
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -23,6 +24,6 @@ fun Instant.toLocalizedString(dateStyle: FormatStyle, timeStyle: FormatStyle): S
 }
 
 fun Instant.toLocalizedString(format: DateTimeFormatter): String {
-    return this.atZone(VaadinSession.getCurrent().getTimezone())
+    return this.atZone(UI.getCurrent().page.extendedClientDetails.timeZone)
         .format(format.withLocale(VaadinSession.getCurrent().locale))
 }
