@@ -1,17 +1,15 @@
 package com.wajtr.baf.test
 
-import org.junit.jupiter.api.BeforeAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
+import org.springframework.boot.test.util.TestPropertyValues
+import org.springframework.context.ApplicationContextInitializer
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.transaction.BeforeTransaction
 import org.springframework.transaction.annotation.Transactional
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.postgresql.PostgreSQLContainer
 import java.util.*
 
@@ -55,7 +53,7 @@ import java.util.*
  */
 @SpringBootTest(classes = [BackendTestApplication::class])
 @ActiveProfiles("test")
-@Testcontainers
+@ContextConfiguration(initializers = [BaseIntegrationTest.Initializer::class])
 @Rollback
 @Transactional
 abstract class BaseIntegrationTest {
@@ -95,33 +93,19 @@ abstract class BaseIntegrationTest {
          * - Runs initialization script (testcontainers-init.sql) to create users and extensions
          * - Is automatically stopped after all tests complete
          */
-        @Container
-        @ServiceConnection
-        @JvmStatic
-        val postgresContainer: PostgreSQLContainer = PostgreSQLContainer("postgres:18")
+        val postgresContainer = PostgreSQLContainer("postgres:18")
             .withDatabaseName("testdb")
             .withInitScript("testcontainers-init.sql")
+    }
 
-        /**
-         * Configure Spring datasource properties dynamically from the Testcontainers
-         * PostgreSQL container. This overrides the static configuration in
-         * application-test.properties with the actual container connection details.
-         */
-        @JvmStatic
-        @DynamicPropertySource
-        fun configureProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.jdbcUrl", postgresContainer::getJdbcUrl)
-            registry.add("spring.migrations.datasource.jdbcUrl", postgresContainer::getJdbcUrl)
-        }
-
-        /**
-         * Start the PostgreSQL container before any tests run.
-         * This is called once for all test classes that extend BaseIntegrationTest.
-         */
-        @JvmStatic
-        @BeforeAll
-        fun setup() {
+    internal class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
+        override fun initialize(configurableApplicationContext: ConfigurableApplicationContext) {
             postgresContainer.start()
+
+            TestPropertyValues.of(
+                "spring.datasource.jdbcUrl=${postgresContainer.jdbcUrl}",
+                "spring.migrations.datasource.jdbcUrl=${postgresContainer.jdbcUrl}"
+            ).applyTo(configurableApplicationContext.environment)
         }
     }
 }
