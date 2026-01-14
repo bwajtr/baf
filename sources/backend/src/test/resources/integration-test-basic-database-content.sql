@@ -16,15 +16,15 @@ DO $$
         VALUES (junit_tenant_1_id, 'Development Tenant 1', FALSE, 'Highlands 1/25, Prague', 'CZ'),
                (junit_tenant_2_id, 'Development Tenant 2', FALSE, 'Highlands 1/25, Prague', 'CZ');
 
-        INSERT INTO app_user (id, name, email, password, email_verified, created_at)
+        INSERT INTO app_user (id, name, email, password, email_verified, created_at, preferred_locale, preferred_timezone_id)
         VALUES (joe_user_id, 'Joe User', 'joe.user@acme.com',
-                encrypted_default_user_password, TRUE, current_timestamp - interval '2 days'),
+                encrypted_default_user_password, TRUE, current_timestamp - interval '2 days', 'en-US', 'America/New_York'),
                (jane_admin_id, 'Jane Admin', 'jane.admin@acme.com',
-                encrypted_default_user_password, TRUE, current_timestamp - interval '3 days'),
+                encrypted_default_user_password, TRUE, current_timestamp - interval '3 days', 'cs-CZ', 'Europe/Prague'),
                (junit_tenant_1_owner_id, 'Josh Owner', 'josh.owner@acme.com',
-                encrypted_default_user_password, TRUE, current_timestamp - interval '4 days'),
+                encrypted_default_user_password, TRUE, current_timestamp - interval '4 days', NULL, NULL),
                (junit_tenant_2_owner_id, 'William Owner', 'william.owner@acme.com',
-                encrypted_default_user_password, TRUE, current_timestamp - interval '5 days');
+                encrypted_default_user_password, TRUE, current_timestamp - interval '5 days', NULL, NULL);
 
         INSERT INTO app_user_role_tenant (user_id, role, tenant_id)
         VALUES (joe_user_id, 'USER', junit_tenant_1_id),

@@ -4,6 +4,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.io.Serializable
 import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 
 /**
@@ -16,7 +17,9 @@ data class User(
     var email: String,
     var emailIsVerified: Boolean,
     var createdAt: Instant,
-    var emailVerificationToken: UUID?
+    var emailVerificationToken: UUID?,
+    var preferredLocale: Locale?,
+    var preferredTimezoneId: ZoneId?
 ) : Serializable, UserDetails {
 
     override fun getAuthorities(): Set<GrantedAuthority> {

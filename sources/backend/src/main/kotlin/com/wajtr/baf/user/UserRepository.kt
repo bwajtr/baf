@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.net.UnknownHostException
+import java.time.ZoneId
 import java.util.*
 
 /**
@@ -27,7 +28,9 @@ class UserRepository(private val create: DSLContext) {
                 record.email!!,
                 record.emailVerified!!,
                 record.createdAt!!.toInstant(),
-                record.emailVerificationToken
+                record.emailVerificationToken,
+                record.preferredLocale?.let { Locale.forLanguageTag(it) },
+                record.preferredTimezoneId?.let { ZoneId.of(it) }
             )
         } catch (e: UnknownHostException) {
             throw RuntimeException(e)
@@ -43,7 +46,9 @@ class UserRepository(private val create: DSLContext) {
                     record.email!!,
                     record.emailVerified!!,
                     record.createdAt!!.toInstant(),
-                    record.emailVerificationToken
+                    record.emailVerificationToken,
+                    record.preferredLocale?.let { Locale.forLanguageTag(it) },
+                    record.preferredTimezoneId?.let { ZoneId.of(it) }
                 )
             } catch (e: UnknownHostException) {
                 throw RuntimeException(e)

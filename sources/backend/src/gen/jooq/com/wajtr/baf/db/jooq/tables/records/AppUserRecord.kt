@@ -47,6 +47,14 @@ open class AppUserRecord() : UpdatableRecordImpl<AppUserRecord>(AppUser.APP_USER
         set(value): Unit = set(6, value)
         get(): OffsetDateTime? = get(6) as OffsetDateTime?
 
+    open var preferredLocale: String?
+        set(value): Unit = set(7, value)
+        get(): String? = get(7) as String?
+
+    open var preferredTimezoneId: String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -56,7 +64,7 @@ open class AppUserRecord() : UpdatableRecordImpl<AppUserRecord>(AppUser.APP_USER
     /**
      * Create a detached, initialised AppUserRecord
      */
-    constructor(id: UUID? = null, name: String? = null, email: String? = null, password: String? = null, emailVerified: Boolean? = null, emailVerificationToken: UUID? = null, createdAt: OffsetDateTime? = null): this() {
+    constructor(id: UUID? = null, name: String? = null, email: String? = null, password: String? = null, emailVerified: Boolean? = null, emailVerificationToken: UUID? = null, createdAt: OffsetDateTime? = null, preferredLocale: String? = null, preferredTimezoneId: String? = null): this() {
         this.id = id
         this.name = name
         this.email = email
@@ -64,6 +72,8 @@ open class AppUserRecord() : UpdatableRecordImpl<AppUserRecord>(AppUser.APP_USER
         this.emailVerified = emailVerified
         this.emailVerificationToken = emailVerificationToken
         this.createdAt = createdAt
+        this.preferredLocale = preferredLocale
+        this.preferredTimezoneId = preferredTimezoneId
         resetTouchedOnNotNull()
     }
 }

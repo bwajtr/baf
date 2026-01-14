@@ -135,6 +135,8 @@ class UserRegistrationServiceImpl(
             .set(AppUser.APP_USER.EMAIL, email)
             .set(AppUser.APP_USER.PASSWORD, encryptedPassword)
             .set(AppUser.APP_USER.EMAIL_VERIFIED, false)
+            .set(AppUser.APP_USER.PREFERRED_LOCALE, preferredLocale)
+            .set(AppUser.APP_USER.PREFERRED_TIMEZONE_ID, preferredTimezoneId)
             .execute()
 
         // Return success result

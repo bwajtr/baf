@@ -124,6 +124,18 @@ open class AppUser(
      */
     val CREATED_AT: TableField<AppUserRecord, OffsetDateTime?> = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "Point in time when this record was created")
 
+    /**
+     * The column <code>public.app_user.preferred_locale</code>. User's
+     * preferred locale as language tag (e.g., en-US, cs-CZ)
+     */
+    val PREFERRED_LOCALE: TableField<AppUserRecord, String?> = createField(DSL.name("preferred_locale"), SQLDataType.CLOB, this, "User's preferred locale as language tag (e.g., en-US, cs-CZ)")
+
+    /**
+     * The column <code>public.app_user.preferred_timezone_id</code>. User's
+     * preferred timezone ID (e.g., Europe/Prague, America/New_York)
+     */
+    val PREFERRED_TIMEZONE_ID: TableField<AppUserRecord, String?> = createField(DSL.name("preferred_timezone_id"), SQLDataType.CLOB, this, "User's preferred timezone ID (e.g., Europe/Prague, America/New_York)")
+
     private constructor(alias: Name, aliased: Table<AppUserRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<AppUserRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<AppUserRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
