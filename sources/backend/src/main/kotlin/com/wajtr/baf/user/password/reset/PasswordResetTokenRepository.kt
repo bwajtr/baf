@@ -46,7 +46,7 @@ interface PasswordResetTokenRepository {
 
 }
 
-const val PASSWORD_RESET_TOKEN_EXPIRY_MINUTES: Long = 20
+const val PASSWORD_RESET_TOKEN_EXPIRY_MINUTES: Long = 30
 
 /**
  *

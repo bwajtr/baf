@@ -1,11 +1,15 @@
 package com.wajtr.baf.organization.invitation
 
+import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.core.commons.HttpServletUtils
+import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenant
 import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.User
 import com.wajtr.baf.user.validation.EmailValidator
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
@@ -36,7 +40,9 @@ class MemberInvitationService(
     private val memberInvitationRepository: MemberInvitationRepository,
     private val userRoleTenantRepository: UserRoleTenantRepository,
     private val memberManagementService: MemberManagementService,
-    private val identity: Identity
+    private val identity: Identity,
+    private val tenantRepository: TenantRepository,
+    private val invitationMailSender: InvitationMailSender
 ) {
 
     private val logger = LoggerFactory.getLogger(MemberInvitationService::class.java)
@@ -49,44 +55,74 @@ class MemberInvitationService(
         val currentUser = identity.authenticatedUser
 
         // Parse and normalize emails
-        val emails = emailsInput.split(",", ";", "\n")
+        val emailAddresses = emailsInput.split(",", ";", "\n")
             .map { it.trim().lowercase() }
             .filter { it.isNotBlank() }
 
-        if (emails.isEmpty()) {
+        if (emailAddresses.isEmpty()) {
             return InviteMembersResult.ValidationError("members.invite.dialog.emails.required")
         }
 
         // Validate email format and check for duplicates
         val emailValidator = EmailValidator()
-        for (email in emails) {
-            if (!emailValidator.isValid(email)) {
-                return InviteMembersResult.ValidationError("members.invite.dialog.email.invalid", email)
+        for (emailAddress in emailAddresses) {
+            if (!emailValidator.isValid(emailAddress)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.invalid", emailAddress)
             }
-            if (memberInvitationRepository.emailAlreadyInvited(email)) {
-                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.invited",email)
+            if (memberInvitationRepository.emailAlreadyInvited(emailAddress)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.invited",emailAddress)
             }
-            if (memberInvitationRepository.emailAlreadyMemberOfCurrentTenant(email)) {
-                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.member", email)
+            if (memberInvitationRepository.emailAlreadyMemberOfCurrentTenant(emailAddress)) {
+                return InviteMembersResult.ValidationError("members.invite.dialog.email.already.member", emailAddress)
             }
         }
 
         // Create invitations
-        val invitationIds = emails.map { email ->
+        val invitationIds = emailAddresses.map { emailAddress ->
             memberInvitationRepository.createInvitation(
-                email = email,
+                email = emailAddress,
                 role = role,
                 tenantId = tenant.id,
                 invitedBy = currentUser.id
             )
         }
 
-        invitationIds.forEach { id ->
-            val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/" + id
-            logger.info("Created invitation $id. Url is $acceptanceUrl")
-        }
+        sendInvitationEmailsToRecipients(tenant, currentUser, emailAddresses, invitationIds, role)
 
         return InviteMembersResult.Success(invitationIds)
+    }
+
+    private fun sendInvitationEmailsToRecipients(
+        tenant: AuthenticatedTenant,
+        currentUser: User,
+        emailAddresses: List<String>,
+        invitationIds: List<UUID>,
+        role: String
+    ) {
+        // Get tenant details for the email
+        val tenantDetails = tenantRepository.findById(tenant.id)
+        val organizationName = tenantDetails?.organizationName ?: i18n("email.organization.personal")
+        val inviterName = currentUser.name
+
+        // Send invitation emails
+        emailAddresses.forEachIndexed { index, email ->
+            val invitationId = invitationIds[index]
+            val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/$invitationId"
+
+            val emailSent = invitationMailSender.sendInvitationEmail(
+                emailAddress = email,
+                acceptanceUrl = acceptanceUrl,
+                inviterName = inviterName,
+                organizationName = organizationName,
+                role = role
+            )
+
+            if (emailSent) {
+                logger.info("Sent invitation email for invitation $invitationId to $email")
+            } else {
+                logger.warn("Failed to send invitation email for invitation $invitationId to $email")
+            }
+        }
     }
 
     fun getAllInvitations() = memberInvitationRepository.getAllInvitations()

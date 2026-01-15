@@ -12,3 +12,4 @@ buildNumber.properties
 .idea
 **/frontend/generated
 logs
+local_email_previews

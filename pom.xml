@@ -28,6 +28,7 @@
         <selenium.version>4.15.0</selenium.version>
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <testcontainers.version>2.0.3</testcontainers.version>
+        <mailgun-java.version>2.2.1</mailgun-java.version>
 
         <!-- Java and Kotlin settings -->
         <java.version>25</java.version>
@@ -111,6 +112,11 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.mailgun</groupId>
+                <artifactId>mailgun-java</artifactId>
+                <version>${mailgun-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
