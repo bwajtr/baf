@@ -3,18 +3,22 @@ package com.wajtr.baf.ui.views.organization.settings.parts
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.span
+import com.github.mvysny.kaributools.timeZone
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
+import com.vaadin.flow.server.VaadinSession
 import com.vaadin.flow.spring.security.AuthenticationContext
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
+import com.wajtr.baf.organization.delete.OrganizationDeletedMailSender
 import com.wajtr.baf.organization.member.UserRoleTenantRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -27,7 +31,8 @@ class DeleteOrganizationComponent(
     private val tenantRepository: TenantRepository,
     private val userRepository: UserRepository,
     private val userRoleTenantRepository: UserRoleTenantRepository,
-    private val authenticationContext: AuthenticationContext
+    private val authenticationContext: AuthenticationContext,
+    private val organizationDeletedMailSender: OrganizationDeletedMailSender
 ) : VerticalLayout() {
 
     private val deleteButton: Button
@@ -74,11 +79,22 @@ class DeleteOrganizationComponent(
     }
 
     private fun deleteOrganization() {
-        val tenant = identity.authenticatedTenant
+        val authenticatedTenant = identity.authenticatedTenant
             ?: throw IllegalStateException("No authenticated tenant found")
 
-        // Get all user IDs in this tenant
-        val userIds = userRoleTenantRepository.getUserIdsForTenant(tenant.id)
+        // Load full tenant details to get organization name
+        val tenant = tenantRepository.findById(authenticatedTenant.id)
+            ?: throw IllegalStateException("Tenant not found")
+
+        // Capture locale and timezone before deletion (while UI context is still available)
+        val locale = VaadinSession.getCurrent().locale
+        val zoneId = UI.getCurrent().page.extendedClientDetails.timeZone
+
+        // Get all user IDs in this tenant and collect their email addresses
+        val userIds = userRoleTenantRepository.getUserIdsForTenant(tenant.id!!)
+        val userEmails = userIds.mapNotNull { userId ->
+            userRepository.findById(userId)?.email
+        }
 
         // Delete all users in the tenant
         userIds.forEach { userId ->
@@ -90,9 +106,19 @@ class DeleteOrganizationComponent(
         }
 
         // Delete the tenant itself (CASCADE will clean up all data in the database)
-        val success = tenantRepository.deleteById(tenant.id) > 0
+        val success = tenantRepository.deleteById(tenant.id!!) > 0
 
         if (success) {
+            // Send organization deletion confirmation email to all members
+            userEmails.forEach { email ->
+                organizationDeletedMailSender.sendOrganizationDeletedNotification(
+                    email,
+                    tenant.organizationName,
+                    locale,
+                    zoneId
+                )
+            }
+
             // Logout after successful deletion
             authenticationContext.logout()
         } else {
