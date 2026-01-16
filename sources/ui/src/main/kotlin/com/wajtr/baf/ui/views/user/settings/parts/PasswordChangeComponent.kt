@@ -1,6 +1,8 @@
 package com.wajtr.baf.ui.views.user.settings.parts
 
 import com.github.mvysny.karibudsl.v10.*
+import com.github.mvysny.kaributools.timeZone
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
@@ -9,6 +11,7 @@ import com.vaadin.flow.component.textfield.PasswordField
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.validator.StringLengthValidator
 import com.vaadin.flow.data.value.ValueChangeMode
+import com.vaadin.flow.server.VaadinSession
 import com.wajtr.baf.authentication.db.PasswordVerificationResult
 import com.wajtr.baf.authentication.db.PasswordVerificationService
 import com.wajtr.baf.core.i18n.i18n
@@ -17,6 +20,7 @@ import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.ui.vaadin.extensions.showSuccessNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
+import com.wajtr.baf.user.password.change.PasswordChangeMailSender
 import com.wajtr.baf.user.validation.ValidPasswordConstants
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -34,6 +38,7 @@ class PasswordChangeComponent(
     private val identity: Identity,
     private val userRepository: UserRepository,
     private val passwordVerificationService: PasswordVerificationService,
+    private val passwordChangeMailSender: PasswordChangeMailSender,
 ) : VerticalLayout() {
 
     private val binder = Binder<PasswordChangeFormData>()
@@ -154,6 +159,14 @@ class PasswordChangeComponent(
         try {
             // Update password in the database
             userRepository.updateUserPassword(user.id, formData.newPassword)
+            
+            // Send security notification email
+            passwordChangeMailSender.sendPasswordChangedNotification(
+                user.email,
+                VaadinSession.getCurrent().locale,
+                UI.getCurrent().page.extendedClientDetails.timeZone
+            )
+            
             showSuccessNotification(i18n("users.password.change.outcome.success"))
             
             // Clear form

@@ -4,18 +4,20 @@ import com.wajtr.baf.core.email.localpreview.LocalFilePreviewEmailSender
 import com.wajtr.baf.organization.invitation.InvitationMailSender
 import com.wajtr.baf.test.BaseIntegrationTest
 import com.wajtr.baf.user.emailverification.EmailVerificationMailSender
+import com.wajtr.baf.user.password.change.PasswordChangeMailSender
 import com.wajtr.baf.user.password.reset.PasswordResetMailSender
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.nio.file.Files
+import java.time.ZoneId
 import java.util.*
 
 /**
  * Integration tests for the email sending system.
  * 
- * These tests verify that all three email types (verification, password reset, invitation)
+ * These tests verify that all email types (verification, password reset, password changed, invitation)
  * are properly generated and saved to the filesystem when using LocalFilePreviewEmailSender.
  * 
  * The tests check:
@@ -33,6 +35,9 @@ class EmailSendingIT : BaseIntegrationTest() {
 
     @Autowired
     private lateinit var invitationMailSender: InvitationMailSender
+
+    @Autowired
+    private lateinit var passwordChangeMailSender: PasswordChangeMailSender
 
     @Autowired
     private lateinit var localFilePreviewEmailSender: LocalFilePreviewEmailSender
@@ -123,6 +128,57 @@ class EmailSendingIT : BaseIntegrationTest() {
             .describedAs("Email should contain reset URL")
             .contains(resetUrl)
         
+        assertThat(content)
+            .describedAs("Email should contain application name")
+            .contains("TestApp")
+    }
+
+    @Test
+    fun `sendPasswordChangedNotification should save email with security warning`() {
+        // Given
+        val emailAddress = "test-changed@example.com"
+        val locale = Locale.ENGLISH
+        val zoneId = ZoneId.of("Europe/Prague")
+
+        // When
+        val result = passwordChangeMailSender.sendPasswordChangedNotification(
+            emailAddress = emailAddress,
+            locale = locale,
+            zoneId = zoneId
+        )
+
+        // Then
+        assertThat(result)
+            .describedAs("Email should be sent successfully")
+            .isTrue()
+
+        val savedFile = localFilePreviewEmailSender.getLastSentEmailFile()
+        assertThat(savedFile)
+            .describedAs("Email file should be saved")
+            .isNotNull()
+
+        val content = Files.readString(savedFile!!)
+
+        assertThat(content)
+            .describedAs("Email should contain recipient address in metadata")
+            .contains("To: $emailAddress")
+
+        assertThat(content)
+            .describedAs("Email should contain subject in metadata")
+            .contains("Subject: Your password has been changed")
+
+        assertThat(content)
+            .describedAs("Email should contain the email address in the body")
+            .contains(emailAddress)
+
+        assertThat(content)
+            .describedAs("Email should contain security warning")
+            .contains("Wasn't you?")
+
+        assertThat(content)
+            .describedAs("Email should contain action items for compromised account")
+            .contains("Reset your password immediately")
+
         assertThat(content)
             .describedAs("Email should contain application name")
             .contains("TestApp")

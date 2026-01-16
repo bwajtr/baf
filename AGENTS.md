@@ -306,6 +306,37 @@ class MembersPage(
 - **DO NOT** use `DateTimeFormatter` directly or `ZoneId.systemDefault()` in UI code
 - If you need to get ZoneId of the currently logged user in the UI module, use `UI.getCurrent().page.extendedClientDetails.timeZone`
 
+
+### CRITICAL: Locale and Timezone in User-Facing Content
+- **NEVER use system locale (`Locale.getDefault()`) or system timezone (`ZoneId.systemDefault()`)** when generating content for users (emails, notifications, formatted dates/times)
+- Always pass the user's locale and timezone explicitly from the UI layer to backend services
+- In Vaadin UI code:
+  - Get user's locale: `VaadinSession.getCurrent().locale`
+  - Get user's timezone: `UI.getCurrent().page.extendedClientDetails.timeZone`
+- Backend services that generate user-facing content (e.g., email senders) should:
+  - Accept `locale: Locale` and `zoneId: ZoneId` as **required parameters** (not optional with system defaults)
+  - Use these parameters when formatting dates, times, and localized messages
+- **For background tasks** (scheduled jobs, async processing) where UI context is not available:
+  - Use user's stored preferences from the `app_user` table: `preferred_locale` and `preferred_timezone_id` columns
+  - These values are persisted when the user logs in or updates their preferences
+  - Fall back to sensible defaults (e.g., `Locale.ENGLISH`, `ZoneId.of("UTC")`) only if user preferences are null
+- Example:
+  ```kotlin
+  // CORRECT: UI layer passes user's locale and timezone
+  passwordChangeMailSender.sendPasswordChangedNotification(
+      user.email,
+      VaadinSession.getCurrent().locale,
+      UI.getCurrent().page.extendedClientDetails.timeZone
+  )
+  
+  // CORRECT: Background task uses stored user preferences
+  val locale = user.preferredLocale ?: Locale.ENGLISH
+  val zoneId = user.preferredTimezoneId?.let { ZoneId.of(it) } ?: ZoneId.of("UTC")
+  scheduledNotificationSender.sendNotification(user.email, locale, zoneId)
+  
+  // WRONG: Using system defaults
+  fun sendEmail(email: String, locale: Locale = Locale.getDefault()) // Don't do this!
+  ```
 ## Database Patterns
 
 ### Migration Files
