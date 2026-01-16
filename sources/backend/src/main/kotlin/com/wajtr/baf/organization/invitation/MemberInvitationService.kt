@@ -34,6 +34,11 @@ sealed class UpdateInvitationRoleResult {
     data class Error(val messageKey: String) : UpdateInvitationRoleResult()
 }
 
+sealed class ResendInvitationResult {
+    data object Success : ResendInvitationResult()
+    data class Error(val messageKey: String) : ResendInvitationResult()
+}
+
 @Service
 @Transactional
 class MemberInvitationService(
@@ -179,6 +184,44 @@ class MemberInvitationService(
         memberInvitationRepository.updateRole(invitationId, newRole)
 
         return UpdateInvitationRoleResult.Success
+    }
+
+    @PreAuthorize("hasAnyRole(${UserRole.OWNER_ROLE}, ${UserRole.ADMIN_ROLE})")
+    fun resendInvitation(invitationId: UUID): ResendInvitationResult {
+        val tenant = identity.authenticatedTenant
+            ?: return ResendInvitationResult.Error("invitation.resend.no.tenant")
+
+        // Fetch the invitation details
+        val invitation = memberInvitationRepository.getInvitationById(invitationId)
+            ?: return ResendInvitationResult.Error("invitation.details.not.found")
+
+        // Get tenant details for the email
+        val tenantDetails = tenantRepository.findById(tenant.id)
+        val organizationName = tenantDetails?.organizationName ?: i18n("email.organization.personal")
+        val inviterName = invitation.invitedByName ?: i18n("invitation.resend.inviter.unknown")
+
+        // Build acceptance URL
+        val acceptanceUrl = HttpServletUtils.getServerBaseUrl() + "/$ACCEPT_INVITATION_PAGE/$invitationId"
+
+        // Send the invitation email
+        val emailSent = invitationMailSender.sendInvitationEmail(
+            emailAddress = invitation.email,
+            acceptanceUrl = acceptanceUrl,
+            inviterName = inviterName,
+            organizationName = organizationName,
+            role = invitation.role
+        )
+
+        if (!emailSent) {
+            logger.warn("Failed to resend invitation email for invitation $invitationId to ${invitation.email}")
+            return ResendInvitationResult.Error("invitation.resend.email.failed")
+        }
+
+        // Update the last invitation sent time
+        memberInvitationRepository.updateLastInvitationSentTime(invitationId)
+
+        logger.info("Resent invitation email for invitation $invitationId to ${invitation.email}")
+        return ResendInvitationResult.Success
     }
 
 }

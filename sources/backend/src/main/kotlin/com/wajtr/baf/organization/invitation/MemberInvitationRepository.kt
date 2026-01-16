@@ -128,6 +128,14 @@ class MemberInvitationRepository(
             .execute()
     }
 
+    fun updateLastInvitationSentTime(invitationId: UUID): Int {
+        return dslContext.update(MEMBER_INVITATION)
+            .set(MEMBER_INVITATION.LAST_INVITATION_SENT_TIME, OffsetDateTime.now())
+            .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .and(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
+            .execute()
+    }
+
     fun getInvitationForAcceptance(invitationId: UUID): InvitationAcceptanceDetails? {
         return dslContext.select(
             MEMBER_INVITATION.ID,

@@ -17,6 +17,7 @@ import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.organization.invitation.MemberInvitationDetails
 import com.wajtr.baf.organization.invitation.MemberInvitationRepository
 import com.wajtr.baf.organization.invitation.MemberInvitationService
+import com.wajtr.baf.organization.invitation.ResendInvitationResult
 import com.wajtr.baf.organization.invitation.UpdateInvitationRoleResult
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
@@ -135,6 +136,13 @@ class InvitationDetailsPage(
                     i18n("invitation.details.invited.by")
                 )
             }
+
+            // Resend invitation email button
+            button(i18n("invitation.details.resend")) {
+                onClick {
+                    resendInvitationEmail()
+                }
+            }
         }
     }
 
@@ -156,6 +164,17 @@ class InvitationDetailsPage(
                 is UpdateInvitationRoleResult.Error -> {
                     showErrorNotification(i18n(result.messageKey))
                 }
+            }
+        }
+    }
+
+    private fun resendInvitationEmail() {
+        when (val result = memberInvitationService.resendInvitation(invitationId)) {
+            is ResendInvitationResult.Success -> {
+                showSuccessNotification(i18n("invitation.details.resend.success"))
+            }
+            is ResendInvitationResult.Error -> {
+                showErrorNotification(i18n(result.messageKey))
             }
         }
     }
