@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 You're Invited!
 ===============
 
@@ -17,3 +19,4 @@ If you don't have an account yet, please register or sign in first—you'll be a
 
 Best regards,
 ${appName}
+</@layout.email>

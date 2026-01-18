@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 Your Account Has Been Deleted
 ==============================
 
@@ -15,3 +17,4 @@ If you did not request this deletion, please contact our support team immediatel
 We're sorry to see you go. If you ever decide to come back, you're always welcome to create a new account.
 
 Thank you for being part of ${applicationName}.
+</@layout.email>

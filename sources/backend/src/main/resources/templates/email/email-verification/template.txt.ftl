@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 Verify Your Email Address
 ==========================
 
@@ -11,3 +13,4 @@ If you didn't create an account with us, you can safely ignore this email.
 
 Best regards,
 ${appName}
+</@layout.email>

@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 Organization Has Been Deleted
 ==============================
 
@@ -10,3 +12,4 @@ This action was completed on ${deletionDateTime}.
 All organization data, including members, settings, and associated records, has been removed from our systems. This action cannot be undone.
 
 Thank you for being part of ${applicationName}.
+</@layout.email>

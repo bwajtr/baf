@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 Reset Your Password
 ===================
 
@@ -13,3 +15,4 @@ IMPORTANT: If you didn't request a password reset, you can safely ignore this em
 
 Best regards,
 ${appName}
+</@layout.email>

@@ -1,3 +1,5 @@
+<#import "../base-layout-text.ftl" as layout>
+<@layout.email>
 Your Password Has Been Changed
 ===============================
 
@@ -17,3 +19,4 @@ If you made this change, you can safely ignore this email.
 
 Best regards,
 ${appName}
+</@layout.email>
