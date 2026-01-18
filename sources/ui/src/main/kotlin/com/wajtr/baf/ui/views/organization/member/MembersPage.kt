@@ -388,6 +388,7 @@ class MembersPage(
         // Combine and set items
         val allItems = activeMembers + invitations
         grid.setItems(allItems)
+        grid.recalculateColumnWidths()
     }
 
 }
