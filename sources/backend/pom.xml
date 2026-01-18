@@ -98,11 +98,6 @@
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
 
-        <!-- Mailgun Java SDK for HTTP API -->
-        <dependency>
-            <groupId>com.mailgun</groupId>
-            <artifactId>mailgun-java</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>

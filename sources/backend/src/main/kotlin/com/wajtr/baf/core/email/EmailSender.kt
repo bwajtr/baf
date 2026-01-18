@@ -3,7 +3,7 @@ package com.wajtr.baf.core.email
 /**
  * Interface for sending emails.
  * 
- * Implementations can send emails via different providers (Mailgun, SMTP, etc.)
+ * Implementations can send emails via different providers (Brevo, SMTP, etc.)
  * or save them to the filesystem for development/testing.
  *
  * @author Bretislav Wajtr

@@ -12,7 +12,7 @@ import java.time.Instant
 /**
  * Email sender implementation that saves emails to the filesystem.
  *
- * This is the default implementation when mailgun.enabled=false (default).
+ * This is the default implementation when brevo.enabled=false.
  * Useful for development and testing - allows developers to inspect sent emails
  * by opening the generated HTML files in a browser.
  *
@@ -22,7 +22,7 @@ import java.time.Instant
  * @author Bretislav Wajtr
  */
 @Service
-@ConditionalOnProperty(name = ["mailgun.enabled"], havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = ["brevo.enabled"], havingValue = "false", matchIfMissing = true)
 class LocalFilePreviewEmailSender : EmailSender {
 
     private val log = LoggerFactory.getLogger(LocalFilePreviewEmailSender::class.java)
