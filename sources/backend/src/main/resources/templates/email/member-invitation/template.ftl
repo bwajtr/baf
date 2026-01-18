@@ -15,7 +15,7 @@
     <p>Click the button below to accept the invitation and join the organization:</p>
     
     <p class="text-center">
-        <a href="${acceptanceUrl}" class="button success">Accept Invitation</a>
+        <a href="${acceptanceUrl}" class="button success"><span>Accept Invitation</span></a>
     </p>
     
     <p>Or copy and paste this link into your browser:</p>

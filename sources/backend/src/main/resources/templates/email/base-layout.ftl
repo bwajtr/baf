@@ -54,6 +54,7 @@
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
         }
         h1 {
             color: #1a1a1a;
@@ -67,11 +68,13 @@
         .button {
             display: inline-block;
             padding: 9px 28px;
-            color: #ffffff;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 600;
             margin: 20px 0;
+        }
+        .button span {
+            color: #ffffff;
         }
         .button.primary {
             background-color: #007bff;
@@ -87,6 +90,8 @@
         }
         .button.warning {
             background-color: #ffc107;
+        }
+        .button.warning span {
             color: #212529;
         }
         .button.warning:hover {

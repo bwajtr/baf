@@ -7,7 +7,7 @@
     <p>Thank you for signing up! To complete your registration, please verify your email address by clicking the button below:</p>
     
     <p class="text-center">
-        <a href="${verificationUrl}" class="button primary">Verify Email Address</a>
+        <a href="${verificationUrl}" class="button primary"><span>Verify Email Address</span></a>
     </p>
     
     <p>Or copy and paste this link into your browser:</p>

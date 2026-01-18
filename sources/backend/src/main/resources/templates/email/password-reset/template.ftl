@@ -7,7 +7,7 @@
     <p>We received a request to reset the password for your account. Click the button below to create a new password:</p>
     
     <p class="text-center">
-        <a href="${resetUrl}" class="button primary">Reset Password</a>
+        <a href="${resetUrl}" class="button primary"><span>Reset Password</span></a>
     </p>
     
     <p>Or copy and paste this link into your browser:</p>
