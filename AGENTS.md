@@ -2,6 +2,19 @@
 
 Instructions for AI coding agents working in this repository.
 
+## Git Commit Policy
+
+**CRITICAL: AI agents MUST NOT commit changes automatically.**
+
+- **NEVER** create git commits unless the user explicitly asks you to commit changes
+- If unclear whether to commit, **ALWAYS** ask the user first
+- Only stage and commit files when the user gives explicit permission with phrases like:
+  - "commit these changes"
+  - "create a commit"
+  - "commit this"
+  - "stage and commit"
+- After making code changes, verify they work (compile, run tests), but do **NOT** commit without explicit user request
+
 ## Build & Test Commands
 
 ### OpenCode Profile Setup
