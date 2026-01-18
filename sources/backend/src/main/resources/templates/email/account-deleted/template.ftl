@@ -1,5 +1,5 @@
 <#import "../base-layout.ftl" as layout>
-<@layout.email title="Your Account Has Been Deleted">
+<@layout.email title="Your Account Has Been Deleted" preheader="Your account has been permanently deleted from ${applicationName}">
     <h1>Your Account Has Been Deleted</h1>
     
     <p>Hello,</p>

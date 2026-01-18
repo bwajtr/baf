@@ -1,5 +1,5 @@
 <#import "../base-layout.ftl" as layout>
-<@layout.email title="Reset Your Password">
+<@layout.email title="Reset Your Password" preheader="Reset your password to regain access to your account">
     <h1>Reset Your Password</h1>
     
     <p>Hello,</p>

@@ -1,5 +1,5 @@
 <#import "../base-layout.ftl" as layout>
-<@layout.email title="Your Password Has Been Changed">
+<@layout.email title="Your Password Has Been Changed" preheader="Your password was successfully updated on ${changeDateTime}">
     <h1>Your Password Has Been Changed</h1>
     
     <p>Hello,</p>

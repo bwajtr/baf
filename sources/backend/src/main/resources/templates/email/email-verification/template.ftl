@@ -1,5 +1,5 @@
 <#import "../base-layout.ftl" as layout>
-<@layout.email title="Verify Your Email Address">
+<@layout.email title="Verify Your Email Address" preheader="Complete your registration by verifying your email address">
     <h1>Verify Your Email Address</h1>
     
     <p>Hello,</p>

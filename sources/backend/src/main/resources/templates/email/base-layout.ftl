@@ -3,7 +3,7 @@
   
   Usage:
     <#import "../base-layout.ftl" as layout>
-    <@layout.email title="Email Title">
+    <@layout.email title="Email Title" preheader="Short preview text">
         <h1>Your Heading</h1>
         <p>Your content here...</p>
         <a href="..." class="button primary">Click Me</a>
@@ -11,6 +11,7 @@
   
   Parameters:
     - title: The HTML document title (shown in browser tab if email is opened in browser)
+    - preheader: Optional. Preview text shown in email client inbox (50-100 chars recommended)
     - extraStyles: Optional. Additional CSS to include in the <style> block
   
   Button classes:
@@ -18,7 +19,7 @@
     - .button.success - Green button (positive action)
     - .button.warning - Orange button (caution action)
 -->
-<#macro email title="Email" extraStyles="">
+<#macro email title="Email" preheader="" extraStyles="">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +27,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
     <style>
+        /* Preheader text styling - hidden in email body but visible in inbox preview */
+        .preheader {
+            display: none;
+            visibility: hidden;
+            mso-hide: all;
+            font-size: 1px;
+            color: #ffffff;
+            line-height: 1px;
+            max-height: 0px;
+            max-width: 0px;
+            opacity: 0;
+            overflow: hidden;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
@@ -53,7 +67,7 @@
         .button {
             display: inline-block;
             padding: 9px 28px;
-            color: #ffffff !important;
+            color: #ffffff;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 600;
@@ -73,7 +87,7 @@
         }
         .button.warning {
             background-color: #ffc107;
-            color: #212529 !important;
+            color: #212529;
         }
         .button.warning:hover {
             background-color: #e0a800;
@@ -137,11 +151,24 @@
     </style>
 </head>
 <body>
+    <#-- Preheader text - shows in inbox preview but hidden in email body -->
+    <#if preheader?has_content>
+    <div class="preheader">
+        ${preheader}
+    </div>
+    </#if>
+    
     <div class="container">
         <#nested>
         
         <div class="footer">
-            <p>This email was sent by ${appName}</p>
+            <p style="margin-top: 8px; font-size: 11px; color: #aaaaaa;">
+                You received this email because you have an account with ${appName}. 
+                This is a transactional email required for your account security and functionality. <a href="#" style="color: #888888; text-decoration: underline;">Manage Email Preferences</a>
+            </p>
+            <p style="margin-top: 8px; font-size: 11px; color: #aaaaaa;">
+                ${appName} is operated by ${companyName}, ${companyAddress}
+            </p>
         </div>
     </div>
 </body>

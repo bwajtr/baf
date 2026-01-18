@@ -1,5 +1,5 @@
 <#import "../base-layout.ftl" as layout>
-<@layout.email title="You're Invited!">
+<@layout.email title="You're Invited!" preheader="${inviterName} invited you to join ${organizationName}">
     <h1>You're Invited!</h1>
     
     <p>Hello,</p>

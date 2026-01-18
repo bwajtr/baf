@@ -26,7 +26,8 @@ import java.util.*
  */
 @Service
 class EmailTemplateService(
-    private val freemarkerConfig: Configuration
+    private val freemarkerConfig: Configuration,
+    private val companyProperties: CompanyProperties
 ) {
     
     private val log = LoggerFactory.getLogger(EmailTemplateService::class.java)
@@ -46,6 +47,8 @@ class EmailTemplateService(
         // Add common model properties
         val enrichedModel = model.toMutableMap()
         enrichedModel["appName"] = i18n("application.title")
+        enrichedModel["companyName"] = companyProperties.name
+        enrichedModel["companyAddress"] = companyProperties.getFormattedAddress()
         
         val template = freemarkerConfig.getTemplate(templatePath)
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, enrichedModel)
@@ -66,6 +69,8 @@ class EmailTemplateService(
         // Add common model properties
         val enrichedModel = model.toMutableMap()
         enrichedModel["appName"] = i18n("application.title")
+        enrichedModel["companyName"] = companyProperties.name
+        enrichedModel["companyAddress"] = companyProperties.getFormattedAddress()
         
         val template = freemarkerConfig.getTemplate(templatePath)
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, enrichedModel)
