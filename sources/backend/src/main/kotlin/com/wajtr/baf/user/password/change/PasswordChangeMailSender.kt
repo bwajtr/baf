@@ -49,8 +49,9 @@ class PasswordChangeMailSender(
 
         return try {
             val htmlContent = emailTemplateService.processTemplate("password-changed", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("password-changed", model, locale)
             val subject = i18n("email.password.changed.subject")
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send password change notification to $emailAddress", e)
             false

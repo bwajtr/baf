@@ -50,8 +50,9 @@ class AccountDeletedMailSender(
 
         return try {
             val htmlContent = emailTemplateService.processTemplate("account-deleted", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("account-deleted", model, locale)
             val subject = i18n("email.account.deleted.subject")
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send account deletion confirmation to $emailAddress", e)
             false

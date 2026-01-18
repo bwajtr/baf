@@ -55,8 +55,9 @@ class InvitationMailSender(
 
         return try {
             val htmlContent = emailTemplateService.processTemplate("member-invitation", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("member-invitation", model, locale)
             val subject = i18n("email.invitation.subject", organizationName)
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send invitation email to $emailAddress", e)
             false

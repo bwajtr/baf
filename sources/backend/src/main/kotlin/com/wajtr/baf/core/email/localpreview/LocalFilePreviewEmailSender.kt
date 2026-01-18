@@ -29,7 +29,7 @@ class LocalFilePreviewEmailSender : EmailSender {
 
     private val outputDirectory: Path = Paths.get("local_email_previews")
 
-    override fun sendEmail(to: String, subject: String, htmlContent: String): Boolean {
+    override fun sendEmail(to: String, subject: String, htmlContent: String, textContent: String): Boolean {
         return try {
             // Ensure the output directory exists
             if (!Files.exists(outputDirectory)) {
@@ -43,7 +43,7 @@ class LocalFilePreviewEmailSender : EmailSender {
             val filePath = outputDirectory.resolve(filename)
 
             // Wrap the content with metadata header for easier inspection
-            val fullContent = buildEmailFile(to, subject, htmlContent)
+            val fullContent = buildEmailFile(to, subject, htmlContent, textContent)
 
             // Write the file
             Files.writeString(filePath, fullContent)
@@ -57,10 +57,10 @@ class LocalFilePreviewEmailSender : EmailSender {
     }
 
     /**
-     * Builds the complete HTML file content with metadata header.
+     * Builds the complete HTML file content with metadata header and plain text version.
      */
-    private fun buildEmailFile(to: String, subject: String, htmlContent: String): String {
-        // If the content already has an HTML structure, inject metadata at the top
+    private fun buildEmailFile(to: String, subject: String, htmlContent: String, textContent: String): String {
+        // If the content already has an HTML structure, inject metadata and plain text at the top
         return if (htmlContent.contains("<html", ignoreCase = true)) {
             // Insert metadata comment after <html> tag or at the very beginning
             val metadataComment = """
@@ -70,6 +70,9 @@ class LocalFilePreviewEmailSender : EmailSender {
                 |  To: $to
                 |  Subject: $subject
                 |  Sent at: ${Instant.now()}
+                |  
+                |  PLAIN TEXT VERSION:
+                |  ${textContent.lines().joinToString("\n  ")}
                 |-->
                 |""".trimMargin()
 
@@ -95,6 +98,9 @@ class LocalFilePreviewEmailSender : EmailSender {
             |  To: $to
             |  Subject: $subject
             |  Sent at: ${Instant.now()}
+            |  
+            |  PLAIN TEXT VERSION:
+            |  ${textContent.lines().joinToString("\n  ")}
             |-->
             |<body>
             |$htmlContent

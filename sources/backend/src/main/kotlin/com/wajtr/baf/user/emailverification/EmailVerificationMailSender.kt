@@ -38,8 +38,9 @@ class EmailVerificationMailSender(
         
         return try {
             val htmlContent = emailTemplateService.processTemplate("email-verification", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("email-verification", model, locale)
             val subject = i18n("email.verification.subject")
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send verification email to $emailAddress", e)
             false

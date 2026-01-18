@@ -56,8 +56,9 @@ class OrganizationDeletedMailSender(
 
         return try {
             val htmlContent = emailTemplateService.processTemplate("organization-deleted", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("organization-deleted", model, locale)
             val subject = i18n("email.organization.deleted.subject")
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send organization deletion confirmation to $emailAddress", e)
             false

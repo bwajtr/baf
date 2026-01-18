@@ -33,7 +33,7 @@ class BrevoEmailSender(
         .defaultHeader("api-key", brevoProperties.apiKey)
         .build()
 
-    override fun sendEmail(to: String, subject: String, htmlContent: String): Boolean {
+    override fun sendEmail(to: String, subject: String, htmlContent: String, textContent: String): Boolean {
         if (brevoProperties.apiKey.isBlank()) {
             log.error("Brevo is enabled but API key is not configured. Check brevo.api-key property.")
             return false
@@ -52,7 +52,8 @@ class BrevoEmailSender(
                 ),
                 to = listOf(BrevoRecipient(email = to)),
                 subject = subject,
-                htmlContent = htmlContent
+                htmlContent = htmlContent,
+                textContent = textContent
             )
 
             val response = restClient.post()
@@ -84,7 +85,8 @@ private data class BrevoEmailRequest(
     val sender: BrevoSender,
     val to: List<BrevoRecipient>,
     val subject: String,
-    val htmlContent: String
+    val htmlContent: String,
+    val textContent: String
 )
 
 /**

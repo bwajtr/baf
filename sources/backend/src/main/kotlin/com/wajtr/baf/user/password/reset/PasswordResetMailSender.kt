@@ -48,8 +48,9 @@ class PasswordResetMailSender(
 
         return try {
             val htmlContent = emailTemplateService.processTemplate("password-reset", model, locale)
+            val textContent = emailTemplateService.processPlainTextTemplate("password-reset", model, locale)
             val subject = i18n("email.password.reset.subject")
-            emailSender.sendEmail(emailAddress, subject, htmlContent)
+            emailSender.sendEmail(emailAddress, subject, htmlContent, textContent)
         } catch (e: Exception) {
             log.error("Failed to send password reset email to $emailAddress", e)
             false
