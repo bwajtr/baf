@@ -11,8 +11,8 @@ import com.vaadin.flow.data.value.ValueChangeMode
 import com.wajtr.baf.core.i18n.i18n
 import com.wajtr.baf.ui.vaadin.extensions.bindMutableProperty
 import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
-import com.wajtr.baf.ui.views.user.settings.USER_SETTINGS_PAGE
 import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.USER_SETTINGS_PAGE_URL
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.UserRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -97,7 +97,7 @@ class UserAccountComponent(
 
             if (success) {
                 UI.getCurrent()
-                    .page.setLocation(USER_SETTINGS_PAGE) // reload UI to show changes in user name immediately
+                    .page.setLocation(USER_SETTINGS_PAGE_URL) // reload UI to show changes in user name immediately
             } else {
                 showErrorNotification(i18n("user.settings.account.update.failure"))
             }

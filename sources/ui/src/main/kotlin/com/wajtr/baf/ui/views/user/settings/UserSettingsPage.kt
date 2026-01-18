@@ -9,12 +9,11 @@ import com.wajtr.baf.ui.components.MainLayoutPage
 import com.wajtr.baf.ui.views.user.settings.parts.DeleteAccountComponent
 import com.wajtr.baf.ui.views.user.settings.parts.PasswordChangeComponent
 import com.wajtr.baf.ui.views.user.settings.parts.UserAccountComponent
+import com.wajtr.baf.user.USER_SETTINGS_PAGE_URL
 import jakarta.annotation.security.PermitAll
 
-const val USER_SETTINGS_PAGE = "user-settings"
-
 @PermitAll
-@Route(USER_SETTINGS_PAGE, layout = MainLayout::class)
+@Route(USER_SETTINGS_PAGE_URL, layout = MainLayout::class)
 class UserSettingsPage(
     userAccountComponent: UserAccountComponent,
     passwordChangeComponent: PasswordChangeComponent,

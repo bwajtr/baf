@@ -19,7 +19,7 @@
 
 You received this email because you have an account with ${appName}. 
 This is a transactional email required for your account security and functionality.
-Manage your email preferences: [link placeholder]
+Manage your email preferences: ${userSettingsUrl}
 
 ${appName} is operated by ${companyName}, ${companyAddress}
 </#macro>

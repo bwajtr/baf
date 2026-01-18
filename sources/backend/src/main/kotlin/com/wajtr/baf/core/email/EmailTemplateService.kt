@@ -1,6 +1,8 @@
 package com.wajtr.baf.core.email
 
+import com.wajtr.baf.core.commons.HttpServletUtils
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.user.USER_SETTINGS_PAGE_URL
 import freemarker.template.Configuration
 import freemarker.template.TemplateNotFoundException
 import org.slf4j.LoggerFactory
@@ -45,11 +47,8 @@ class EmailTemplateService(
         val templatePath = resolveTemplatePath(templateName, effectiveLocale, false)
         
         // Add common model properties
-        val enrichedModel = model.toMutableMap()
-        enrichedModel["appName"] = i18n("application.title")
-        enrichedModel["companyName"] = companyProperties.name
-        enrichedModel["companyAddress"] = companyProperties.getFormattedAddress()
-        
+        val enrichedModel = enrichModel(model)
+
         val template = freemarkerConfig.getTemplate(templatePath)
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, enrichedModel)
     }
@@ -62,20 +61,26 @@ class EmailTemplateService(
      * @param locale The locale to use for template selection (falls back to English if not available)
      * @return The processed plain text content
      */
-    fun processPlainTextTemplate(templateName: String, model: Map<String, Any>, locale: Locale?): String {
+     fun processPlainTextTemplate(templateName: String, model: Map<String, Any>, locale: Locale?): String {
         val effectiveLocale = locale ?: LocaleContextHolder.getLocale()
         val templatePath = resolveTemplatePath(templateName, effectiveLocale, true)
         
         // Add common model properties
+        val enrichedModel = enrichModel(model)
+
+        val template = freemarkerConfig.getTemplate(templatePath)
+        return FreeMarkerTemplateUtils.processTemplateIntoString(template, enrichedModel)
+    }
+
+    private fun enrichModel(model: Map<String, Any>): MutableMap<String, Any> {
         val enrichedModel = model.toMutableMap()
         enrichedModel["appName"] = i18n("application.title")
         enrichedModel["companyName"] = companyProperties.name
         enrichedModel["companyAddress"] = companyProperties.getFormattedAddress()
-        
-        val template = freemarkerConfig.getTemplate(templatePath)
-        return FreeMarkerTemplateUtils.processTemplateIntoString(template, enrichedModel)
+        enrichedModel["userSettingsUrl"] = HttpServletUtils.getServerBaseUrl() + "/" + USER_SETTINGS_PAGE_URL
+        return enrichedModel
     }
-    
+
     /**
      * Resolves the template path based on locale and format (HTML or plain text).
      * First tries the locale-specific template, then falls back to the default (English) template.

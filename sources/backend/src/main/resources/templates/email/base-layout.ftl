@@ -164,7 +164,7 @@
         <div class="footer">
             <p style="margin-top: 8px; font-size: 11px; color: #aaaaaa;">
                 You received this email because you have an account with ${appName}. 
-                This is a transactional email required for your account security and functionality. <a href="#" style="color: #888888; text-decoration: underline;">Manage Email Preferences</a>
+                This is a transactional email required for your account security and functionality. <a href="${userSettingsUrl}" style="color: #888888; text-decoration: underline;">Manage Email Preferences</a>
             </p>
             <p style="margin-top: 8px; font-size: 11px; color: #aaaaaa;">
                 ${appName} is operated by ${companyName}, ${companyAddress}
