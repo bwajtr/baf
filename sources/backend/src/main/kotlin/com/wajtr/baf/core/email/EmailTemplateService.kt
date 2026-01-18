@@ -37,7 +37,7 @@ class EmailTemplateService(
      * @return The processed HTML content
      */
     fun processTemplate(templateName: String, model: Map<String, Any>, locale: Locale?): String {
-        val effectiveLocale = locale ?: LocaleContextHolder.getLocale() ?: Locale.ENGLISH
+        val effectiveLocale = locale ?: LocaleContextHolder.getLocale()
         val templatePath = resolveTemplatePath(templateName, effectiveLocale)
         
         // Add common model properties
