@@ -14,7 +14,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-const val CONFIRM_EMAIL_OWNERSHIP_URL = "/api/confirm"
+const val CONFIRM_EMAIL_OWNERSHIP_URL = "/auth/confirm"
 
 /**
  * Service for user email verification (==verification of ownership) process where a special token (stored to database) and

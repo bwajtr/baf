@@ -92,13 +92,17 @@ cd deployment/baf-local-dev && docker compose up -d
 
 ```
 sources/
-├── backend/          # Spring Boot: REST API, services, repositories, DB
+├── backend/          # Core business logic, services, repositories, DB
 │   └── src/main/kotlin/com/wajtr/baf/
 │       ├── core/           # Config, datasource, multi-tenancy, i18n
 │       ├── user/           # User entity, repository, authentication
 │       ├── authentication/ # Security services, OAuth2
 │       ├── organization/   # Tenant/organization management
 │       └── product/        # Domain modules (e.g., product)
+├── api/              # REST API controllers, API security config
+│   └── src/main/kotlin/com/wajtr/baf/api/
+│       ├── product/        # Product API endpoints
+│       └── user/           # User-related API endpoints (email verification, etc.)
 ├── ui/               # Vaadin 25 frontend: views, components
 │   └── src/main/kotlin/com/wajtr/baf/ui/
 │       ├── base/           # MainLayout, ViewToolbar
@@ -107,6 +111,10 @@ sources/
 │       └── vaadin/extensions/ # Kotlin extensions
 ```
 
+**Module Dependencies:**
+- `api` depends on `backend`
+- `ui` depends on `backend` and `api`
+
 ## Technology Stack
 
 - **Language**: Kotlin 2.3.0 (pure Kotlin project)
@@ -114,6 +122,56 @@ sources/
 - **UI**: Vaadin 25 with Karibu DSL
 - **Database**: PostgreSQL 18, jOOQ 3.20.7, Flyway
 - **Auth**: Spring Security + OAuth2/OIDC (Keycloak)
+
+## REST API Patterns
+
+### API Versioning
+
+All REST API endpoints use version 1 with the prefix `/api/v1`. This is enforced by using a constant and class-level `@RequestMapping`.
+
+**Constant Location**: `sources/api/src/main/kotlin/com/wajtr/baf/api/ApiConstants.kt`
+
+```kotlin
+const val API_V1_PREFIX = "/api/v1"
+```
+
+**Controller Pattern**:
+
+```kotlin
+import com.wajtr.baf.api.API_V1_PREFIX
+
+@RestController
+@RequestMapping(API_V1_PREFIX)
+class MyApiController {
+    
+    @GetMapping("/myendpoint")  // Results in: GET /api/v1/myendpoint
+    fun myEndpoint(): ResponseData {
+        // ...
+    }
+}
+```
+
+**IMPORTANT**: Always use `@RequestMapping(API_V1_PREFIX)` at the class level for all new REST API controllers.
+
+### Special Endpoints (Non-REST)
+
+Some endpoints are not part of the REST API and should NOT use the `/api/v1` prefix:
+
+- **Authentication callbacks**: Use `/auth/*` prefix (e.g., `/auth/confirm` for email verification)
+- **OAuth2 endpoints**: Handled by Spring Security, no custom prefix needed
+
+**Example**:
+
+```kotlin
+@Controller
+class EmailVerificationController {
+    
+    @GetMapping("/auth/confirm")  // NOT /api/v1/auth/confirm
+    fun confirmEmailAddress(@RequestParam key: String): String {
+        // Special callback endpoint - not a REST API
+    }
+}
+```
 
 ## Code Style Guidelines
 
