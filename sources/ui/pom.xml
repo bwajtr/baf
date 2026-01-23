@@ -19,6 +19,10 @@
             <artifactId>backend</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.wajtr.baf</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
         </dependency>

@@ -3,7 +3,7 @@ package com.wajtr.baf.ui.views.product
 import com.github.mvysny.karibudsl.v10.*
 import com.vaadin.flow.router.Route
 import com.wajtr.baf.core.i18n.i18n
-import com.wajtr.baf.features.product.ProductRepository
+import com.wajtr.baf.product.ProductRepository
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage

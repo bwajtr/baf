@@ -1,4 +1,4 @@
-package com.wajtr.baf.features.product
+package com.wajtr.baf.product
 
 import com.wajtr.baf.db.jooq.tables.records.ProductRecord
 import com.wajtr.baf.db.jooq.tables.references.PRODUCT

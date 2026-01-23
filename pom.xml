@@ -39,6 +39,7 @@
 
     <modules>
         <module>sources/backend</module>
+        <module>sources/api</module>
         <module>sources/ui</module>
     </modules>
 
@@ -47,6 +48,11 @@
             <dependency>
                 <groupId>com.wajtr.baf</groupId>
                 <artifactId>backend</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.wajtr.baf</groupId>
+                <artifactId>api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

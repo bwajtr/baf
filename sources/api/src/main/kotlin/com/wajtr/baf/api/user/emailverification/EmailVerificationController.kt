@@ -1,6 +1,9 @@
-package com.wajtr.baf.user.emailverification
+package com.wajtr.baf.api.user.emailverification
 
 import com.wajtr.baf.authentication.db.LOGIN_PATH
+import com.wajtr.baf.user.emailverification.CONFIRM_EMAIL_OWNERSHIP_URL
+import com.wajtr.baf.user.emailverification.EmailVerificationConfirmationResult
+import com.wajtr.baf.user.emailverification.EmailVerificationService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -30,3 +33,4 @@ class EmailVerificationController(
         }
     }
 }
+

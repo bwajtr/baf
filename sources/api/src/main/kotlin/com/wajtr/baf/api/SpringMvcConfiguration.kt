@@ -1,4 +1,4 @@
-package com.wajtr.baf.core
+package com.wajtr.baf.api
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType

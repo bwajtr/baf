@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.SchedulingConfiguration
 @Configuration
 @ComponentScan
 @Import(
-    value = [DataSourceConfiguration::class, CacheConfiguration::class, I18nConfiguration::class, SpringMvcConfiguration::class, SchedulingConfiguration::class]
+    value = [DataSourceConfiguration::class, CacheConfiguration::class, I18nConfiguration::class, SchedulingConfiguration::class]
 )
 @EnableConfigurationProperties(ApplicationProperties::class)
 class CoreConfiguration(

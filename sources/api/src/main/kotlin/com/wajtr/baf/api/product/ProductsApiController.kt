@@ -1,5 +1,7 @@
-package com.wajtr.baf.features.product
+package com.wajtr.baf.api.product
 
+import com.wajtr.baf.product.Product
+import com.wajtr.baf.product.ProductRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
