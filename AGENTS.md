@@ -2,18 +2,26 @@
 
 Instructions for AI coding agents working in this repository.
 
-## Git Commit Policy
+## Git Worktree Setup
 
-**CRITICAL: AI agents MUST NOT commit changes automatically.**
+**IMPORTANT:** This repository uses Git worktrees. You (the AI agent) are working in a separate worktree on the **`opencode` branch**.
 
-- **NEVER** create git commits unless the user explicitly asks you to commit changes
-- If unclear whether to commit, **ALWAYS** ask the user first
-- Only stage and commit files when the user gives explicit permission with phrases like:
-  - "commit these changes"
-  - "create a commit"
-  - "commit this"
-  - "stage and commit"
-- After making code changes, verify they work (compile, run tests), but do **NOT** commit without explicit user request
+- **Your branch**: The `opencode` branch is your dedicated working branch
+- **When the user says "your branch"**: They mean the `opencode` branch
+- **When the user says "reset your branch"**: This means:
+  1. Switch to the `opencode` branch (if not already on it)
+  2. Hard reset to match the commit of the main worktree's branch
+  3. Result: You should be on the same commit with no edited files
+  
+**Example reset command:**
+```bash
+# Find the current branch in the main worktree
+git branch -a
+
+# Reset opencode branch to match main (or whatever branch the main worktree uses)
+git checkout opencode
+git reset --hard origin/main  # or the appropriate reference branch
+```
 
 ## Build & Test Commands
 
