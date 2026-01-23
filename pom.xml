@@ -210,25 +210,6 @@
         </plugins>
     </build>
 
-    <!-- Profile for AI agent builds (e.g., OpenCode).
-         Uses a separate Kotlin incremental compilation cache to avoid conflicts when
-         developer and AI agent share the same source directory but have different
-         absolute paths (e.g., /media/psf/baf vs /Users/dev/project).
-         
-         IMPORTANT: For the first execution, you must NOT use incremental compilation:
-           mvn clean install -P opencode -DskipTests -Dvaadin.skip
-         
-         After that, subsequent builds can use incremental compilation:
-           mvn compile -P opencode -Dkotlin.compiler.incremental=true -DskipTests -Dvaadin.skip -->
-    <profiles>
-        <profile>
-            <id>opencode</id>
-            <properties>
-                <kotlin.compiler.incremental.cache.root>${project.build.directory}/kotlin-ic-opencode</kotlin.compiler.incremental.cache.root>
-            </properties>
-        </profile>
-    </profiles>
-
     <repositories>
         <repository>
             <id>central</id>

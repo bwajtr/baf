@@ -25,27 +25,15 @@ git reset --hard origin/main  # or the appropriate reference branch
 
 ## Build & Test Commands
 
-### OpenCode Profile Setup
-
-**IMPORTANT:** AI agents MUST use the `-P opencode` Maven profile for all builds. This uses a separate
-Kotlin incremental compilation cache (`kotlin-ic-opencode`) to avoid conflicts with the developer's cache.
-
-**First-time setup (run once without incremental compilation):**
-```bash
-mvn clean install -P opencode -DskipTests -Dvaadin.skip
-```
-
-After the initial setup, use `-Dkotlin.compiler.incremental=true` for faster builds.
-
 ### Quick Reference for AI Agents
 
 **MOST IMPORTANT:** When verifying code changes, ALWAYS use the fast compilation command:
 
 | Task                                     | Command                                                                                      |
 |------------------------------------------|----------------------------------------------------------------------------------------------|
-| **✅ Verify code compiles (RECOMMENDED)** | `mvn compile -P opencode -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true`       |
-| Run tests (unit and integration)         | `mvn verify -P opencode -Dkotlin.compiler.incremental=true`                                  |
-| Full build (slow)                        | `mvn clean install -P opencode`                                                              |
+| **✅ Verify code compiles (RECOMMENDED)** | `mvn compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true`                   |
+| Run tests (unit and integration)         | `mvn verify -Dkotlin.compiler.incremental=true`                                              |
+| Full build (slow)                        | `mvn clean install`                                                                          |
 | Run application                          | `mvn -pl sources/ui spring-boot:run`                                                         |
 
 ### Detailed Commands
@@ -56,15 +44,15 @@ After the initial setup, use `-Dkotlin.compiler.incremental=true` for faster bui
 # Compile to verify code changes - FASTEST method for AI agents
 # Skips tests, Vaadin build, uses incremental Kotlin compilation
 # ALWAYS USE THIS after making code changes to verify compilation
-mvn compile -P opencode -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+mvn compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
 
 # Clean build (removes incremental compilation cache, use when compilation issues occur)
-mvn clean compile -P opencode -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
+mvn clean compile -DskipTests -Dvaadin.skip -Dkotlin.compiler.incremental=true
 
 # === FULL BUILDS (slow, only when necessary) ===
 
 # Build entire project (includes Vaadin frontend, tests, packaging)
-mvn clean install -P opencode
+mvn clean install
 
 # === RUNNING THE APPLICATION ===
 
@@ -74,16 +62,16 @@ mvn -pl sources/ui spring-boot:run
 # === TESTING ===
 
 # Run all tests (unit + integration)
-mvn verify -P opencode -Dkotlin.compiler.incremental=true
+mvn verify -Dkotlin.compiler.incremental=true
 
 # Run only unit tests (*Test.kt, fast, no Testcontainers)
-mvn test -P opencode -Dkotlin.compiler.incremental=true
+mvn test -Dkotlin.compiler.incremental=true
 
 # Run a single unit test class
-mvn test -P opencode -pl sources/backend -Dtest=SecureRandomExtensionsTest -Dkotlin.compiler.incremental=true
+mvn test -pl sources/backend -Dtest=SecureRandomExtensionsTest -Dkotlin.compiler.incremental=true
 
 # Run a single integration test class
-mvn verify -P opencode -pl sources/backend -Dit.test=MemberManagementServiceIT -Dkotlin.compiler.incremental=true
+mvn verify -pl sources/backend -Dit.test=MemberManagementServiceIT -Dkotlin.compiler.incremental=true
 
 # === DATABASE ===
 
