@@ -5,6 +5,17 @@
       "type": "remote",
       "enabled": true,
       "url": "https://mcp.vaadin.com/docs"
+    },
+    "playwright": {
+          "type": "local",
+          "command": [
+            "npx",
+            "@playwright/mcp@latest",
+            "--browser",
+            "firefox"
+          ],
+          "enabled": false
+        }
     }
-  }
+  
 }
