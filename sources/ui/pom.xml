@@ -5,22 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>root</artifactId>
+        <artifactId>baf-root</artifactId>
         <groupId>com.wajtr.baf</groupId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ui</artifactId>
+    <artifactId>baf-ui</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.wajtr.baf</groupId>
-            <artifactId>backend</artifactId>
+            <artifactId>baf-backend</artifactId>
         </dependency>
         <dependency>
             <groupId>com.wajtr.baf</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>baf-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
