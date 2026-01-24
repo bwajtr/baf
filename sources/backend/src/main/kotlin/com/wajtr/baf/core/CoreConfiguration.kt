@@ -2,6 +2,7 @@ package com.wajtr.baf.core
 
 import com.wajtr.baf.core.datasource.ContextAwareTransactionManager
 import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.NoAuthenticatedUserException
 import org.springframework.boot.context.event.ApplicationStartedEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan
@@ -25,10 +26,29 @@ class CoreConfiguration(
 ) {
 
     @EventListener
-    @Suppress("unused")
+    @Suppress("unused", "IfThenToSafeAccess")
     fun afterApplicationStarted(event: ApplicationStartedEvent?) {
         transactionManager.setTransactionContextProperty("session.tenant.id") {
-            identity.authenticatedTenant?.id.toString()
+            val authenticatedTenant = identity.authenticatedTenant
+
+            if (authenticatedTenant != null) {
+                authenticatedTenant.id.toString()
+            } else {
+                // this might happen in cases when there is no authenticated user. Note that only very limited
+                // set of DB operations are permitted without tenant set (like registering new user, authenticating user etc).
+                null
+            }
         }
+
+        transactionManager.setTransactionContextProperty("session.user.id", {
+            try {
+                val currentUser = identity.authenticatedUser
+                currentUser.id.toString()
+            } catch (e: NoAuthenticatedUserException) {
+                // this might happen in cases when there is no authenticated user. Note that only very limited
+                // set of DB operations are permitted without tenant set (like registering new user, authenticating user etc).
+                null
+            }
+        })
     }
 }
