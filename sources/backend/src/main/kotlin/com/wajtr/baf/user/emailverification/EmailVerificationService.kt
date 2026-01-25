@@ -104,8 +104,13 @@ class EmailVerificationService(
      * @return Returns success or failure - see documentation in EmailVerificationConfirmationResult.
      */
     fun confirmEmailVerificationToken(token: String): EmailVerificationConfirmationResult {
+        val uuidToken = try {
+            UUID.fromString(token)
+        } catch (_: IllegalArgumentException) {
+            return EmailVerificationConfirmationResult.TOKEN_INVALID
+        }
         val userId = create.select(APP_USER.ID).from(APP_USER)
-            .where(APP_USER.EMAIL_VERIFICATION_TOKEN.eq(UUID.fromString(token)))
+            .where(APP_USER.EMAIL_VERIFICATION_TOKEN.eq(uuidToken))
             .fetchOneInto(UUID::class.java)
 
         return if (userId != null) {

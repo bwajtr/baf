@@ -30,6 +30,7 @@ class Identity {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication != null) {
             return when (authentication) {
+                is AnonymousAuthenticationToken -> throw NoAuthenticatedUserException()
                 is OAuth2TenantAuthenticationToken -> authentication.user // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.principal as User // login page
                 else -> throw UnknownAuthenticationTokenException()
