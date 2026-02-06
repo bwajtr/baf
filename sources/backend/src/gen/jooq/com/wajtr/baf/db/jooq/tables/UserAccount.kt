@@ -5,10 +5,10 @@ package com.wajtr.baf.db.jooq.tables
 
 
 import com.wajtr.baf.db.jooq.Public
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_INVITED_BY_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.USER_ACCOUNT_EMAIL_KEY
 import com.wajtr.baf.db.jooq.keys.USER_ACCOUNT_PKEY
-import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY
-import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_INVITED_BY_FKEY
 import com.wajtr.baf.db.jooq.keys.USER_LOGIN_HISTORY__USER_LOGIN_HISTORY_USER_ACCOUNT_ID_FKEY
 import com.wajtr.baf.db.jooq.tables.TenantMember.TenantMemberPath
 import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation.TenantMemberInvitationPath
@@ -87,14 +87,14 @@ open class UserAccount(
     val ID: TableField<UserAccountRecord, UUID?> = createField(DSL.name("id"), SQLDataType.UUID.nullable(false).defaultValue(DSL.field(DSL.raw("uuidv7()"), SQLDataType.UUID)), this, "")
 
     /**
-     * The column <code>public.user_account.name</code>. Full name (first and last)
-     * of the user
+     * The column <code>public.user_account.name</code>. Full name (first and
+     * last) of the user
      */
     val NAME: TableField<UserAccountRecord, String?> = createField(DSL.name("name"), SQLDataType.CLOB.nullable(false), this, "Full name (first and last) of the user")
 
     /**
-     * The column <code>public.user_account.email</code>. Email of the user, must be
-     * unique because it's used during the login process. Uniqueness is
+     * The column <code>public.user_account.email</code>. Email of the user,
+     * must be unique because it's used during the login process. Uniqueness is
      * case-insensitive, you cannot store two user accounts like
      * "john.doe@gmail.com" and "John.Doe@gmail.com"
      */
@@ -106,8 +106,8 @@ open class UserAccount(
     val PASSWORD: TableField<UserAccountRecord, String?> = createField(DSL.name("password"), SQLDataType.CLOB.nullable(false), this, "Encrypted password")
 
     /**
-     * The column <code>public.user_account.email_verified</code>. True if ownership
-     * of the users email was verified
+     * The column <code>public.user_account.email_verified</code>. True if
+     * ownership of the users email was verified
      */
     val EMAIL_VERIFIED: TableField<UserAccountRecord, Boolean?> = createField(DSL.name("email_verified"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "True if ownership of the users email was verified")
 
@@ -119,8 +119,8 @@ open class UserAccount(
     val EMAIL_VERIFICATION_TOKEN: TableField<UserAccountRecord, UUID?> = createField(DSL.name("email_verification_token"), SQLDataType.UUID, this, "Nullable UUID token used for the email ownership verification. Not null if verification is in progress.")
 
     /**
-     * The column <code>public.user_account.created_at</code>. Point in time when
-     * this record was created
+     * The column <code>public.user_account.created_at</code>. Point in time
+     * when this record was created
      */
     val CREATED_AT: TableField<UserAccountRecord, OffsetDateTime?> = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "Point in time when this record was created")
 
@@ -171,22 +171,6 @@ open class UserAccount(
     override fun getPrimaryKey(): UniqueKey<UserAccountRecord> = USER_ACCOUNT_PKEY
     override fun getUniqueKeys(): List<UniqueKey<UserAccountRecord>> = listOf(USER_ACCOUNT_EMAIL_KEY)
 
-    private lateinit var _tenantMember: TenantMemberPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.tenant_member</code> table
-     */
-    fun tenantMember(): TenantMemberPath {
-        if (!this::_tenantMember.isInitialized)
-            _tenantMember = TenantMemberPath(this, null, TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY.inverseKey)
-
-        return _tenantMember;
-    }
-
-    val tenantMember: TenantMemberPath
-        get(): TenantMemberPath = tenantMember()
-
     private lateinit var _tenantMemberInvitation: TenantMemberInvitationPath
 
     /**
@@ -202,6 +186,22 @@ open class UserAccount(
 
     val tenantMemberInvitation: TenantMemberInvitationPath
         get(): TenantMemberInvitationPath = tenantMemberInvitation()
+
+    private lateinit var _tenantMember: TenantMemberPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.tenant_member</code> table
+     */
+    fun tenantMember(): TenantMemberPath {
+        if (!this::_tenantMember.isInitialized)
+            _tenantMember = TenantMemberPath(this, null, TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY.inverseKey)
+
+        return _tenantMember;
+    }
+
+    val tenantMember: TenantMemberPath
+        get(): TenantMemberPath = tenantMember()
 
     private lateinit var _userLoginHistory: UserLoginHistoryPath
 

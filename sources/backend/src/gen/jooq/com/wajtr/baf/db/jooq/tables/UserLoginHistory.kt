@@ -78,42 +78,42 @@ open class UserLoginHistory(
     override fun getRecordType(): Class<UserLoginHistoryRecord> = UserLoginHistoryRecord::class.java
 
     /**
-     * The column <code>public.user_login_history.user_account_id</code>. Reference to
-     * user who logged into the application
+     * The column <code>public.user_login_history.user_account_id</code>.
+     * Reference to user who logged into the application
      */
     val USER_ACCOUNT_ID: TableField<UserLoginHistoryRecord, UUID?> = createField(DSL.name("user_account_id"), SQLDataType.UUID.nullable(false), this, "Reference to user who logged into the application")
 
     /**
-     * The column <code>public.user_login_history.event_timestamp</code>. Timestamp
-     * of the login event
+     * The column <code>public.user_login_history.event_timestamp</code>.
+     * Timestamp of the login event
      */
     val EVENT_TIMESTAMP: TableField<UserLoginHistoryRecord, OffsetDateTime?> = createField(DSL.name("event_timestamp"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "Timestamp of the login event")
 
     /**
-     * The column <code>public.user_login_history.browser</code>. Browser used for
-     * login (like Chrome, Firefox etc.) including version, if known. Can be
+     * The column <code>public.user_login_history.browser</code>. Browser used
+     * for login (like Chrome, Firefox etc.) including version, if known. Can be
      * null in which case the browser is unknown.
      */
     val BROWSER: TableField<UserLoginHistoryRecord, String?> = createField(DSL.name("browser"), SQLDataType.CLOB, this, "Browser used for login (like Chrome, Firefox etc.) including version, if known. Can be null in which case the browser is unknown.")
 
     /**
-     * The column <code>public.user_login_history.device_type</code>. Device type
-     * used for login. Can be null in which case the device type couldn't be
-     * determined. Example: Mobile, Tablet, Desktop
+     * The column <code>public.user_login_history.device_type</code>. Device
+     * type used for login. Can be null in which case the device type couldn't
+     * be determined. Example: Mobile, Tablet, Desktop
      */
     val DEVICE_TYPE: TableField<UserLoginHistoryRecord, String?> = createField(DSL.name("device_type"), SQLDataType.CLOB, this, "Device type used for login. Can be null in which case the device type couldn't be determined. Example: Mobile, Tablet, Desktop")
 
     /**
-     * The column <code>public.user_login_history.operating_system</code>. Operating
-     * system used for login (like Windows 10, Mac OS X etc.) including version,
-     * if known. Can be null in which case the OS is unknown.
+     * The column <code>public.user_login_history.operating_system</code>.
+     * Operating system used for login (like Windows 10, Mac OS X etc.)
+     * including version, if known. Can be null in which case the OS is unknown.
      */
     val OPERATING_SYSTEM: TableField<UserLoginHistoryRecord, String?> = createField(DSL.name("operating_system"), SQLDataType.CLOB, this, "Operating system used for login (like Windows 10, Mac OS X etc.) including version, if known. Can be null in which case the OS is unknown.")
 
     /**
-     * The column <code>public.user_login_history.ip_address</code>. IP Address of
-     * the device used during user login. Can be null if the IP Address couldn't
-     * be determined
+     * The column <code>public.user_login_history.ip_address</code>. IP Address
+     * of the device used during user login. Can be null if the IP Address
+     * couldn't be determined
      */
     val IP_ADDRESS: TableField<UserLoginHistoryRecord, String?> = createField(DSL.name("ip_address"), SQLDataType.CLOB, this, "IP Address of the device used during user login. Can be null if the IP Address couldn't be determined")
 

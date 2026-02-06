@@ -9,8 +9,8 @@ import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION_EMAIL_KEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION_PKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_INVITED_BY_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY
-import com.wajtr.baf.db.jooq.tables.UserAccount.UserAccountPath
 import com.wajtr.baf.db.jooq.tables.Tenant.TenantPath
+import com.wajtr.baf.db.jooq.tables.UserAccount.UserAccountPath
 import com.wajtr.baf.db.jooq.tables.records.TenantMemberInvitationRecord
 
 import java.time.OffsetDateTime
@@ -70,7 +70,8 @@ open class TenantMemberInvitation(
     companion object {
 
         /**
-         * The reference instance of <code>public.tenant_member_invitation</code>
+         * The reference instance of
+         * <code>public.tenant_member_invitation</code>
          */
         val TENANT_MEMBER_INVITATION: TenantMemberInvitation = TenantMemberInvitation()
     }
@@ -86,41 +87,41 @@ open class TenantMemberInvitation(
     val ID: TableField<TenantMemberInvitationRecord, UUID?> = createField(DSL.name("id"), SQLDataType.UUID.nullable(false).defaultValue(DSL.field(DSL.raw("uuidv7()"), SQLDataType.UUID)), this, "")
 
     /**
-     * The column <code>public.tenant_member_invitation.email</code>. Email of the
-     * invited user
+     * The column <code>public.tenant_member_invitation.email</code>. Email of
+     * the invited user
      */
     val EMAIL: TableField<TenantMemberInvitationRecord, String?> = createField(DSL.name("email"), SQLDataType.CLOB.nullable(false), this, "Email of the invited user")
 
     /**
      * The column
-     * <code>public.tenant_member_invitation.last_invitation_sent_time</code>. Date and
-     * time of last "(re)send invitation email" operation, null if no invitation
-     * email was sent yet
+     * <code>public.tenant_member_invitation.last_invitation_sent_time</code>.
+     * Date and time of last "(re)send invitation email" operation, null if no
+     * invitation email was sent yet
      */
     val LAST_INVITATION_SENT_TIME: TableField<TenantMemberInvitationRecord, OffsetDateTime?> = createField(DSL.name("last_invitation_sent_time"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "Date and time of last \"(re)send invitation email\" operation, null if no invitation email was sent yet")
 
     /**
-     * The column <code>public.tenant_member_invitation.tenant_id</code>. Tenant into
-     * which the user is invited
+     * The column <code>public.tenant_member_invitation.tenant_id</code>. Tenant
+     * into which the user is invited
      */
     val TENANT_ID: TableField<TenantMemberInvitationRecord, UUID?> = createField(DSL.name("tenant_id"), SQLDataType.UUID.nullable(false), this, "Tenant into which the user is invited")
 
     /**
-     * The column <code>public.tenant_member_invitation.invited_by</code>. Existing
-     * user who created the invitation
+     * The column <code>public.tenant_member_invitation.invited_by</code>.
+     * Existing user who created the invitation
      */
     val INVITED_BY: TableField<TenantMemberInvitationRecord, UUID?> = createField(DSL.name("invited_by"), SQLDataType.UUID, this, "Existing user who created the invitation")
 
     /**
-     * The column <code>public.tenant_member_invitation.created_at</code>. Creation
-     * date and time of the invitation (first invitation email was sent on this
-     * time)
+     * The column <code>public.tenant_member_invitation.created_at</code>.
+     * Creation date and time of the invitation (first invitation email was sent
+     * on this time)
      */
     val CREATED_AT: TableField<TenantMemberInvitationRecord, OffsetDateTime?> = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "Creation date and time of the invitation (first invitation email was sent on this time)")
 
     /**
-     * The column <code>public.tenant_member_invitation.role</code>. Role of the user
-     * when the invitation is accepted
+     * The column <code>public.tenant_member_invitation.role</code>. Role of the
+     * user when the invitation is accepted
      */
     val ROLE: TableField<TenantMemberInvitationRecord, String?> = createField(DSL.name("role"), SQLDataType.CLOB.nullable(false), this, "Role of the user when the invitation is accepted")
 
@@ -129,12 +130,14 @@ open class TenantMemberInvitation(
     private constructor(alias: Name, aliased: Table<TenantMemberInvitationRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
-     * Create an aliased <code>public.tenant_member_invitation</code> table reference
+     * Create an aliased <code>public.tenant_member_invitation</code> table
+     * reference
      */
     constructor(alias: String): this(DSL.name(alias))
 
     /**
-     * Create an aliased <code>public.tenant_member_invitation</code> table reference
+     * Create an aliased <code>public.tenant_member_invitation</code> table
+     * reference
      */
     constructor(alias: Name): this(alias, null)
 

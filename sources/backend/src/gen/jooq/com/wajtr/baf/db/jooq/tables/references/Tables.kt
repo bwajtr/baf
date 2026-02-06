@@ -5,14 +5,14 @@
 package com.wajtr.baf.db.jooq.tables.references
 
 
-import com.wajtr.baf.db.jooq.tables.UserAccount
-import com.wajtr.baf.db.jooq.tables.TenantMember
 import com.wajtr.baf.db.jooq.tables.AuthenticateUser
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
-import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses
 import com.wajtr.baf.db.jooq.tables.Product
 import com.wajtr.baf.db.jooq.tables.Tenant
+import com.wajtr.baf.db.jooq.tables.TenantMember
+import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
+import com.wajtr.baf.db.jooq.tables.UserAccount
 import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 import com.wajtr.baf.db.jooq.tables.records.AuthenticateUserRecord
 
@@ -21,20 +21,6 @@ import org.jooq.Field
 import org.jooq.Result
 
 
-
-/**
- * The table <code>public.user_account</code>.
- */
-val USER_ACCOUNT: UserAccount = UserAccount.USER_ACCOUNT
-
-/**
- * Contains relation between application users and their roles in tenant. Any
- * role can be assigned to any user. User therefore can have many roles and one
- * role can be assigned to multiple users. Having tenant_id in this table also
- * makes it possible to support scenario, where single user operates within two
- * tenants and has different roles in each tenant.
- */
-val TENANT_MEMBER: TenantMember = TenantMember.TENANT_MEMBER
 
 /**
  * The table <code>public.authenticate_user</code>.
@@ -81,12 +67,6 @@ fun AUTHENTICATE_USER(
 val FLYWAY_SCHEMA_HISTORY: FlywaySchemaHistory = FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY
 
 /**
- * Table holding invitations to join tenant accounts (created typically by user
- * administrators)
- */
-val TENANT_MEMBER_INVITATION: TenantMemberInvitation = TenantMemberInvitation.TENANT_MEMBER_INVITATION
-
-/**
  * The table <code>public.pg_blocking_processes</code>.
  */
 val PG_BLOCKING_PROCESSES: PgBlockingProcesses = PgBlockingProcesses.PG_BLOCKING_PROCESSES
@@ -102,6 +82,26 @@ val PRODUCT: Product = Product.PRODUCT
  * It's a way how to have multiple customers inside single database schema
  */
 val TENANT: Tenant = Tenant.TENANT
+
+/**
+ * Contains relation between application users and their roles in tenant. Any
+ * role can be assigned to any user. User therefore can have many roles and one
+ * role can be assigned to multiple users. Having tenant_id in this table also
+ * makes it possible to support scenario, where single user operates within two
+ * tenants and has different roles in each tenant.
+ */
+val TENANT_MEMBER: TenantMember = TenantMember.TENANT_MEMBER
+
+/**
+ * Table holding invitations to join tenant accounts (created typically by user
+ * administrators)
+ */
+val TENANT_MEMBER_INVITATION: TenantMemberInvitation = TenantMemberInvitation.TENANT_MEMBER_INVITATION
+
+/**
+ * The table <code>public.user_account</code>.
+ */
+val USER_ACCOUNT: UserAccount = UserAccount.USER_ACCOUNT
 
 /**
  * Table holding user login events - new record with a timestamp is added to

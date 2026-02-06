@@ -5,13 +5,13 @@ package com.wajtr.baf.db.jooq.tables
 
 
 import com.wajtr.baf.db.jooq.Public
-import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY
-import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.PRODUCT__PRODUCT_TENANT_ID_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_PKEY
+import com.wajtr.baf.db.jooq.tables.Product.ProductPath
 import com.wajtr.baf.db.jooq.tables.TenantMember.TenantMemberPath
 import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation.TenantMemberInvitationPath
-import com.wajtr.baf.db.jooq.tables.Product.ProductPath
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord
 
 import java.time.OffsetDateTime
@@ -155,21 +155,21 @@ open class Tenant(
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
     override fun getPrimaryKey(): UniqueKey<TenantRecord> = TENANT_PKEY
 
-    private lateinit var _tenantMember: TenantMemberPath
+    private lateinit var _product: ProductPath
 
     /**
-     * Get the implicit to-many join path to the
-     * <code>public.tenant_member</code> table
+     * Get the implicit to-many join path to the <code>public.product</code>
+     * table
      */
-    fun tenantMember(): TenantMemberPath {
-        if (!this::_tenantMember.isInitialized)
-            _tenantMember = TenantMemberPath(this, null, TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY.inverseKey)
+    fun product(): ProductPath {
+        if (!this::_product.isInitialized)
+            _product = ProductPath(this, null, PRODUCT__PRODUCT_TENANT_ID_FKEY.inverseKey)
 
-        return _tenantMember;
+        return _product;
     }
 
-    val tenantMember: TenantMemberPath
-        get(): TenantMemberPath = tenantMember()
+    val product: ProductPath
+        get(): ProductPath = product()
 
     private lateinit var _tenantMemberInvitation: TenantMemberInvitationPath
 
@@ -187,21 +187,21 @@ open class Tenant(
     val tenantMemberInvitation: TenantMemberInvitationPath
         get(): TenantMemberInvitationPath = tenantMemberInvitation()
 
-    private lateinit var _product: ProductPath
+    private lateinit var _tenantMember: TenantMemberPath
 
     /**
-     * Get the implicit to-many join path to the <code>public.product</code>
-     * table
+     * Get the implicit to-many join path to the
+     * <code>public.tenant_member</code> table
      */
-    fun product(): ProductPath {
-        if (!this::_product.isInitialized)
-            _product = ProductPath(this, null, PRODUCT__PRODUCT_TENANT_ID_FKEY.inverseKey)
+    fun tenantMember(): TenantMemberPath {
+        if (!this::_tenantMember.isInitialized)
+            _tenantMember = TenantMemberPath(this, null, TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY.inverseKey)
 
-        return _product;
+        return _tenantMember;
     }
 
-    val product: ProductPath
-        get(): ProductPath = product()
+    val tenantMember: TenantMemberPath
+        get(): TenantMemberPath = tenantMember()
     override fun getChecks(): List<Check<TenantRecord>> = listOf(
         Internal.createCheck(this, DSL.name("tenant_check"), "(((TRIM(BOTH FROM organization_name) <> ''::text) OR setup_required))", true),
         Internal.createCheck(this, DSL.name("tenant_organization_country_code_check"), "(((char_length(organization_country_code) = 2) AND (upper(organization_country_code) = organization_country_code)))", true)

@@ -8,8 +8,8 @@ import com.wajtr.baf.db.jooq.Public
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_PK
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY
-import com.wajtr.baf.db.jooq.tables.UserAccount.UserAccountPath
 import com.wajtr.baf.db.jooq.tables.Tenant.TenantPath
+import com.wajtr.baf.db.jooq.tables.UserAccount.UserAccountPath
 import com.wajtr.baf.db.jooq.tables.records.TenantMemberRecord
 
 import java.util.UUID
@@ -82,20 +82,20 @@ open class TenantMember(
     override fun getRecordType(): Class<TenantMemberRecord> = TenantMemberRecord::class.java
 
     /**
-     * The column <code>public.tenant_member.user_id</code>. User
-     * participating in the relation - referencing user_account.id
+     * The column <code>public.tenant_member.user_id</code>. User participating
+     * in the relation - referencing user_account.id
      */
     val USER_ID: TableField<TenantMemberRecord, UUID?> = createField(DSL.name("user_id"), SQLDataType.UUID.nullable(false), this, "User participating in the relation - referencing user_account.id")
 
     /**
-     * The column <code>public.tenant_member.role</code>. Role of this
-     * user within the tenant. Can be anything meaningful to the app.
+     * The column <code>public.tenant_member.role</code>. Role of this user
+     * within the tenant. Can be anything meaningful to the app.
      */
     val ROLE: TableField<TenantMemberRecord, String?> = createField(DSL.name("role"), SQLDataType.CLOB.nullable(false), this, "Role of this user within the tenant. Can be anything meaningful to the app.")
 
     /**
-     * The column <code>public.tenant_member.tenant_id</code>. Tenant id
-     * for which this role assignment is relevant
+     * The column <code>public.tenant_member.tenant_id</code>. Tenant id for
+     * which this role assignment is relevant
      */
     val TENANT_ID: TableField<TenantMemberRecord, UUID?> = createField(DSL.name("tenant_id"), SQLDataType.UUID.nullable(false).defaultValue(DSL.field(DSL.raw("current_tenant()"), SQLDataType.UUID)), this, "Tenant id for which this role assignment is relevant")
 
@@ -104,14 +104,12 @@ open class TenantMember(
     private constructor(alias: Name, aliased: Table<TenantMemberRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
-     * Create an aliased <code>public.tenant_member</code> table
-     * reference
+     * Create an aliased <code>public.tenant_member</code> table reference
      */
     constructor(alias: String): this(DSL.name(alias))
 
     /**
-     * Create an aliased <code>public.tenant_member</code> table
-     * reference
+     * Create an aliased <code>public.tenant_member</code> table reference
      */
     constructor(alias: Name): this(alias, null)
 
