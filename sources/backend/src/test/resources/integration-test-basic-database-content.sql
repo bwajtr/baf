@@ -59,5 +59,10 @@ DO $$
                ('Product 3', null, 99.9, junit_tenant_2_id),
                ('Product 4', 'Description, of Product 4', 49.9, junit_tenant_2_id);
 
+        -- API keys for testing REST API authentication
+        INSERT INTO tenant_api_key (api_key, tenant_id)
+        VALUES ('TEST_API_KEY_TENANT_1_ABCDEFGHIJKLMNOPRSTUVWXYZ12345', junit_tenant_1_id),
+               ('TEST_API_KEY_TENANT_2_ABCDEFGHIJKLMNOPRSTUVWXYZ12345', junit_tenant_2_id);
+
     END
 $$;

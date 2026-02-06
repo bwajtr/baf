@@ -1,5 +1,6 @@
 package com.wajtr.baf.api
 
+import com.wajtr.baf.api.security.ApiKeyAuthenticationFilter
 import com.wajtr.baf.user.emailverification.CONFIRM_EMAIL_OWNERSHIP_URL
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
@@ -10,15 +11,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 /**
- * Configuration of security change for the API access (all paths matching /api/ **)
- * 
+ * Configuration of security chain for the API access (all paths matching /api/ endpoints)
+ *
+ * API endpoints require authentication via an API key provided in the `X-API-Key` header.
+ * The email verification endpoint (/auth/confirm) is excluded and remains public.
+ *
  * @author Bretislav Wajtr
  */
 @Configuration
 @EnableWebSecurity
-class ApiSecurityConfiguration {
+class ApiSecurityConfiguration(
+    private val apiKeyAuthenticationFilter: ApiKeyAuthenticationFilter
+) {
 
     @Bean
     @Order(1)
@@ -45,13 +52,15 @@ class ApiSecurityConfiguration {
                     )
                 }
             }
+            // Add API key authentication filter
+            .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .securityMatcher(
                 "/api/**", CONFIRM_EMAIL_OWNERSHIP_URL
             ).authorizeHttpRequests { auth ->
-                // keep email ownership api public
+                // keep email ownership endpoint public
                 auth.requestMatchers(CONFIRM_EMAIL_OWNERSHIP_URL).permitAll()
-                // but rest of the /api/ should be authenticated
-                auth.requestMatchers("/api/**").permitAll()
+                // all other API endpoints require authentication (via API key)
+                auth.requestMatchers("/api/**").authenticated()
             }
 
         return http.build()

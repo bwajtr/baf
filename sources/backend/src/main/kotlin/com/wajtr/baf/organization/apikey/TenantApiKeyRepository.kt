@@ -20,6 +20,13 @@ class TenantApiKeyRepository(
     private val dslContext: DSLContext
 ) {
 
+    fun findTenantIdByApiKey(apiKey: String): UUID? {
+        return dslContext.select(TENANT_API_KEY.TENANT_ID)
+            .from(TENANT_API_KEY)
+            .where(TENANT_API_KEY.API_KEY.eq(apiKey))
+            .fetchOne(TENANT_API_KEY.TENANT_ID)
+    }
+
     fun findByTenantId(tenantId: UUID): TenantApiKey? {
         return dslContext.selectFrom(TENANT_API_KEY)
             .where(TENANT_API_KEY.TENANT_ID.eq(tenantId))

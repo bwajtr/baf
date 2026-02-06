@@ -1,0 +1,71 @@
+### =====================================================
+### API requests for manual testing in IntelliJ IDEA
+### =====================================================
+### To run: Open this file in IntelliJ IDEA and click
+### the green play button next to each request.
+###
+### Prerequisites:
+### - Application running on localhost:8080
+### - Test data loaded (example-database-content.sql)
+### =====================================================
+
+### --- Products API (Tenant 1) ---
+
+### Get products for Tenant 1 (valid API key)
+GET http://localhost:8080/api/v1/myproducts
+X-API-Key: TEST_API_KEY_TENANT_1_ABCDEFGHIJKLMNOPRSTUVWXYZ12345
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Response contains products", function() {
+        client.assert(response.body.length > 0, "Expected at least one product");
+    });
+%}
+
+### --- Products API (Tenant 2) ---
+
+### Get products for Tenant 2 (valid API key, different tenant)
+GET http://localhost:8080/api/v1/myproducts
+X-API-Key: TEST_API_KEY_TENANT_2_ABCDEFGHIJKLMNOPRSTUVWXYZ12345
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+    client.test("Response contains products", function() {
+        client.assert(response.body.length > 0, "Expected at least one product");
+    });
+%}
+
+### --- Authentication Error Cases ---
+
+### Request without API key (should return 401)
+GET http://localhost:8080/api/v1/myproducts
+
+> {%
+    client.test("Should return 401 Unauthorized", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}
+
+### Request with invalid API key (should return 401)
+GET http://localhost:8080/api/v1/myproducts
+X-API-Key: THIS_IS_AN_INVALID_API_KEY_THAT_DOES_NOT_EXIST_123
+
+> {%
+    client.test("Should return 401 Unauthorized", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}
+
+### Request with empty API key (should return 401)
+GET http://localhost:8080/api/v1/myproducts
+X-API-Key:
+
+> {%
+    client.test("Should return 401 Unauthorized", function() {
+        client.assert(response.status === 401, "Expected 401, got " + response.status);
+    });
+%}

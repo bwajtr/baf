@@ -1,6 +1,7 @@
 package com.wajtr.baf.user
 
 import com.wajtr.baf.authentication.AuthenticatedTenant
+import com.wajtr.baf.authentication.apikey.TenantApiKeyAuthenticationToken
 import com.wajtr.baf.authentication.oauth2.OAuth2TenantAuthenticationToken
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -31,6 +32,7 @@ class Identity {
         if (authentication != null) {
             return when (authentication) {
                 is AnonymousAuthenticationToken -> throw NoAuthenticatedUserException()
+                is TenantApiKeyAuthenticationToken -> throw NoAuthenticatedUserException() // API key auth has no user
                 is OAuth2TenantAuthenticationToken -> authentication.user // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.principal as User // login page
                 else -> throw UnknownAuthenticationTokenException()
@@ -43,6 +45,7 @@ class Identity {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication != null) {
             return when (authentication) {
+                is TenantApiKeyAuthenticationToken -> authentication.tenant // API key authentication
                 is OAuth2TenantAuthenticationToken -> authentication.tenant // oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.details as AuthenticatedTenant // login page
                 is OAuth2AuthenticationToken -> null // not yet fully authenticated oauth2 login
