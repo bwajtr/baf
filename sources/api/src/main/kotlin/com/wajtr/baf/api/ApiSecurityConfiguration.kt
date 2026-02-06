@@ -1,10 +1,12 @@
 package com.wajtr.baf.api
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.wajtr.baf.user.emailverification.CONFIRM_EMAIL_OWNERSHIP_URL
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.http.MediaType
 import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -18,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain
  */
 @Configuration
 @EnableWebSecurity
-class ApiSecurityConfiguration {
+class ApiSecurityConfiguration(private val objectMapper: ObjectMapper) {
 
     @Bean
     @Order(1)
@@ -38,10 +40,12 @@ class ApiSecurityConfiguration {
             }
             // Set unauthorized requests exception handler
             .exceptionHandling {
-                it.authenticationEntryPoint { _, response, exception ->
-                    response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        exception.message
+                it.authenticationEntryPoint { _, response, _ ->
+                    response.status = HttpServletResponse.SC_UNAUTHORIZED
+                    response.contentType = MediaType.APPLICATION_JSON_VALUE
+                    objectMapper.writeValue(
+                        response.outputStream,
+                        ApiError(status = 401, error = "Unauthorized")
                     )
                 }
             }
