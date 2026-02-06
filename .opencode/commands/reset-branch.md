@@ -6,3 +6,4 @@ Reset the opencode branch:
 1. Run `git branch` to find the main worktree's branch (marked with `+`)
 2. Run `git checkout opencode`
 3. Run `git reset --hard <that branch>` to match it
+4. Run `git status` to confirm the result
