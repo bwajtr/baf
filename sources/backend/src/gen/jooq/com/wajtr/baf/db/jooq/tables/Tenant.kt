@@ -6,10 +6,12 @@ package com.wajtr.baf.db.jooq.tables
 
 import com.wajtr.baf.db.jooq.Public
 import com.wajtr.baf.db.jooq.keys.PRODUCT__PRODUCT_TENANT_ID_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_API_KEY__TENANT_API_KEY_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_PKEY
 import com.wajtr.baf.db.jooq.tables.Product.ProductPath
+import com.wajtr.baf.db.jooq.tables.TenantApiKey.TenantApiKeyPath
 import com.wajtr.baf.db.jooq.tables.TenantMember.TenantMemberPath
 import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation.TenantMemberInvitationPath
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord
@@ -170,6 +172,22 @@ open class Tenant(
 
     val product: ProductPath
         get(): ProductPath = product()
+
+    private lateinit var _tenantApiKey: TenantApiKeyPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.tenant_api_key</code> table
+     */
+    fun tenantApiKey(): TenantApiKeyPath {
+        if (!this::_tenantApiKey.isInitialized)
+            _tenantApiKey = TenantApiKeyPath(this, null, TENANT_API_KEY__TENANT_API_KEY_TENANT_ID_FKEY.inverseKey)
+
+        return _tenantApiKey;
+    }
+
+    val tenantApiKey: TenantApiKeyPath
+        get(): TenantApiKeyPath = tenantApiKey()
 
     private lateinit var _tenantMemberInvitation: TenantMemberInvitationPath
 

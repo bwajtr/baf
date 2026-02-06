@@ -7,6 +7,7 @@ package com.wajtr.baf.db.jooq.indexes
 
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
 import com.wajtr.baf.db.jooq.tables.Product
+import com.wajtr.baf.db.jooq.tables.TenantApiKey
 import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 
 import org.jooq.Index
@@ -21,4 +22,5 @@ import org.jooq.impl.Internal
 
 val FLYWAY_SCHEMA_HISTORY_S_IDX: Index = Internal.createIndex(DSL.name("flyway_schema_history_s_idx"), FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, arrayOf(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.SUCCESS), false)
 val PUBLIC_PRODUCT_TENANT_ID: Index = Internal.createIndex(DSL.name("public_product_tenant_id"), Product.PRODUCT, arrayOf(Product.PRODUCT.TENANT_ID), false)
+val PUBLIC_TENANT_API_KEY_TENANT_ID: Index = Internal.createIndex(DSL.name("public_tenant_api_key_tenant_id"), TenantApiKey.TENANT_API_KEY, arrayOf(TenantApiKey.TENANT_API_KEY.TENANT_ID), false)
 val USER_LOGIN_HISTORY_BY_USER: Index = Internal.createIndex(DSL.name("user_login_history_by_user"), UserLoginHistory.USER_LOGIN_HISTORY, arrayOf(UserLoginHistory.USER_LOGIN_HISTORY.USER_ACCOUNT_ID), false)

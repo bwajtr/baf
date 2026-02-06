@@ -9,6 +9,7 @@ import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses
 import com.wajtr.baf.db.jooq.tables.Product
 import com.wajtr.baf.db.jooq.tables.Tenant
+import com.wajtr.baf.db.jooq.tables.TenantApiKey
 import com.wajtr.baf.db.jooq.tables.TenantMember
 import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 import com.wajtr.baf.db.jooq.tables.UserAccount
@@ -102,6 +103,12 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
     val TENANT: Tenant get() = Tenant.TENANT
 
     /**
+     * API keys for programmatic access to tenant resources. Each tenant has at
+     * most one API key.
+     */
+    val TENANT_API_KEY: TenantApiKey get() = TenantApiKey.TENANT_API_KEY
+
+    /**
      * Contains relation between application users and their roles in tenant.
      * Any role can be assigned to any user. User therefore can have many roles
      * and one role can be assigned to multiple users. Having tenant_id in this
@@ -135,6 +142,7 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
         PgBlockingProcesses.PG_BLOCKING_PROCESSES,
         Product.PRODUCT,
         Tenant.TENANT,
+        TenantApiKey.TENANT_API_KEY,
         TenantMember.TENANT_MEMBER,
         TenantMemberInvitation.TENANT_MEMBER_INVITATION,
         UserAccount.USER_ACCOUNT,

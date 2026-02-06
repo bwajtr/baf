@@ -7,6 +7,7 @@ import com.vaadin.flow.component.sidenav.SideNav
 import com.vaadin.flow.component.sidenav.SideNavItem
 import com.vaadin.flow.server.auth.AccessAnnotationChecker
 import com.wajtr.baf.core.i18n.i18n
+import com.wajtr.baf.ui.views.organization.accesskeys.AccessKeysPage
 import com.wajtr.baf.ui.views.organization.member.MembersPage
 import com.wajtr.baf.ui.views.organization.settings.OrganizationSettingsPage
 import com.wajtr.baf.ui.views.product.ProductsOverviewPage
@@ -37,6 +38,7 @@ class MenuBuilder(
 
         val children = listOfNotNull(
             createItemIfAccessible(MembersPage::class.java, "menu.organization.members", VaadinIcon.USERS),
+            createItemIfAccessible(AccessKeysPage::class.java, "menu.organization.accesskeys", VaadinIcon.KEY),
             createItemIfAccessible(OrganizationSettingsPage::class.java, "menu.organization.settings", VaadinIcon.COG)
         )
 

@@ -8,12 +8,14 @@ package com.wajtr.baf.db.jooq.keys
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
 import com.wajtr.baf.db.jooq.tables.Product
 import com.wajtr.baf.db.jooq.tables.Tenant
+import com.wajtr.baf.db.jooq.tables.TenantApiKey
 import com.wajtr.baf.db.jooq.tables.TenantMember
 import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 import com.wajtr.baf.db.jooq.tables.UserAccount
 import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 import com.wajtr.baf.db.jooq.tables.records.FlywaySchemaHistoryRecord
 import com.wajtr.baf.db.jooq.tables.records.ProductRecord
+import com.wajtr.baf.db.jooq.tables.records.TenantApiKeyRecord
 import com.wajtr.baf.db.jooq.tables.records.TenantMemberInvitationRecord
 import com.wajtr.baf.db.jooq.tables.records.TenantMemberRecord
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord
@@ -35,6 +37,8 @@ import org.jooq.impl.QOM.ForeignKeyRule
 val FLYWAY_SCHEMA_HISTORY_PK: UniqueKey<FlywaySchemaHistoryRecord> = Internal.createUniqueKey(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY, DSL.name("flyway_schema_history_pk"), arrayOf(FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY.INSTALLED_RANK), true)
 val PRODUCT_PKEY: UniqueKey<ProductRecord> = Internal.createUniqueKey(Product.PRODUCT, DSL.name("product_pkey"), arrayOf(Product.PRODUCT.ID), true)
 val TENANT_PKEY: UniqueKey<TenantRecord> = Internal.createUniqueKey(Tenant.TENANT, DSL.name("tenant_pkey"), arrayOf(Tenant.TENANT.ID), true)
+val TENANT_API_KEY_PKEY: UniqueKey<TenantApiKeyRecord> = Internal.createUniqueKey(TenantApiKey.TENANT_API_KEY, DSL.name("tenant_api_key_pkey"), arrayOf(TenantApiKey.TENANT_API_KEY.ID), true)
+val TENANT_API_KEY_TENANT_ID_KEY: UniqueKey<TenantApiKeyRecord> = Internal.createUniqueKey(TenantApiKey.TENANT_API_KEY, DSL.name("tenant_api_key_tenant_id_key"), arrayOf(TenantApiKey.TENANT_API_KEY.TENANT_ID), true)
 val TENANT_MEMBER_PK: UniqueKey<TenantMemberRecord> = Internal.createUniqueKey(TenantMember.TENANT_MEMBER, DSL.name("tenant_member_pk"), arrayOf(TenantMember.TENANT_MEMBER.USER_ID, TenantMember.TENANT_MEMBER.ROLE, TenantMember.TENANT_MEMBER.TENANT_ID), true)
 val TENANT_MEMBER_INVITATION_EMAIL_KEY: UniqueKey<TenantMemberInvitationRecord> = Internal.createUniqueKey(TenantMemberInvitation.TENANT_MEMBER_INVITATION, DSL.name("tenant_member_invitation_email_key"), arrayOf(TenantMemberInvitation.TENANT_MEMBER_INVITATION.EMAIL), true)
 val TENANT_MEMBER_INVITATION_PKEY: UniqueKey<TenantMemberInvitationRecord> = Internal.createUniqueKey(TenantMemberInvitation.TENANT_MEMBER_INVITATION, DSL.name("tenant_member_invitation_pkey"), arrayOf(TenantMemberInvitation.TENANT_MEMBER_INVITATION.ID), true)
@@ -46,6 +50,7 @@ val USER_ACCOUNT_PKEY: UniqueKey<UserAccountRecord> = Internal.createUniqueKey(U
 // -------------------------------------------------------------------------
 
 val PRODUCT__PRODUCT_TENANT_ID_FKEY: ForeignKey<ProductRecord, TenantRecord> = Internal.createForeignKey(Product.PRODUCT, DSL.name("product_tenant_id_fkey"), arrayOf(Product.PRODUCT.TENANT_ID), com.wajtr.baf.db.jooq.keys.TENANT_PKEY, arrayOf(Tenant.TENANT.ID), true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION)
+val TENANT_API_KEY__TENANT_API_KEY_TENANT_ID_FKEY: ForeignKey<TenantApiKeyRecord, TenantRecord> = Internal.createForeignKey(TenantApiKey.TENANT_API_KEY, DSL.name("tenant_api_key_tenant_id_fkey"), arrayOf(TenantApiKey.TENANT_API_KEY.TENANT_ID), com.wajtr.baf.db.jooq.keys.TENANT_PKEY, arrayOf(Tenant.TENANT.ID), true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION)
 val TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY: ForeignKey<TenantMemberRecord, TenantRecord> = Internal.createForeignKey(TenantMember.TENANT_MEMBER, DSL.name("tenant_member_tenant_id_fkey"), arrayOf(TenantMember.TENANT_MEMBER.TENANT_ID), com.wajtr.baf.db.jooq.keys.TENANT_PKEY, arrayOf(Tenant.TENANT.ID), true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION)
 val TENANT_MEMBER__TENANT_MEMBER_USER_ID_FKEY: ForeignKey<TenantMemberRecord, UserAccountRecord> = Internal.createForeignKey(TenantMember.TENANT_MEMBER, DSL.name("tenant_member_user_id_fkey"), arrayOf(TenantMember.TENANT_MEMBER.USER_ID), com.wajtr.baf.db.jooq.keys.USER_ACCOUNT_PKEY, arrayOf(UserAccount.USER_ACCOUNT.ID), true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION)
 val TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_INVITED_BY_FKEY: ForeignKey<TenantMemberInvitationRecord, UserAccountRecord> = Internal.createForeignKey(TenantMemberInvitation.TENANT_MEMBER_INVITATION, DSL.name("tenant_member_invitation_invited_by_fkey"), arrayOf(TenantMemberInvitation.TENANT_MEMBER_INVITATION.INVITED_BY), com.wajtr.baf.db.jooq.keys.USER_ACCOUNT_PKEY, arrayOf(UserAccount.USER_ACCOUNT.ID), true, ForeignKeyRule.SET_NULL, ForeignKeyRule.NO_ACTION)
