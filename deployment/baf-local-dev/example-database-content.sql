@@ -18,7 +18,7 @@ $$
         VALUES (developer_tenant_1_id, 'Development Tenant 1', FALSE, 'Highlands 1/25, Prague', 'CZ'),
                (developer_tenant_2_id, 'Development Tenant 2', FALSE, 'Highlands 1/25, Prague', 'CZ');
 
-        INSERT INTO app_user (id, name, email, password, email_verified, created_at)
+        INSERT INTO user_account (id, name, email, password, email_verified, created_at)
         VALUES (joe_user_id, 'Joe User', 'joe.user@acme.com',
                 encrypted_default_user_password, TRUE, current_timestamp - interval '2 days'),
                (jane_admin_id, 'Jane Admin', 'jane.admin@acme.com',
@@ -28,7 +28,7 @@ $$
                (developer_tenant_2_owner_id, 'William Owner', 'william.owner@acme.com',
                 encrypted_default_user_password, TRUE, current_timestamp - interval '5 days');
 
-        INSERT INTO app_user_role_tenant (user_id, role, tenant_id)
+        INSERT INTO tenant_member (user_id, role, tenant_id)
         VALUES (joe_user_id, 'USER', developer_tenant_1_id),
                (jane_admin_id, 'ADMIN', developer_tenant_1_id),
                (jane_admin_id, 'USER', developer_tenant_2_id),
@@ -38,14 +38,14 @@ $$
                (developer_tenant_2_owner_id, 'OWNER', developer_tenant_2_id),
                (developer_tenant_2_owner_id, 'BILLING_MANAGER', developer_tenant_2_id);
 
-        INSERT INTO user_login_log (app_user_id, event_timestamp, browser, device_type, operating_system, ip_address)
+        INSERT INTO user_login_history (user_account_id, event_timestamp, browser, device_type, operating_system, ip_address)
         VALUES (joe_user_id, current_timestamp - interval '1 day', 'Chrome 90', 'Desktop', 'Windows 10', '127.0.0.1'),
                (jane_admin_id, current_timestamp - interval '2 days', 'Firefox 88', 'Laptop', 'Ubuntu 20.04',
                 '127.0.0.1'),
                (developer_tenant_1_owner_id, current_timestamp - interval '3 days', 'Safari 14', 'Tablet', 'iOS 14',
                 '127.0.0.1');
 
-        INSERT INTO member_invitation (id, email, tenant_id, invited_by, last_invitation_sent_time, role)
+        INSERT INTO tenant_member_invitation (id, email, tenant_id, invited_by, last_invitation_sent_time, role)
         VALUES ('019b5afd-3566-7f26-92b1-b63c7a6eae54'::UUID, 'invited1@acme.com', developer_tenant_1_id,
                 developer_tenant_1_owner_id, current_timestamp, 'USER'),
                ('019b5afd-6774-7dd5-b2d1-b0f34c3e2b7c'::UUID, 'invited2@acme.com', developer_tenant_1_id,

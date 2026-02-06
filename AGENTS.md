@@ -384,7 +384,7 @@ class MembersPage(
   - Accept `locale: Locale` and `zoneId: ZoneId` as **required parameters** (not optional with system defaults)
   - Use these parameters when formatting dates, times, and localized messages
 - **For background tasks** (scheduled jobs, async processing) where UI context is not available:
-  - Use user's stored preferences from the `app_user` table: `preferred_locale` and `preferred_timezone_id` columns
+  - Use user's stored preferences from the `user_account` table: `preferred_locale` and `preferred_timezone_id` columns
   - These values are persisted when the user logs in or updates their preferences
   - Fall back to sensible defaults (e.g., `Locale.ENGLISH`, `ZoneId.of("UTC")`) only if user preferences are null
 - Example:

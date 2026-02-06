@@ -41,24 +41,24 @@ class MemberInvitationRepository(
 
     fun getAllInvitations(): List<MemberInvitation> {
         return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
+            TENANT_MEMBER_INVITATION.ID,
+            TENANT_MEMBER_INVITATION.EMAIL,
+            TENANT_MEMBER_INVITATION.ROLE,
         )
-            .from(MEMBER_INVITATION)
-            .where(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
+            .from(TENANT_MEMBER_INVITATION)
+            .where(TENANT_MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
             .fetch { record ->
                 MemberInvitation(
-                    id = record.get(MEMBER_INVITATION.ID)!!,
-                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
-                    role = record.get(MEMBER_INVITATION.ROLE)!!,
+                    id = record.get(TENANT_MEMBER_INVITATION.ID)!!,
+                    email = record.get(TENANT_MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(TENANT_MEMBER_INVITATION.ROLE)!!,
                 )
             }
     }
 
     fun deleteInvitationById(invitationId: UUID): Int {
-        return dslContext.deleteFrom(MEMBER_INVITATION)
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
+        return dslContext.deleteFrom(TENANT_MEMBER_INVITATION)
+            .where(TENANT_MEMBER_INVITATION.ID.eq(invitationId))
             .execute()
     }
 
@@ -68,21 +68,21 @@ class MemberInvitationRepository(
             throw IllegalArgumentException("Only owners can invite new owners")
         }
 
-        return dslContext.insertInto(MEMBER_INVITATION)
-            .set(MEMBER_INVITATION.EMAIL, email.lowercase().trim())
-            .set(MEMBER_INVITATION.ROLE, role)
-            .set(MEMBER_INVITATION.TENANT_ID, tenantId)
-            .set(MEMBER_INVITATION.INVITED_BY, invitedBy)
-            .returning(MEMBER_INVITATION.ID)
+        return dslContext.insertInto(TENANT_MEMBER_INVITATION)
+            .set(TENANT_MEMBER_INVITATION.EMAIL, email.lowercase().trim())
+            .set(TENANT_MEMBER_INVITATION.ROLE, role)
+            .set(TENANT_MEMBER_INVITATION.TENANT_ID, tenantId)
+            .set(TENANT_MEMBER_INVITATION.INVITED_BY, invitedBy)
+            .returning(TENANT_MEMBER_INVITATION.ID)
             .fetchOne()!!
-            .get(MEMBER_INVITATION.ID)!!
+            .get(TENANT_MEMBER_INVITATION.ID)!!
     }
 
     fun emailAlreadyInvited(email: String): Boolean {
         return dslContext.fetchExists(
-            dslContext.selectFrom(MEMBER_INVITATION)
-                .where(MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
-                .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
+            dslContext.selectFrom(TENANT_MEMBER_INVITATION)
+                .where(TENANT_MEMBER_INVITATION.EMAIL.equalIgnoreCase(email.trim()))
+                .and((TENANT_MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
         )
     }
 
@@ -90,73 +90,73 @@ class MemberInvitationRepository(
         val tenantId = identity.authenticatedTenant?.id ?: return false
         return dslContext.fetchExists(
             dslContext.select()
-                .from(APP_USER)
-                .join(APP_USER_ROLE_TENANT).on(APP_USER.ID.eq(APP_USER_ROLE_TENANT.USER_ID))
-                .where(APP_USER.EMAIL.equalIgnoreCase(email.trim()))
-                .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+                .from(USER_ACCOUNT)
+                .join(TENANT_MEMBER).on(USER_ACCOUNT.ID.eq(TENANT_MEMBER.USER_ID))
+                .where(USER_ACCOUNT.EMAIL.equalIgnoreCase(email.trim()))
+                .and(TENANT_MEMBER.TENANT_ID.eq(tenantId))
         )
     }
 
     fun getInvitationById(invitationId: UUID): MemberInvitationDetails? {
         return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
-            MEMBER_INVITATION.CREATED_AT,
-            APP_USER.NAME
+            TENANT_MEMBER_INVITATION.ID,
+            TENANT_MEMBER_INVITATION.EMAIL,
+            TENANT_MEMBER_INVITATION.ROLE,
+            TENANT_MEMBER_INVITATION.CREATED_AT,
+            USER_ACCOUNT.NAME
         )
-            .from(MEMBER_INVITATION)
-            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
+            .from(TENANT_MEMBER_INVITATION)
+            .leftJoin(USER_ACCOUNT).on(TENANT_MEMBER_INVITATION.INVITED_BY.eq(USER_ACCOUNT.ID))
+            .where(TENANT_MEMBER_INVITATION.ID.eq(invitationId))
+            .and((TENANT_MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .fetchOne { record ->
                 MemberInvitationDetails(
-                    id = record.get(MEMBER_INVITATION.ID)!!,
-                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
-                    role = record.get(MEMBER_INVITATION.ROLE)!!,
-                    createdAt = record.get(MEMBER_INVITATION.CREATED_AT)!!,
-                    invitedByName = record.get(APP_USER.NAME),
+                    id = record.get(TENANT_MEMBER_INVITATION.ID)!!,
+                    email = record.get(TENANT_MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(TENANT_MEMBER_INVITATION.ROLE)!!,
+                    createdAt = record.get(TENANT_MEMBER_INVITATION.CREATED_AT)!!,
+                    invitedByName = record.get(USER_ACCOUNT.NAME),
                 )
             }
     }
 
     fun updateRole(invitationId: UUID, role: String): Int {
-        return dslContext.update(MEMBER_INVITATION)
-            .set(MEMBER_INVITATION.ROLE, role)
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and((MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
+        return dslContext.update(TENANT_MEMBER_INVITATION)
+            .set(TENANT_MEMBER_INVITATION.ROLE, role)
+            .where(TENANT_MEMBER_INVITATION.ID.eq(invitationId))
+            .and((TENANT_MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id)))
             .execute()
     }
 
     fun updateLastInvitationSentTime(invitationId: UUID): Int {
-        return dslContext.update(MEMBER_INVITATION)
-            .set(MEMBER_INVITATION.LAST_INVITATION_SENT_TIME, OffsetDateTime.now())
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
-            .and(MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
+        return dslContext.update(TENANT_MEMBER_INVITATION)
+            .set(TENANT_MEMBER_INVITATION.LAST_INVITATION_SENT_TIME, OffsetDateTime.now())
+            .where(TENANT_MEMBER_INVITATION.ID.eq(invitationId))
+            .and(TENANT_MEMBER_INVITATION.TENANT_ID.eq(identity.authenticatedTenant?.id))
             .execute()
     }
 
     fun getInvitationForAcceptance(invitationId: UUID): InvitationAcceptanceDetails? {
         return dslContext.select(
-            MEMBER_INVITATION.ID,
-            MEMBER_INVITATION.EMAIL,
-            MEMBER_INVITATION.ROLE,
-            MEMBER_INVITATION.TENANT_ID,
+            TENANT_MEMBER_INVITATION.ID,
+            TENANT_MEMBER_INVITATION.EMAIL,
+            TENANT_MEMBER_INVITATION.ROLE,
+            TENANT_MEMBER_INVITATION.TENANT_ID,
             TENANT.ORGANIZATION_NAME,
-            APP_USER.NAME
+            USER_ACCOUNT.NAME
         )
-            .from(MEMBER_INVITATION)
-            .join(TENANT).on(MEMBER_INVITATION.TENANT_ID.eq(TENANT.ID))
-            .leftJoin(APP_USER).on(MEMBER_INVITATION.INVITED_BY.eq(APP_USER.ID))
-            .where(MEMBER_INVITATION.ID.eq(invitationId))
+            .from(TENANT_MEMBER_INVITATION)
+            .join(TENANT).on(TENANT_MEMBER_INVITATION.TENANT_ID.eq(TENANT.ID))
+            .leftJoin(USER_ACCOUNT).on(TENANT_MEMBER_INVITATION.INVITED_BY.eq(USER_ACCOUNT.ID))
+            .where(TENANT_MEMBER_INVITATION.ID.eq(invitationId))
             .fetchOne { record ->
                 InvitationAcceptanceDetails(
-                    id = record.get(MEMBER_INVITATION.ID)!!,
-                    email = record.get(MEMBER_INVITATION.EMAIL)!!,
-                    role = record.get(MEMBER_INVITATION.ROLE)!!,
-                    tenantId = record.get(MEMBER_INVITATION.TENANT_ID)!!,
+                    id = record.get(TENANT_MEMBER_INVITATION.ID)!!,
+                    email = record.get(TENANT_MEMBER_INVITATION.EMAIL)!!,
+                    role = record.get(TENANT_MEMBER_INVITATION.ROLE)!!,
+                    tenantId = record.get(TENANT_MEMBER_INVITATION.TENANT_ID)!!,
                     organizationName = record.get(TENANT.ORGANIZATION_NAME)!!,
-                    invitedByName = record.get(APP_USER.NAME),
+                    invitedByName = record.get(USER_ACCOUNT.NAME),
                 )
             }
     }

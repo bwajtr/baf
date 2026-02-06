@@ -1,12 +1,12 @@
--- this trigger function simply removes all users from app_user table which are not assigned to any tenant
+-- this trigger function simply removes all users from user_account table which are not assigned to any tenant
 -- If last tenant of a user is deleted, the user is removed as well
 CREATE OR REPLACE FUNCTION clear_user_garbage_after_tenant_deleted_trigger_func()
   RETURNS TRIGGER AS $$
 BEGIN
-  DELETE FROM app_user
+  DELETE FROM user_account
   WHERE id IN (SELECT u.id
-               FROM app_user u
-                 LEFT JOIN app_user_role_tenant ut ON u.id = ut.user_id
+               FROM user_account u
+                 LEFT JOIN tenant_member ut ON u.id = ut.user_id
                WHERE ut.tenant_id IS NULL);
 
   RETURN OLD;
@@ -23,4 +23,3 @@ CREATE TRIGGER clear_user_garbage_after_tenant_deleted
   ON tenant
   FOR EACH STATEMENT
 EXECUTE PROCEDURE clear_user_garbage_after_tenant_deleted_trigger_func();
-

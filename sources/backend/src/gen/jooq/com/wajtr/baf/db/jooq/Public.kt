@@ -4,15 +4,15 @@
 package com.wajtr.baf.db.jooq
 
 
-import com.wajtr.baf.db.jooq.tables.AppUser
-import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant
+import com.wajtr.baf.db.jooq.tables.UserAccount
+import com.wajtr.baf.db.jooq.tables.TenantMember
 import com.wajtr.baf.db.jooq.tables.AuthenticateUser
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
-import com.wajtr.baf.db.jooq.tables.MemberInvitation
+import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses
 import com.wajtr.baf.db.jooq.tables.Product
 import com.wajtr.baf.db.jooq.tables.Tenant
-import com.wajtr.baf.db.jooq.tables.UserLoginLog
+import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 import com.wajtr.baf.db.jooq.tables.records.AuthenticateUserRecord
 
 import kotlin.collections.List
@@ -40,9 +40,9 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
     }
 
     /**
-     * The table <code>public.app_user</code>.
+     * The table <code>public.user_account</code>.
      */
-    val APP_USER: AppUser get() = AppUser.APP_USER
+    val USER_ACCOUNT: UserAccount get() = UserAccount.USER_ACCOUNT
 
     /**
      * Contains relation between application users and their roles in tenant.
@@ -51,7 +51,7 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
      * table also makes it possible to support scenario, where single user
      * operates within two tenants and has different roles in each tenant.
      */
-    val APP_USER_ROLE_TENANT: AppUserRoleTenant get() = AppUserRoleTenant.APP_USER_ROLE_TENANT
+    val TENANT_MEMBER: TenantMember get() = TenantMember.TENANT_MEMBER
 
     /**
      * The table <code>public.authenticate_user</code>.
@@ -101,7 +101,7 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
      * Table holding invitations to join tenant accounts (created typically by
      * user administrators)
      */
-    val MEMBER_INVITATION: MemberInvitation get() = MemberInvitation.MEMBER_INVITATION
+    val TENANT_MEMBER_INVITATION: TenantMemberInvitation get() = TenantMemberInvitation.TENANT_MEMBER_INVITATION
 
     /**
      * The table <code>public.pg_blocking_processes</code>.
@@ -125,19 +125,19 @@ open class Public : SchemaImpl(DSL.name("public"), DefaultCatalog.DEFAULT_CATALO
      * Table holding user login events - new record with a timestamp is added to
      * this table when any user successfully logs into the application.
      */
-    val USER_LOGIN_LOG: UserLoginLog get() = UserLoginLog.USER_LOGIN_LOG
+    val USER_LOGIN_HISTORY: UserLoginHistory get() = UserLoginHistory.USER_LOGIN_HISTORY
 
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 
     override fun getTables(): List<Table<*>> = listOf(
-        AppUser.APP_USER,
-        AppUserRoleTenant.APP_USER_ROLE_TENANT,
+        UserAccount.USER_ACCOUNT,
+        TenantMember.TENANT_MEMBER,
         AuthenticateUser.AUTHENTICATE_USER,
         FlywaySchemaHistory.FLYWAY_SCHEMA_HISTORY,
-        MemberInvitation.MEMBER_INVITATION,
+        TenantMemberInvitation.TENANT_MEMBER_INVITATION,
         PgBlockingProcesses.PG_BLOCKING_PROCESSES,
         Product.PRODUCT,
         Tenant.TENANT,
-        UserLoginLog.USER_LOGIN_LOG
+        UserLoginHistory.USER_LOGIN_HISTORY
     )
 }

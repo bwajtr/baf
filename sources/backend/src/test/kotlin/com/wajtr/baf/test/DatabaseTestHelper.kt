@@ -71,8 +71,8 @@ class DatabaseTestHelper(
     @Transactional
     fun truncateAllTables() {
         dslContext.execute(
-            "TRUNCATE TABLE member_invitation, product, user_login_log, " +
-                    "app_user_role_tenant, app_user, tenant CASCADE"
+            "TRUNCATE TABLE tenant_member_invitation, product, user_login_history, " +
+                    "tenant_member, user_account, tenant CASCADE"
         )
     }
 }

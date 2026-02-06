@@ -4,7 +4,7 @@
 package com.wajtr.baf.db.jooq.tables.records
 
 
-import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant
+import com.wajtr.baf.db.jooq.tables.TenantMember
 
 import java.util.UUID
 
@@ -20,7 +20,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * tenants and has different roles in each tenant.
  */
 @Suppress("warnings")
-open class AppUserRoleTenantRecord() : UpdatableRecordImpl<AppUserRoleTenantRecord>(AppUserRoleTenant.APP_USER_ROLE_TENANT) {
+open class TenantMemberRecord() : UpdatableRecordImpl<TenantMemberRecord>(TenantMember.TENANT_MEMBER) {
 
     open var userId: UUID?
         set(value): Unit = set(0, value)
@@ -41,7 +41,7 @@ open class AppUserRoleTenantRecord() : UpdatableRecordImpl<AppUserRoleTenantReco
     override fun key(): Record3<UUID?, String?, UUID?> = super.key() as Record3<UUID?, String?, UUID?>
 
     /**
-     * Create a detached, initialised AppUserRoleTenantRecord
+     * Create a detached, initialised TenantMemberRecord
      */
     constructor(userId: UUID? = null, role: String? = null, tenantId: UUID? = null): this() {
         this.userId = userId

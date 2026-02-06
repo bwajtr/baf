@@ -1,6 +1,6 @@
 package com.wajtr.baf.authentication
 
-import com.wajtr.baf.db.jooq.tables.references.APP_USER_ROLE_TENANT
+import com.wajtr.baf.db.jooq.tables.references.TENANT_MEMBER
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext
@@ -21,18 +21,18 @@ class AuthenticationDetailsService(
 
         // if desiredTenantId is null then get the first tenant associated with this user
         val tenantId = desiredTenantId ?: dslContext
-            .select(APP_USER_ROLE_TENANT.TENANT_ID)
-            .from(APP_USER_ROLE_TENANT)
-            .where(APP_USER_ROLE_TENANT.USER_ID.eq(user.id))
+            .select(TENANT_MEMBER.TENANT_ID)
+            .from(TENANT_MEMBER)
+            .where(TENANT_MEMBER.USER_ID.eq(user.id))
             .limit(1)
-            .fetchOne(APP_USER_ROLE_TENANT.TENANT_ID) ?: throw NoTenantFoundException(email)
+            .fetchOne(TENANT_MEMBER.TENANT_ID) ?: throw NoTenantFoundException(email)
 
         // Load all roles for this user and tenant
         val roles = dslContext
-            .select(APP_USER_ROLE_TENANT.ROLE)
-            .from(APP_USER_ROLE_TENANT)
-            .where(APP_USER_ROLE_TENANT.USER_ID.eq(user.id))
-            .and(APP_USER_ROLE_TENANT.TENANT_ID.eq(tenantId))
+            .select(TENANT_MEMBER.ROLE)
+            .from(TENANT_MEMBER)
+            .where(TENANT_MEMBER.USER_ID.eq(user.id))
+            .and(TENANT_MEMBER.TENANT_ID.eq(tenantId))
             .fetch()
             .map { record -> SimpleGrantedAuthority("ROLE_${record.value1()}") }
             .toSet()

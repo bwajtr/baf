@@ -5,12 +5,12 @@ package com.wajtr.baf.db.jooq.tables
 
 
 import com.wajtr.baf.db.jooq.Public
-import com.wajtr.baf.db.jooq.keys.APP_USER_ROLE_TENANT__APP_USER_ROLE_TENANT_TENANT_ID_FKEY
-import com.wajtr.baf.db.jooq.keys.MEMBER_INVITATION__MEMBER_INVITATION_TENANT_ID_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY
+import com.wajtr.baf.db.jooq.keys.TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.PRODUCT__PRODUCT_TENANT_ID_FKEY
 import com.wajtr.baf.db.jooq.keys.TENANT_PKEY
-import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant.AppUserRoleTenantPath
-import com.wajtr.baf.db.jooq.tables.MemberInvitation.MemberInvitationPath
+import com.wajtr.baf.db.jooq.tables.TenantMember.TenantMemberPath
+import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation.TenantMemberInvitationPath
 import com.wajtr.baf.db.jooq.tables.Product.ProductPath
 import com.wajtr.baf.db.jooq.tables.records.TenantRecord
 
@@ -155,37 +155,37 @@ open class Tenant(
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
     override fun getPrimaryKey(): UniqueKey<TenantRecord> = TENANT_PKEY
 
-    private lateinit var _appUserRoleTenant: AppUserRoleTenantPath
+    private lateinit var _tenantMember: TenantMemberPath
 
     /**
      * Get the implicit to-many join path to the
-     * <code>public.app_user_role_tenant</code> table
+     * <code>public.tenant_member</code> table
      */
-    fun appUserRoleTenant(): AppUserRoleTenantPath {
-        if (!this::_appUserRoleTenant.isInitialized)
-            _appUserRoleTenant = AppUserRoleTenantPath(this, null, APP_USER_ROLE_TENANT__APP_USER_ROLE_TENANT_TENANT_ID_FKEY.inverseKey)
+    fun tenantMember(): TenantMemberPath {
+        if (!this::_tenantMember.isInitialized)
+            _tenantMember = TenantMemberPath(this, null, TENANT_MEMBER__TENANT_MEMBER_TENANT_ID_FKEY.inverseKey)
 
-        return _appUserRoleTenant;
+        return _tenantMember;
     }
 
-    val appUserRoleTenant: AppUserRoleTenantPath
-        get(): AppUserRoleTenantPath = appUserRoleTenant()
+    val tenantMember: TenantMemberPath
+        get(): TenantMemberPath = tenantMember()
 
-    private lateinit var _memberInvitation: MemberInvitationPath
+    private lateinit var _tenantMemberInvitation: TenantMemberInvitationPath
 
     /**
      * Get the implicit to-many join path to the
-     * <code>public.member_invitation</code> table
+     * <code>public.tenant_member_invitation</code> table
      */
-    fun memberInvitation(): MemberInvitationPath {
-        if (!this::_memberInvitation.isInitialized)
-            _memberInvitation = MemberInvitationPath(this, null, MEMBER_INVITATION__MEMBER_INVITATION_TENANT_ID_FKEY.inverseKey)
+    fun tenantMemberInvitation(): TenantMemberInvitationPath {
+        if (!this::_tenantMemberInvitation.isInitialized)
+            _tenantMemberInvitation = TenantMemberInvitationPath(this, null, TENANT_MEMBER_INVITATION__TENANT_MEMBER_INVITATION_TENANT_ID_FKEY.inverseKey)
 
-        return _memberInvitation;
+        return _tenantMemberInvitation;
     }
 
-    val memberInvitation: MemberInvitationPath
-        get(): MemberInvitationPath = memberInvitation()
+    val tenantMemberInvitation: TenantMemberInvitationPath
+        get(): TenantMemberInvitationPath = tenantMemberInvitation()
 
     private lateinit var _product: ProductPath
 

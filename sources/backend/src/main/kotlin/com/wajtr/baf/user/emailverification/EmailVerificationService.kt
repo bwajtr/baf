@@ -1,6 +1,6 @@
 package com.wajtr.baf.user.emailverification
 
-import com.wajtr.baf.db.jooq.tables.references.APP_USER
+import com.wajtr.baf.db.jooq.tables.references.USER_ACCOUNT
 import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.user.emailverification.EmailVerificationConfirmationResult.TOKEN_VALID
 import com.wajtr.baf.user.emailverification.EmailVerificationTokenCreationStatus.*
@@ -109,8 +109,8 @@ class EmailVerificationService(
         } catch (_: IllegalArgumentException) {
             return EmailVerificationConfirmationResult.TOKEN_INVALID
         }
-        val userId = create.select(APP_USER.ID).from(APP_USER)
-            .where(APP_USER.EMAIL_VERIFICATION_TOKEN.eq(uuidToken))
+        val userId = create.select(USER_ACCOUNT.ID).from(USER_ACCOUNT)
+            .where(USER_ACCOUNT.EMAIL_VERIFICATION_TOKEN.eq(uuidToken))
             .fetchOneInto(UUID::class.java)
 
         return if (userId != null) {

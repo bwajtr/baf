@@ -3,10 +3,10 @@ package com.wajtr.baf.user.registration
 import com.wajtr.baf.core.tenants.Tenant
 import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.db.jooq.routines.EncryptPassword
-import com.wajtr.baf.db.jooq.tables.AppUser
+import com.wajtr.baf.db.jooq.tables.UserAccount
 import com.wajtr.baf.organization.member.UserRole.OWNER_ROLE
 import com.wajtr.baf.organization.member.UserRoleTenant
-import com.wajtr.baf.organization.member.UserRoleTenantRepository
+import com.wajtr.baf.organization.member.TenantMemberRepository
 import com.wajtr.baf.user.AccountStatusCheckResult
 import com.wajtr.baf.user.UserRepository
 import org.jooq.DSLContext
@@ -52,7 +52,7 @@ interface UserRegistrationService {
 @Service
 @Transactional
 class UserRegistrationServiceImpl(
-    private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val tenantMemberRepository: TenantMemberRepository,
     private val create: DSLContext,
     private val userRepository: UserRepository,
     private val tenantRepository: TenantRepository
@@ -71,7 +71,7 @@ class UserRegistrationServiceImpl(
         if (result is UserRegistrationSuccess) {
             val roles = initialTenantOwnerRolesCollection()
             for (role in roles) {
-                userRoleTenantRepository.insertRole(
+                tenantMemberRepository.insertRole(
                     UserRoleTenant(
                         result.userId,
                         role,
@@ -129,14 +129,14 @@ class UserRegistrationServiceImpl(
             ?: throw IllegalStateException("Failed to encrypt password")
 
         // Create the user in database
-        create.insertInto(AppUser.APP_USER)
-            .set(AppUser.APP_USER.ID, userId)
-            .set(AppUser.APP_USER.NAME, name)
-            .set(AppUser.APP_USER.EMAIL, email)
-            .set(AppUser.APP_USER.PASSWORD, encryptedPassword)
-            .set(AppUser.APP_USER.EMAIL_VERIFIED, false)
-            .set(AppUser.APP_USER.PREFERRED_LOCALE, preferredLocale)
-            .set(AppUser.APP_USER.PREFERRED_TIMEZONE_ID, preferredTimezoneId)
+        create.insertInto(UserAccount.USER_ACCOUNT)
+            .set(UserAccount.USER_ACCOUNT.ID, userId)
+            .set(UserAccount.USER_ACCOUNT.NAME, name)
+            .set(UserAccount.USER_ACCOUNT.EMAIL, email)
+            .set(UserAccount.USER_ACCOUNT.PASSWORD, encryptedPassword)
+            .set(UserAccount.USER_ACCOUNT.EMAIL_VERIFIED, false)
+            .set(UserAccount.USER_ACCOUNT.PREFERRED_LOCALE, preferredLocale)
+            .set(UserAccount.USER_ACCOUNT.PREFERRED_TIMEZONE_ID, preferredTimezoneId)
             .execute()
 
         // Return success result

@@ -22,7 +22,7 @@ import com.wajtr.baf.organization.invitation.MemberInvitationService
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.MemberOperationResult
 import com.wajtr.baf.organization.member.UserRole
-import com.wajtr.baf.organization.member.UserRoleTenantRepository
+import com.wajtr.baf.organization.member.TenantMemberRepository
 import com.wajtr.baf.ui.base.MainLayout
 import com.wajtr.baf.ui.base.ViewToolbar
 import com.wajtr.baf.ui.components.MainLayoutPage
@@ -53,7 +53,7 @@ sealed interface MemberGridItem {
 @Route(MEMBERS_PAGE, layout = MainLayout::class)
 class MembersPage(
     private val identity: Identity,
-    private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val tenantMemberRepository: TenantMemberRepository,
     private val userRepository: UserRepository,
     private val authenticationContext: AuthenticationContext,
     private val memberInvitationService: MemberInvitationService,
@@ -321,7 +321,7 @@ class MembersPage(
      * @param tenantId The unique identifier of the tenant (organization) the user is leaving.
      */
     private fun leaveOrganization(userId: UUID, tenantId: UUID) {
-        userRoleTenantRepository.removeUserFromTenant(userId, tenantId)
+        tenantMemberRepository.removeUserFromTenant(userId, tenantId)
         authenticationContext.logout()
     }
 
@@ -335,7 +335,7 @@ class MembersPage(
      */
     private fun removeUserFromOrganization(userId: UUID, tenantId: UUID) {
         // Remove user from this tenant
-        userRoleTenantRepository.removeUserFromTenant(userId, tenantId)
+        tenantMemberRepository.removeUserFromTenant(userId, tenantId)
 
         // Check if user is member of other tenants and if not remove user completely
         val userTenants = userRepository.resolveTenantIdsOfUser(userId)
@@ -365,11 +365,11 @@ class MembersPage(
             ?: throw IllegalStateException("No authenticated tenant found")
 
         // Load active members
-        val userIds = userRoleTenantRepository.getUserIdsForTenant(tenant.id)
+        val userIds = tenantMemberRepository.getUserIdsForTenant(tenant.id)
         val activeMembers = userIds.mapNotNull { userId ->
             val user = userRepository.findById(userId)
             if (user != null) {
-                val roles = userRoleTenantRepository.getRolesForUserInTenant(userId, tenant.id)
+                val roles = tenantMemberRepository.getRolesForUserInTenant(userId, tenant.id)
                 MemberGridItem.ActiveMember(user, roles)
             } else {
                 null

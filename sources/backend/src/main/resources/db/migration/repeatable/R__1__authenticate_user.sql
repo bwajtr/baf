@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION authenticate_user(p_email TEXT, p_password TEXT)
   RETURNS TABLE(STATUS TEXT)
 AS $$
 DECLARE
-  user_row app_user%ROWTYPE;
+  user_row user_account%ROWTYPE;
 
 BEGIN
   -- preconditions
@@ -19,7 +19,7 @@ BEGIN
 
   SELECT *
   INTO user_row
-  FROM app_user u
+  FROM user_account u
   WHERE lower(u.email) = lower(p_email);  -- we want case insensitivity on emails (jane@gmail.com is same account as JANE@gmail.com)
 
   IF (user_row.id IS NOT NULL)

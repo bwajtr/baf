@@ -19,7 +19,7 @@ import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.organization.delete.OrganizationDeletedMailSender
-import com.wajtr.baf.organization.member.UserRoleTenantRepository
+import com.wajtr.baf.organization.member.TenantMemberRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -30,7 +30,7 @@ class DeleteOrganizationComponent(
     private val identity: Identity,
     private val tenantRepository: TenantRepository,
     private val userRepository: UserRepository,
-    private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val tenantMemberRepository: TenantMemberRepository,
     private val authenticationContext: AuthenticationContext,
     private val organizationDeletedMailSender: OrganizationDeletedMailSender
 ) : VerticalLayout() {
@@ -91,7 +91,7 @@ class DeleteOrganizationComponent(
         val zoneId = UI.getCurrent().page.extendedClientDetails.timeZone
 
         // Get all user IDs in this tenant and collect their email addresses
-        val userIds = userRoleTenantRepository.getUserIdsForTenant(tenant.id!!)
+        val userIds = tenantMemberRepository.getUserIdsForTenant(tenant.id!!)
         val userEmails = userIds.mapNotNull { userId ->
             userRepository.findById(userId)?.email
         }

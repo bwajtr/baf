@@ -7,7 +7,7 @@ import com.wajtr.baf.core.tenants.TenantRepository
 import com.wajtr.baf.organization.member.MemberManagementService
 import com.wajtr.baf.organization.member.UserRole
 import com.wajtr.baf.organization.member.UserRoleTenant
-import com.wajtr.baf.organization.member.UserRoleTenantRepository
+import com.wajtr.baf.organization.member.TenantMemberRepository
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.User
 import com.wajtr.baf.user.validation.EmailValidator
@@ -43,7 +43,7 @@ sealed class ResendInvitationResult {
 @Transactional
 class MemberInvitationService(
     private val memberInvitationRepository: MemberInvitationRepository,
-    private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val tenantMemberRepository: TenantMemberRepository,
     private val memberManagementService: MemberManagementService,
     private val identity: Identity,
     private val tenantRepository: TenantRepository,
@@ -147,14 +147,14 @@ class MemberInvitationService(
 
         // Check if user is already a member of the target tenant
         val currentUserId = identity.authenticatedUser.id
-        if (userRoleTenantRepository.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
+        if (tenantMemberRepository.isUserMemberOfTenant(currentUserId, invitation.tenantId)) {
             // User is already a member, clean up the invitation
             memberInvitationRepository.deleteInvitationById(invitationId)
             return AcceptInvitationResult.Error("invitation.accept.already.member")
         }
 
-        // Create entry in app_user_role_tenant
-        userRoleTenantRepository.insertRole(
+        // Create entry in tenant_member
+        tenantMemberRepository.insertRole(
             UserRoleTenant(
                 userId = currentUserId,
                 role = invitation.role,

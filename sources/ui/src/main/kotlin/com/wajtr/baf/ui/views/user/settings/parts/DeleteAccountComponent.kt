@@ -20,7 +20,7 @@ import com.wajtr.baf.ui.vaadin.extensions.showErrorNotification
 import com.wajtr.baf.user.Identity
 import com.wajtr.baf.user.UserRepository
 import com.wajtr.baf.user.account.delete.AccountDeletedMailSender
-import com.wajtr.baf.organization.member.UserRoleTenantRepository
+import com.wajtr.baf.organization.member.TenantMemberRepository
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component
 class DeleteAccountComponent(
     private val identity: Identity,
     private val userRepository: UserRepository,
-    private val userRoleTenantRepository: UserRoleTenantRepository,
+    private val tenantMemberRepository: TenantMemberRepository,
     private val authenticationContext: AuthenticationContext,
     private val accountDeletedMailSender: AccountDeletedMailSender,
 ) : VerticalLayout() {
@@ -71,7 +71,7 @@ class DeleteAccountComponent(
 
     private fun checkOwnershipAndUpdateUI() {
         val user = identity.authenticatedUser
-        val ownedTenants = userRoleTenantRepository.getTenantsWhereUserIsOwner(user.id)
+        val ownedTenants = tenantMemberRepository.getTenantsWhereUserIsOwner(user.id)
 
         if (ownedTenants.isNotEmpty()) {
             // User is owner in some organizations - disable delete and show warning

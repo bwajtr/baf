@@ -4,7 +4,7 @@
 package com.wajtr.baf.db.jooq.tables.records
 
 
-import com.wajtr.baf.db.jooq.tables.UserLoginLog
+import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -17,9 +17,9 @@ import org.jooq.impl.TableRecordImpl
  * this table when any user successfully logs into the application.
  */
 @Suppress("warnings")
-open class UserLoginLogRecord() : TableRecordImpl<UserLoginLogRecord>(UserLoginLog.USER_LOGIN_LOG) {
+open class UserLoginHistoryRecord() : TableRecordImpl<UserLoginHistoryRecord>(UserLoginHistory.USER_LOGIN_HISTORY) {
 
-    open var appUserId: UUID?
+    open var userAccountId: UUID?
         set(value): Unit = set(0, value)
         get(): UUID? = get(0) as UUID?
 
@@ -44,10 +44,10 @@ open class UserLoginLogRecord() : TableRecordImpl<UserLoginLogRecord>(UserLoginL
         get(): String? = get(5) as String?
 
     /**
-     * Create a detached, initialised UserLoginLogRecord
+     * Create a detached, initialised UserLoginHistoryRecord
      */
-    constructor(appUserId: UUID? = null, eventTimestamp: OffsetDateTime? = null, browser: String? = null, deviceType: String? = null, operatingSystem: String? = null, ipAddress: String? = null): this() {
-        this.appUserId = appUserId
+    constructor(userAccountId: UUID? = null, eventTimestamp: OffsetDateTime? = null, browser: String? = null, deviceType: String? = null, operatingSystem: String? = null, ipAddress: String? = null): this() {
+        this.userAccountId = userAccountId
         this.eventTimestamp = eventTimestamp
         this.browser = browser
         this.deviceType = deviceType

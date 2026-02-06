@@ -4,7 +4,7 @@
 package com.wajtr.baf.db.jooq.tables.records
 
 
-import com.wajtr.baf.db.jooq.tables.MemberInvitation
+import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -18,7 +18,7 @@ import org.jooq.impl.UpdatableRecordImpl
  * administrators)
  */
 @Suppress("warnings")
-open class MemberInvitationRecord() : UpdatableRecordImpl<MemberInvitationRecord>(MemberInvitation.MEMBER_INVITATION) {
+open class TenantMemberInvitationRecord() : UpdatableRecordImpl<TenantMemberInvitationRecord>(TenantMemberInvitation.TENANT_MEMBER_INVITATION) {
 
     open var id: UUID?
         set(value): Unit = set(0, value)
@@ -55,7 +55,7 @@ open class MemberInvitationRecord() : UpdatableRecordImpl<MemberInvitationRecord
     override fun key(): Record1<UUID?> = super.key() as Record1<UUID?>
 
     /**
-     * Create a detached, initialised MemberInvitationRecord
+     * Create a detached, initialised TenantMemberInvitationRecord
      */
     constructor(id: UUID? = null, email: String? = null, lastInvitationSentTime: OffsetDateTime? = null, tenantId: UUID? = null, invitedBy: UUID? = null, createdAt: OffsetDateTime? = null, role: String? = null): this() {
         this.id = id

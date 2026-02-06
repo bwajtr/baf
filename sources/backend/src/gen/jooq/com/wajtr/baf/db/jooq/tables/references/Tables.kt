@@ -5,15 +5,15 @@
 package com.wajtr.baf.db.jooq.tables.references
 
 
-import com.wajtr.baf.db.jooq.tables.AppUser
-import com.wajtr.baf.db.jooq.tables.AppUserRoleTenant
+import com.wajtr.baf.db.jooq.tables.UserAccount
+import com.wajtr.baf.db.jooq.tables.TenantMember
 import com.wajtr.baf.db.jooq.tables.AuthenticateUser
 import com.wajtr.baf.db.jooq.tables.FlywaySchemaHistory
-import com.wajtr.baf.db.jooq.tables.MemberInvitation
+import com.wajtr.baf.db.jooq.tables.TenantMemberInvitation
 import com.wajtr.baf.db.jooq.tables.PgBlockingProcesses
 import com.wajtr.baf.db.jooq.tables.Product
 import com.wajtr.baf.db.jooq.tables.Tenant
-import com.wajtr.baf.db.jooq.tables.UserLoginLog
+import com.wajtr.baf.db.jooq.tables.UserLoginHistory
 import com.wajtr.baf.db.jooq.tables.records.AuthenticateUserRecord
 
 import org.jooq.Configuration
@@ -23,9 +23,9 @@ import org.jooq.Result
 
 
 /**
- * The table <code>public.app_user</code>.
+ * The table <code>public.user_account</code>.
  */
-val APP_USER: AppUser = AppUser.APP_USER
+val USER_ACCOUNT: UserAccount = UserAccount.USER_ACCOUNT
 
 /**
  * Contains relation between application users and their roles in tenant. Any
@@ -34,7 +34,7 @@ val APP_USER: AppUser = AppUser.APP_USER
  * makes it possible to support scenario, where single user operates within two
  * tenants and has different roles in each tenant.
  */
-val APP_USER_ROLE_TENANT: AppUserRoleTenant = AppUserRoleTenant.APP_USER_ROLE_TENANT
+val TENANT_MEMBER: TenantMember = TenantMember.TENANT_MEMBER
 
 /**
  * The table <code>public.authenticate_user</code>.
@@ -84,7 +84,7 @@ val FLYWAY_SCHEMA_HISTORY: FlywaySchemaHistory = FlywaySchemaHistory.FLYWAY_SCHE
  * Table holding invitations to join tenant accounts (created typically by user
  * administrators)
  */
-val MEMBER_INVITATION: MemberInvitation = MemberInvitation.MEMBER_INVITATION
+val TENANT_MEMBER_INVITATION: TenantMemberInvitation = TenantMemberInvitation.TENANT_MEMBER_INVITATION
 
 /**
  * The table <code>public.pg_blocking_processes</code>.
@@ -107,4 +107,4 @@ val TENANT: Tenant = Tenant.TENANT
  * Table holding user login events - new record with a timestamp is added to
  * this table when any user successfully logs into the application.
  */
-val USER_LOGIN_LOG: UserLoginLog = UserLoginLog.USER_LOGIN_LOG
+val USER_LOGIN_HISTORY: UserLoginHistory = UserLoginHistory.USER_LOGIN_HISTORY
