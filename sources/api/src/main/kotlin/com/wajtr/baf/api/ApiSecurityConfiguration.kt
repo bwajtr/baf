@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain
  */
 @Configuration
 @EnableWebSecurity
-class ApiSecurityConfiguration(private val objectMapper: ObjectMapper) {
+class ApiSecurityConfiguration {
 
     @Bean
     @Order(1)
@@ -40,12 +40,10 @@ class ApiSecurityConfiguration(private val objectMapper: ObjectMapper) {
             }
             // Set unauthorized requests exception handler
             .exceptionHandling {
-                it.authenticationEntryPoint { _, response, _ ->
-                    response.status = HttpServletResponse.SC_UNAUTHORIZED
-                    response.contentType = MediaType.APPLICATION_JSON_VALUE
-                    objectMapper.writeValue(
-                        response.outputStream,
-                        ApiError(status = 401, error = "Unauthorized")
+                it.authenticationEntryPoint { _, response, exception ->
+                    response.sendError(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        exception.message
                     )
                 }
             }
