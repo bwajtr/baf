@@ -10,7 +10,7 @@ Instructions for AI coding agents working in this repository.
 - **When the user says "your branch"**: They mean the `opencode` branch
 - **When the user says "reset your branch"**: This means:
   1. Switch to the `opencode` branch (if not already on it)
-  2. Hard reset to match the commit of the main worktree's branch
+  2. Hard reset to match the commit of the main worktree's branch (find the branch name using `git branch | grep '+'`)
   3. Result: You should be on the same commit with no edited files
   
 **Example reset command:**
