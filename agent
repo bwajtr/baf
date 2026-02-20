@@ -107,7 +107,7 @@ stop_container() {
     echo "Stopping container $CONTAINER_NAME..."
     container stop "$CONTAINER_NAME" 2>/dev/null || true
 }
-# trap stop_container EXIT
+trap stop_container EXIT
 
 # Main
 ensure_container
