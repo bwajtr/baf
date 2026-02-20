@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CONTAINER_NAME="agent-$(basename "$PWD")"
+IMAGE_NAME="baf-agent-sandbox:latest"
+AGENT="opencode"
+CPUS=4
+MEMORY="8g"
+
+usage() {
+    cat <<EOF
+Usage: ./agent [-s] [-h]
+
+Run AI Agent inside an isolated Apple Container (microVM).
+
+The container is created on first run and reused on subsequent invocations.
+The current working directory is mounted into the container at the same path.
+If running from a git worktree, the main repository is also mounted.
+
+Arguments:
+  (none)    Start AI Agent in the container
+  -s        Open a bash shell in the container instead
+  -h        Print this help message
+
+Container details:
+  Name:     $CONTAINER_NAME
+  Image:    $IMAGE_NAME
+  Agent:    $AGENT
+  CPUs:     $CPUS
+  Memory:   $MEMORY
+EOF
+}
+
+# Parse arguments
+MODE="agent"
+while getopts "sh" opt; do
+    case $opt in
+        s) MODE="shell" ;;
+        h) usage; exit 0 ;;
+        *) usage; exit 1 ;;
+    esac
+done
+
+# Check if container exists
+container_exists() {
+    container list --all --quiet 2>/dev/null | awk '{print $1}' | grep -qx "$CONTAINER_NAME"
+}
+
+# Check if container is running
+container_running() {
+    container list --quiet 2>/dev/null | awk '{print $1}' | grep -qx "$CONTAINER_NAME"
+}
+
+# Build volume mount arguments, detecting git worktrees
+build_volume_args() {
+    local args=()
+    args+=(--volume "$PWD:$PWD")
+
+    # Detect git worktree setup
+    local work_tree_top git_common_dir main_repo_dir
+    work_tree_top="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+    git_common_dir="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+
+    if [[ -n "$git_common_dir" && "$git_common_dir" != ".git" && "$git_common_dir" != "" ]]; then
+        main_repo_dir="$(cd "$git_common_dir/.." 2>/dev/null && pwd)"
+
+        if [[ -n "$main_repo_dir" && "$main_repo_dir" != "$work_tree_top" ]]; then
+            echo "  Detected git worktree. Also mounting main repo: $main_repo_dir" >&2
+            args+=(--volume "$main_repo_dir:$main_repo_dir")
+        fi
+    fi
+
+    # If worktree top differs from PWD, mount it too
+    if [[ -n "$work_tree_top" && "$work_tree_top" != "$PWD" ]]; then
+        args+=(--volume "$work_tree_top:$work_tree_top")
+    fi
+
+    echo "${args[@]}"
+}
+
+# Create or start the container
+ensure_container() {
+    if container_exists; then
+        if ! container_running; then
+            echo "Starting existing container $CONTAINER_NAME..."
+            container start "$CONTAINER_NAME"
+        fi
+    else
+        echo "Creating container $CONTAINER_NAME..."
+        local volume_args
+        volume_args=($(build_volume_args))
+
+        container run \
+            --name "$CONTAINER_NAME" \
+            --cpus "$CPUS" \
+            --memory "$MEMORY" \
+            "${volume_args[@]}" \
+            --detach \
+            "$IMAGE_NAME"
+
+        echo "Container $CONTAINER_NAME created and running."
+    fi
+}
+
+# Stop the container when the script exits
+stop_container() {
+    echo "Stopping container $CONTAINER_NAME..."
+    container stop "$CONTAINER_NAME" 2>/dev/null || true
+}
+# trap stop_container EXIT
+
+# Main
+ensure_container
+
+case "$MODE" in
+    agent)
+        container exec -it -w "$PWD" -e TERM=xterm-ghostty "$CONTAINER_NAME" bash -c $AGENT
+        ;;
+    shell)
+        container exec -it -w "$PWD" -e TERM=xterm-ghostty "$CONTAINER_NAME" bash
+        ;;
+esac
