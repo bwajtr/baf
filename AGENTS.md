@@ -105,6 +105,11 @@ sources/
 - **UI**: Vaadin 25 with Karibu DSL
 - **Database**: PostgreSQL 18, jOOQ 3.20.7, Flyway
 - **Auth**: Spring Security + OAuth2/OIDC (Keycloak)
+- **JSON**: Jackson 3.x (`tools.jackson` group ID)
+
+### CRITICAL: Jackson 3.x (not 2.x)
+
+Spring Boot 4 uses Jackson 3.x (`tools.jackson` group ID). Always use `tools.jackson.databind.ObjectMapper` — the old `com.fasterxml.jackson` 2.x artifacts are still on the classpath transitively, but Spring Boot does **not** register a bean for the 2.x `ObjectMapper` and injecting it will cause a `NoSuchBeanDefinitionException` at startup.
 
 ## REST API Patterns
 
