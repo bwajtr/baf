@@ -2,7 +2,6 @@ package com.wajtr.baf.api
 
 import com.wajtr.baf.api.security.ApiKeyAuthenticationFilter
 import com.wajtr.baf.user.emailverification.CONFIRM_EMAIL_OWNERSHIP_URL
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -24,7 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class ApiSecurityConfiguration(
-    private val apiKeyAuthenticationFilter: ApiKeyAuthenticationFilter
+    private val apiKeyAuthenticationFilter: ApiKeyAuthenticationFilter,
+    private val apiAuthenticationEntryPoint: ApiAuthenticationEntryPoint
 ) {
 
     @Bean
@@ -45,12 +45,7 @@ class ApiSecurityConfiguration(
             }
             // Set unauthorized requests exception handler
             .exceptionHandling {
-                it.authenticationEntryPoint { _, response, exception ->
-                    response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        exception.message
-                    )
-                }
+                it.authenticationEntryPoint(apiAuthenticationEntryPoint)
             }
             // Add API key authentication filter
             .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
