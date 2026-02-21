@@ -102,13 +102,6 @@ ensure_container() {
     fi
 }
 
-# Stop the container when the script exits
-stop_container() {
-    echo "Stopping container $CONTAINER_NAME..."
-    container stop "$CONTAINER_NAME" 2>/dev/null || true
-}
-trap stop_container EXIT
-
 # Main
 ensure_container
 
