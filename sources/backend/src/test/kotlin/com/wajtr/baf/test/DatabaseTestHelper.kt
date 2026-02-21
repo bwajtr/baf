@@ -68,11 +68,12 @@ class DatabaseTestHelper(
      * Note: In most cases, you should rely on @Transactional rollback instead of
      * explicitly truncating tables, as it's faster and safer.
      */
-    @Transactional
     fun truncateAllTables() {
-        dslContext.execute(
-            "TRUNCATE TABLE tenant_member_invitation, product, user_login_history, " +
-                    "tenant_member, user_account, tenant CASCADE"
-        )
+        migrationsDataSource.connection.use { connection ->
+            DSL.using(connection, SQLDialect.POSTGRES).execute(
+                "TRUNCATE TABLE tenant_member_invitation, product, user_login_history, " +
+                        "tenant_member, user_account, tenant CASCADE"
+            )
+        }
     }
 }

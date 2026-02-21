@@ -459,7 +459,7 @@ class SecureRandomExtensionsTest {
 }
 ```
 
-### Integration Tests
+### Integration Tests (Backend — service/repository layer)
 - **Location**: `sources/backend/src/test/kotlin/`
 - **Naming**: `*IT.kt` (e.g., `MemberManagementServiceIT.kt`)
 - **Base Class**: Extend `BaseIntegrationTest`
@@ -467,6 +467,33 @@ class SecureRandomExtensionsTest {
 - **Use for**: Testing services, repositories, business logic with real database
 - **Assertions**: Use AssertJ's `assertThat()` for fluent, readable assertions
 - **Authentication**: Each test runs as Owner by default (via `@BeforeTransaction`), override with `authenticationTestHelper.loginAsXxx()` if needed
+
+### API Integration Tests (HTTP layer)
+- **Location**: `sources/api/src/test/kotlin/`
+- **Naming**: `*IT.kt` (e.g., `ProductsApiIT.kt`)
+- **Base Class**: Extend `BaseApiIntegrationTest` (in `com.wajtr.baf.api.test`)
+- **Features**: Full Spring Boot app on a random port, Testcontainers (PostgreSQL 18), `RestTestClient` (Spring 7) for HTTP assertions
+- **Use for**: Testing REST API endpoints end-to-end over HTTP, including authentication, request/response shapes, and tenant isolation
+- **Authentication**: Use API key via the `withApiKey(key)` helper — never use Spring Security context directly
+- **DB state**: Database is truncated and reloaded with standard test data before **each** test (no transactional rollback). This ensures a consistent starting state even for tests that write data.
+- **API key constants**: `BaseApiIntegrationTest.API_KEY_TENANT_1` and `API_KEY_TENANT_2`
+- **HTTP client**: `restTestClient` is a `RestTestClient` bound to the real server via `RestTestClient.bindToServer().baseUrl(...)`. It is created in `@BeforeEach` using `@LocalServerPort`. **Do NOT use `@AutoConfigureRestTestClient`** — that annotation does not exist in Spring Boot 4. **Do NOT use `TestRestTemplate`** — it no longer exists in Spring Boot 4.
+
+```kotlin
+class MyEndpointIT : BaseApiIntegrationTest() {
+
+    @Test
+    fun `returns 200 with data for tenant 1`() {
+        withApiKey(API_KEY_TENANT_1)
+            .get()
+            .uri("/api/v1/something")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.fieldName").isEqualTo("expectedValue")
+    }
+}
+```
 
 ```kotlin
 import org.assertj.core.api.Assertions.assertThat

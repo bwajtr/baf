@@ -52,6 +52,12 @@
             </dependency>
             <dependency>
                 <groupId>com.wajtr.baf</groupId>
+                <artifactId>baf-backend</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.wajtr.baf</groupId>
                 <artifactId>baf-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
