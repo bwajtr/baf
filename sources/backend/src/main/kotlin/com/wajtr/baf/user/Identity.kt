@@ -34,6 +34,7 @@ class Identity {
                 is AnonymousAuthenticationToken -> throw NoAuthenticatedUserException()
                 is TenantApiKeyAuthenticationToken -> throw NoAuthenticatedUserException() // API key auth has no user
                 is OAuth2TenantAuthenticationToken -> authentication.user // oauth2 login
+                is OAuth2AuthenticationToken -> throw NoAuthenticatedUserException() // not yet fully authenticated oauth2 login
                 is UsernamePasswordAuthenticationToken -> authentication.principal as User // login page
                 else -> throw UnknownAuthenticationTokenException()
             }
