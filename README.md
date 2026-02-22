@@ -50,6 +50,18 @@ BAF may not be the right choice if:
 
 ## Features
 
+- **Multi-tenancy** -- tenant data isolation enforced at the database level via PostgreSQL Row Level Security
+- **Dual database users** -- separate privileged user for migrations and restricted user for runtime, following least-privilege principles
+- **Authentication** -- database login (email + password), OAuth2/OIDC (Keycloak), and API key authentication
+- **User registration and onboarding** -- self-service sign-up with email verification and password reset
+- **Organization management** -- users can belong to multiple organizations and switch between them
+- **Member management** -- invite members by email, assign roles, remove members, with owner protection rules
+- **Role-based access control** -- four roles (Owner, Admin, Billing Manager, User) with granular permission enforcement
+- **REST API** -- versioned API with per-tenant API key authentication and key management UI
+- **Transactional emails** -- pluggable email delivery (Brevo for production, local file preview for development) with HTML and plain text templates
+- **Testing infrastructure** -- three-tier testing with unit tests, backend integration tests, and API integration tests using Testcontainers
+- **Internationalization** -- externalized messages, locale-aware date/time formatting, and per-user locale and timezone preferences
+
 ### Multi-Tenancy with PostgreSQL Row Level Security
 
 Data isolation between tenants is enforced at the database level using PostgreSQL Row Level Security (RLS). Every tenant-scoped table has an RLS policy that automatically filters rows based on the current tenant context. This means:
