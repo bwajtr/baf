@@ -7,7 +7,6 @@ import org.jooq.impl.DSL
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import javax.sql.DataSource
 import kotlin.io.bufferedReader
 import kotlin.io.readText
@@ -23,7 +22,6 @@ import kotlin.use
  */
 @Component
 class DatabaseTestHelper(
-    private val dslContext: DSLContext,
     @param:Qualifier("migrationsDataSource") // this datasource uses "dbadmin" user and has therefore higher privileges to perform operations on DB than the usual "dbuser" role
     private val migrationsDataSource: DataSource
 ) {
@@ -31,7 +29,7 @@ class DatabaseTestHelper(
     @PostConstruct
     private fun initAfterSpringInitialized() {
         // we typically want to load the initial data only once after the test suite is spawn
-        loadBasicTestData()
+        resetDatabaseData()
     }
 
     /**
@@ -46,6 +44,11 @@ class DatabaseTestHelper(
         migrationsDataSource.connection.use { connection ->
             DSL.using(connection, SQLDialect.POSTGRES).execute(sql)
         }
+    }
+
+    fun resetDatabaseData() {
+        truncateAllTables()
+        loadBasicTestData()
     }
 
     /**

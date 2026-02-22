@@ -1,8 +1,11 @@
 package com.wajtr.baf.api.test
 
-import com.wajtr.baf.test.BaseContainerIntegrationTest
+import com.wajtr.baf.api.test.BaseApiIntegrationTest.Companion.API_KEY_TENANT_1
+import com.wajtr.baf.api.test.BaseApiIntegrationTest.Companion.API_KEY_TENANT_2
 import com.wajtr.baf.test.BackendTestApplication
+import com.wajtr.baf.test.BaseContainerIntegrationTest
 import com.wajtr.baf.test.DatabaseTestHelper
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -60,9 +63,11 @@ abstract class BaseApiIntegrationTest : BaseContainerIntegrationTest() {
         restTestClient = RestTestClient.bindToServer()
             .baseUrl("http://localhost:$port")
             .build()
+    }
 
-        databaseTestHelper.truncateAllTables()
-        databaseTestHelper.loadBasicTestData()
+    @AfterEach
+    fun cleanUp() {
+        databaseTestHelper.resetDatabaseData()
     }
 
     /**
