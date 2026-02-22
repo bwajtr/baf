@@ -1,5 +1,6 @@
 package com.wajtr.baf.api
 
+import com.wajtr.baf.api.product.ProductsApiController.Companion.PRODUCTS_ENDPOINT
 import com.wajtr.baf.api.test.BaseApiIntegrationTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -14,8 +15,8 @@ import org.springframework.http.MediaType
  */
 class ApiAuthorizationIT : BaseApiIntegrationTest() {
 
-    // Any authenticated endpoint can be used here; /api/v1/myproducts is the simplest available.
-    private val anyProtectedEndpoint = "/api/v1/myproducts"
+    // Any authenticated endpoint can be used here; the products endpoint is the simplest available.
+    private val anyProtectedEndpoint = PRODUCTS_ENDPOINT
 
     @Test
     fun `returns 401 when no API key header is provided`() {

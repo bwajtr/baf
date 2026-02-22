@@ -1,29 +1,26 @@
 package com.wajtr.baf.api.test
 
+import com.wajtr.baf.test.BaseContainerIntegrationTest
+import com.wajtr.baf.test.BackendTestApplication
 import com.wajtr.baf.test.DatabaseTestHelper
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.context.ApplicationContextInitializer
-import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.client.RestTestClient
-import org.testcontainers.postgresql.PostgreSQLContainer
-import java.util.*
 
 /**
  * Base class for API integration tests.
  *
- * Starts a real Spring Boot application on a random port with a PostgreSQL Testcontainers
- * database. [RestTestClient] is used to make HTTP requests against the running server.
+ * Extends [BaseContainerIntegrationTest] which provides the shared PostgreSQL container,
+ * context initializer, and timezone/locale defaults.
  *
- * Database state is reset before each test by truncating all tables and reloading the
- * standard test data (via [DatabaseTestHelper]). This ensures every test starts from a
- * known, consistent database state — which is essential when tests modify data.
+ * This class adds:
+ * - A real Spring Boot application on a random port ([RANDOM_PORT])
+ * - [RestTestClient] bound to the running server for making HTTP requests
+ * - Database truncation and reload before each test (via [DatabaseTestHelper])
+ * - API key authentication helpers ([withApiKey])
  *
  * Authentication is done exclusively via API key (`X-API-Key` header). Use [withApiKey]
  * to get a [RestTestClient] pre-configured with that header. Use the injected [restTestClient]
@@ -47,10 +44,8 @@ import java.util.*
  *
  * @author Bretislav Wajtr
  */
-@SpringBootTest(classes = [BackendApiTestApplication::class], webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-@ContextConfiguration(initializers = [BaseApiIntegrationTest.Initializer::class])
-abstract class BaseApiIntegrationTest {
+@SpringBootTest(classes = [BackendTestApplication::class], webEnvironment = RANDOM_PORT)
+abstract class BaseApiIntegrationTest : BaseContainerIntegrationTest() {
 
     @LocalServerPort
     private var port: Int = 0
@@ -82,29 +77,5 @@ abstract class BaseApiIntegrationTest {
 
         /** API key for Tenant 2 (defined in integration-test-basic-database-content.sql) */
         const val API_KEY_TENANT_2 = "TEST_API_KEY_TENANT_2_ABCDEFGHIJKLMNOPRSTUVWXYZ12345"
-
-        init {
-            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-            System.setProperty("user.timezone", "UTC")
-            Locale.setDefault(Locale.US)
-        }
-
-        /**
-         * Shared PostgreSQL container for all API integration tests.
-         * Started once before the first test and reused for the entire test run.
-         */
-        val postgresContainer = PostgreSQLContainer("postgres:18")
-            .withDatabaseName("testdb")
-            .withInitScript("testcontainers-init.sql")
-    }
-
-    internal class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
-        override fun initialize(context: ConfigurableApplicationContext) {
-            postgresContainer.start()
-            TestPropertyValues.of(
-                "spring.datasource.jdbcUrl=${postgresContainer.jdbcUrl}",
-                "spring.migrations.datasource.jdbcUrl=${postgresContainer.jdbcUrl}"
-            ).applyTo(context.environment)
-        }
     }
 }

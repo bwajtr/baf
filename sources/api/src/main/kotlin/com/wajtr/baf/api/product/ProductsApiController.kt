@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(API_V1_PREFIX)
 class ProductsApiController(private val productRepository: ProductRepository) {
 
+    companion object {
+        const val PRODUCTS_ENDPOINT = "$API_V1_PREFIX/myproducts"
+    }
+
     @GetMapping("/myproducts")
     fun getMyProducts(): List<Product> {
         return productRepository.findAll()
