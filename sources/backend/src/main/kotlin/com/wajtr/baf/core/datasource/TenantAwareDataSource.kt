@@ -39,12 +39,8 @@ class TenantAwareDataSource(private val delegate: DataSource, private val identi
     }
 
     private fun applyTenantContext(connection: Connection): Connection {
-        val tenantId = identity.authenticatedTenant?.id?.toString()
-        val userId = try {
-            identity.authenticatedUser.id.toString()
-        } catch (e: NoAuthenticatedUserException) {
-            null
-        }
+        val tenantId = resolveAuthenticatedTenantId()
+        val userId = resolveAuthenticatedUserId()
 
         if (tenantId != null || userId != null) {
             try {
@@ -63,6 +59,14 @@ class TenantAwareDataSource(private val delegate: DataSource, private val identi
 
         return TenantAwareConnection(connection)
     }
+
+    private fun resolveAuthenticatedUserId(): String? = try {
+        identity.authenticatedUser.id.toString()
+    } catch (_: NoAuthenticatedUserException) {
+        null
+    }
+
+    private fun resolveAuthenticatedTenantId(): String? = identity.authenticatedTenant?.id?.toString()
 
     private fun setSessionParameters(connection: Connection, tenantId: String?, userId: String?) {
         connection.prepareStatement("SELECT set_config(?, ?, false)").use { statement ->
