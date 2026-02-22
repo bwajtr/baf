@@ -264,6 +264,10 @@ baf/
 
 ## Getting Started
 
+The primary way of using BAF is to **copy this repository and modify the classes directly** to fit your application's needs. This is intentional -- BAF is not distributed as a library or a dependency. You own all the code from day one, and you can change anything: rename packages, remove features you don't need, adjust the database schema, or rewrite the UI.
+
+This approach is far simpler than a library-based framework. There is no framework API to learn, no extension points to discover, no version upgrades to manage, and no abstractions standing between you and your code. The result is a codebase that is straightforward to understand, debug, and customize.
+
 ### Prerequisites
 
 - Java 25+
@@ -341,7 +345,7 @@ jOOQ generates type-safe Kotlin code from the database schema, providing compile
 
 ### Why Vaadin (not React/Angular/Vue)?
 
-Vaadin renders UI on the server, which means the entire application is written in Kotlin. There is no separate frontend project, no REST-to-UI data serialization, no client-side state management, and no TypeScript build pipeline. This is a significant productivity advantage for business applications where the UI is primarily forms, tables, and CRUD operations. The tradeoff is that Vaadin is less suitable for highly interactive or offline-first applications.
+Vaadin renders UI on the server, which means the entire application is written in Kotlin. There is no separate frontend project, no REST-to-UI data serialization, no client-side state management, and no TypeScript build pipeline. This is a significant productivity advantage for business applications where the UI is primarily forms, tables, and CRUD operations.
 
 ### Why sealed classes for results (not exceptions)?
 
@@ -353,7 +357,7 @@ Separating `dbadmin` (migration-only) from `dbuser` (runtime-only) follows the p
 
 ### Why Keycloak is optional?
 
-BAF includes a built-in database authentication provider (email + password with `pgcrypto`). Keycloak integration is configured via Spring Boot properties and can be enabled or disabled without code changes. This means you can start with simple database auth and add SSO/OIDC later, or use a different OAuth2 provider entirely.
+BAF includes a built-in database authentication provider (email + password with `pgcrypto`). Keycloak integration is configured via Spring Boot properties and can be enabled or disabled without code changes. This means you can start with simple database auth and add SSO/OIDC later, or use a different OAuth2 provider entirely (e.g., Google SSO).
 
 ## License
 
