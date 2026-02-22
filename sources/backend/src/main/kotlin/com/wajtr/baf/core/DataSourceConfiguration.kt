@@ -1,6 +1,6 @@
 package com.wajtr.baf.core
 
-import com.wajtr.baf.core.datasource.ContextAwareTransactionManager
+import com.wajtr.baf.core.datasource.TenantAwareDataSource
 import jakarta.annotation.PostConstruct
 import org.jooq.ExecuteContext
 import org.jooq.ExecuteListener
@@ -16,6 +16,8 @@ import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.transaction.PlatformTransactionManager
 import java.util.*
 import javax.sql.DataSource
 
@@ -26,8 +28,13 @@ import javax.sql.DataSource
 class DataSourceConfiguration {
     @Bean
     @Primary
-    @ConfigurationProperties(prefix = "spring.datasource")
     fun primaryDataSource(): DataSource {
+        return TenantAwareDataSource(hikariDataSource())
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource")
+    fun hikariDataSource(): DataSource {
         return DataSourceBuilder.create().build()
     }
 
@@ -39,8 +46,8 @@ class DataSourceConfiguration {
     }
 
     @Bean
-    fun transactionManager(dataSource: DataSource): ContextAwareTransactionManager {
-        return ContextAwareTransactionManager(dataSource)
+    fun transactionManager(dataSource: DataSource): PlatformTransactionManager {
+        return DataSourceTransactionManager(dataSource)
     }
 
     @Bean
