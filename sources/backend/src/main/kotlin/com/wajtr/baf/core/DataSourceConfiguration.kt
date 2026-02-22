@@ -1,6 +1,7 @@
 package com.wajtr.baf.core
 
 import com.wajtr.baf.core.datasource.TenantAwareDataSource
+import com.wajtr.baf.user.Identity
 import jakarta.annotation.PostConstruct
 import org.jooq.ExecuteContext
 import org.jooq.ExecuteListener
@@ -23,11 +24,11 @@ import javax.sql.DataSource
  * @author Bretislav Wajtr
  */
 @Configuration
-class DataSourceConfiguration {
+class DataSourceConfiguration(private val identity: Identity) {
     @Bean
     @Primary
     fun primaryDataSource(): DataSource {
-        return TenantAwareDataSource(hikariDataSource())
+        return TenantAwareDataSource(hikariDataSource(), identity)
     }
 
     @Bean

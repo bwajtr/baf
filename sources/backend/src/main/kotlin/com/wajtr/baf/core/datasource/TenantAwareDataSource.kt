@@ -1,16 +1,11 @@
 package com.wajtr.baf.core.datasource
 
-import com.wajtr.baf.authentication.AuthenticatedTenant
-import com.wajtr.baf.authentication.apikey.TenantApiKeyAuthenticationToken
-import com.wajtr.baf.authentication.oauth2.OAuth2TenantAuthenticationToken
 import com.wajtr.baf.core.datasource.TenantAwareDataSource.Companion.SESSION_TENANT_ID
 import com.wajtr.baf.core.datasource.TenantAwareDataSource.Companion.SESSION_USER_ID
-import com.wajtr.baf.user.User
+import com.wajtr.baf.user.Identity
+import com.wajtr.baf.user.NoAuthenticatedUserException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.security.authentication.AnonymousAuthenticationToken
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import java.sql.*
 import javax.sql.DataSource
 
@@ -19,7 +14,7 @@ import javax.sql.DataSource
  * on every connection borrowed from the underlying connection pool. These session parameters are used by
  * PostgreSQL Row Level Security policies (via `current_tenant()` function) to enforce multi-tenant data isolation.
  *
- * The tenant and user IDs are read from [SecurityContextHolder] at the time the connection is borrowed.
+ * The tenant and user IDs are resolved via the [Identity] bean at the time the connection is borrowed.
  * When the connection is returned to the pool (via [Connection.close]), the session parameters are cleared
  * to prevent context leakage between requests.
  *
@@ -31,7 +26,7 @@ import javax.sql.DataSource
  *
  * @author Bretislav Wajtr
  */
-class TenantAwareDataSource(private val delegate: DataSource) : DataSource by delegate {
+class TenantAwareDataSource(private val delegate: DataSource, private val identity: Identity) : DataSource by delegate {
 
     override fun getConnection(): Connection {
         val connection = delegate.connection
@@ -44,8 +39,12 @@ class TenantAwareDataSource(private val delegate: DataSource) : DataSource by de
     }
 
     private fun applyTenantContext(connection: Connection): Connection {
-        val tenantId = resolveAuthenticatedTenantId()
-        val userId = resolveAuthenticatedUserId()
+        val tenantId = identity.authenticatedTenant?.id?.toString()
+        val userId = try {
+            identity.authenticatedUser.id.toString()
+        } catch (e: NoAuthenticatedUserException) {
+            null
+        }
 
         if (tenantId != null || userId != null) {
             try {
@@ -80,30 +79,6 @@ class TenantAwareDataSource(private val delegate: DataSource) : DataSource by de
                 LOG.debug("Set {}={} on connection {}", SESSION_USER_ID, userId, connection)
             }
         }
-    }
-
-    // --- SecurityContext resolution (reads directly to avoid circular bean dependencies) ---
-
-    private fun resolveAuthenticatedTenantId(): String? {
-        val authentication = SecurityContextHolder.getContext().authentication ?: return null
-        val tenant: AuthenticatedTenant? = when (authentication) {
-            is TenantApiKeyAuthenticationToken -> authentication.tenant
-            is OAuth2TenantAuthenticationToken -> authentication.tenant
-            is UsernamePasswordAuthenticationToken -> authentication.details as? AuthenticatedTenant
-            is AnonymousAuthenticationToken -> null
-            else -> null
-        }
-        return tenant?.id?.toString()
-    }
-
-    private fun resolveAuthenticatedUserId(): String? {
-        val authentication = SecurityContextHolder.getContext().authentication ?: return null
-        val user: User? = when (authentication) {
-            is OAuth2TenantAuthenticationToken -> authentication.user
-            is UsernamePasswordAuthenticationToken -> authentication.principal as? User
-            else -> null
-        }
-        return user?.id?.toString()
     }
 
     override fun createShardingKeyBuilder(): ShardingKeyBuilder? = delegate.createShardingKeyBuilder()
