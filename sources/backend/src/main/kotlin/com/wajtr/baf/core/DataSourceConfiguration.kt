@@ -16,8 +16,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.transaction.PlatformTransactionManager
 import java.util.*
 import javax.sql.DataSource
 
@@ -43,11 +41,6 @@ class DataSourceConfiguration {
     @ConfigurationProperties(prefix = "spring.migrations.datasource")
     fun migrationsDataSource(): DataSource {
         return DataSourceBuilder.create().build()
-    }
-
-    @Bean
-    fun transactionManager(dataSource: DataSource): PlatformTransactionManager {
-        return DataSourceTransactionManager(dataSource)
     }
 
     @Bean

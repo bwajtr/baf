@@ -3,16 +3,15 @@ package com.wajtr.baf.core.datasource
 import com.wajtr.baf.authentication.AuthenticatedTenant
 import com.wajtr.baf.authentication.apikey.TenantApiKeyAuthenticationToken
 import com.wajtr.baf.authentication.oauth2.OAuth2TenantAuthenticationToken
+import com.wajtr.baf.core.datasource.TenantAwareDataSource.Companion.SESSION_TENANT_ID
+import com.wajtr.baf.core.datasource.TenantAwareDataSource.Companion.SESSION_USER_ID
 import com.wajtr.baf.user.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import java.io.PrintWriter
-import java.sql.Connection
-import java.sql.SQLException
-import java.util.logging.Logger as JULogger
+import java.sql.*
 import javax.sql.DataSource
 
 /**
@@ -32,7 +31,7 @@ import javax.sql.DataSource
  *
  * @author Bretislav Wajtr
  */
-class TenantAwareDataSource(private val delegate: DataSource) : DataSource {
+class TenantAwareDataSource(private val delegate: DataSource) : DataSource by delegate {
 
     override fun getConnection(): Connection {
         val connection = delegate.connection
@@ -107,15 +106,8 @@ class TenantAwareDataSource(private val delegate: DataSource) : DataSource {
         return user?.id?.toString()
     }
 
-    // --- DataSource delegation ---
-
-    override fun getLogWriter(): PrintWriter? = delegate.logWriter
-    override fun setLogWriter(out: PrintWriter?) { delegate.logWriter = out }
-    override fun setLoginTimeout(seconds: Int) { delegate.loginTimeout = seconds }
-    override fun getLoginTimeout(): Int = delegate.loginTimeout
-    override fun getParentLogger(): JULogger = delegate.parentLogger
-    override fun <T : Any?> unwrap(iface: Class<T>?): T = delegate.unwrap(iface)
-    override fun isWrapperFor(iface: Class<*>?): Boolean = delegate.isWrapperFor(iface)
+    override fun createShardingKeyBuilder(): ShardingKeyBuilder? = delegate.createShardingKeyBuilder()
+    override fun createConnectionBuilder(): ConnectionBuilder? = delegate.createConnectionBuilder()
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(TenantAwareDataSource::class.java)
@@ -141,11 +133,45 @@ private class TenantAwareConnection(private val delegate: Connection) : Connecti
         delegate.close()
     }
 
+    override fun beginRequest() {
+        delegate.beginRequest()
+    }
+
+    override fun endRequest() {
+        delegate.endRequest()
+    }
+
+    override fun setShardingKeyIfValid(
+        shardingKey: ShardingKey?,
+        superShardingKey: ShardingKey?,
+        timeout: Int
+    ): Boolean {
+        return delegate.setShardingKeyIfValid(shardingKey, superShardingKey, timeout)
+    }
+
+    override fun setShardingKeyIfValid(shardingKey: ShardingKey?, timeout: Int): Boolean {
+        return delegate.setShardingKeyIfValid(shardingKey, timeout)
+    }
+
+    override fun setShardingKey(shardingKey: ShardingKey?, superShardingKey: ShardingKey?) {
+        delegate.setShardingKey(shardingKey, superShardingKey)
+    }
+
+    override fun setShardingKey(shardingKey: ShardingKey?) {
+        delegate.setShardingKey(shardingKey)
+    }
+
     private fun clearSessionParameters() {
         if (!delegate.isClosed) {
+            LOG.debug(
+                "Clearing {} and {} session parameters on connection {}",
+                SESSION_TENANT_ID,
+                SESSION_USER_ID,
+                delegate
+            )
             delegate.prepareStatement("SELECT set_config(?, '', false), set_config(?, '', false)").use { statement ->
-                statement.setString(1, TenantAwareDataSource.SESSION_TENANT_ID)
-                statement.setString(2, TenantAwareDataSource.SESSION_USER_ID)
+                statement.setString(1, SESSION_TENANT_ID)
+                statement.setString(2, SESSION_USER_ID)
                 statement.execute()
             }
         }
