@@ -359,6 +359,12 @@ Separating `dbadmin` (migration-only) from `dbuser` (runtime-only) follows the p
 
 BAF includes a built-in database authentication provider (email + password with `pgcrypto`). Keycloak integration is configured via Spring Boot properties and can be enabled or disabled without code changes. This means you can start with simple database auth and add SSO/OIDC later, or use a different OAuth2 provider entirely (e.g., Google SSO).
 
+## Built with Agentic Development
+
+This entire codebase has been developed using agentic development with [OpenCode](https://opencode.ai). From the very first commit, the project includes a carefully crafted `AGENTS.md` file that documents the architecture, design decisions, coding conventions, technology choices, and testing patterns.
+
+This means that AI coding agents can start working on this project immediately. The `AGENTS.md` file gives them full context about the project structure, build commands, multi-tenancy patterns, service/repository architecture, UI conventions, and testing infrastructure -- so they follow the established patterns consistently, just as a new team member would after reading the project documentation.
+
 ## License
 
 This project is licensed under the Apache License 2.0 -- see the [LICENSE](LICENSE) file for details.
