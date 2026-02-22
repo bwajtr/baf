@@ -61,6 +61,7 @@ BAF may not be the right choice if:
 - **Transactional emails** -- pluggable email delivery (Brevo for production, local file preview for development) with HTML and plain text templates
 - **Testing infrastructure** -- three-tier testing with unit tests, backend integration tests, and API integration tests using Testcontainers
 - **Internationalization** -- externalized messages, locale-aware date/time formatting, and per-user locale and timezone preferences
+- **Agentic development ready** -- comprehensive `AGENTS.md` file enables AI coding agents to work on the project immediately, following established patterns and conventions
 
 ### Multi-Tenancy with PostgreSQL Row Level Security
 
