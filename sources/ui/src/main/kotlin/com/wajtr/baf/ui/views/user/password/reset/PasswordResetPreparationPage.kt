@@ -81,7 +81,6 @@ class PasswordResetPreparationPage(
                         }
                     }
 
-                    // TODO test this
                     button(i18n("core.ui.common.cancel")) {
                         onClick { UI.getCurrent().navigate(LOGIN_PATH) }
                     }
@@ -113,7 +112,6 @@ class PasswordResetPreparationPage(
 
             when (result) {
                 PasswordResetInitiationResult.EMAIL_NOT_VERIFIED -> {
-                    // TODO test this
                     VaadinSession.getCurrent().setAttribute(
                         EMAIL_VERIFY_PAGE_SUBTITLE_SESSION_ATTR,
                         i18n("users.password.reset.cannotResetUntilVerified")
